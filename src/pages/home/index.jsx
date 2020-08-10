@@ -6,6 +6,7 @@ import Button from '../../components/button';
 import Footer from '../../components/footer';
 import Language from '../../components/language';
 import Item from './featureItem';
+import FunctionItem from './functionItem';
 import homeConfig from '../../../site_config/home';
 import './index.scss';
 
@@ -37,7 +38,7 @@ class Home extends Language {
     const language = this.getLanguage();
     const dataSource = homeConfig[language];
     const { headerType } = this.state;
-    const headerLogo = headerType === 'primary' ? '/img/dubbo_white.png' : '/img/dubbo_colorful.png';
+    const headerLogo = headerType === 'primary' ? '/img/OpenYurt.png' : '/img/OpenYurt.png';
     return (
       <div className="home-page">
         <section className="top-section">
@@ -65,33 +66,26 @@ class Home extends Language {
           <div className="animation animation4" />
           <div className="animation animation5" />
         </section>
-        <section className="introduction-section">
-          <div className="introduction-body">
-            <div className="introduction">
-              <h3>{dataSource.introduction.title}</h3>
-              <p>{dataSource.introduction.desc}</p>
+        <section className="function-section">
+            <h3>{dataSource.functions.title}</h3>
+            <div>
+                {
+                    dataSource.functions.list.map((func, i) => (
+                        <FunctionItem func={func} key={i} imgFirst={i % 2 === 0} />
+                    ))
+                }
             </div>
-            <img src={getLink(dataSource.introduction.img)} />
-          </div>
         </section>
         <section className="feature-section">
-          <h3>{dataSource.features.title}</h3>
-          <ul>
-          {
-            dataSource.features.list.map((feature, i) => (
-              <Item feature={feature} key={i} />
-            ))
-          }
-          </ul>
-        </section>
-        <section className="start-section">
-          <div className="start-body">
-            <div className="left-part">
-              <h3>{dataSource.start.title}</h3>
-              <p>{dataSource.start.desc}</p>
-              <a href={getLink(dataSource.start.button.link)} target={dataSource.start.button.link || '_self'}>{dataSource.start.button.text}</a>
-              </div>
-            <div className="right-part"><img src={getLink('/img/quick_start.png')} /></div>
+          <div className="feature-section-body">
+            <h3>{dataSource.features.title}</h3>
+            <ul>
+            {
+              dataSource.features.list.map((feature, i) => (
+                <Item feature={feature} key={i} />
+              ))
+            }
+            </ul>
           </div>
         </section>
         <section className="users-section">
@@ -105,7 +99,7 @@ class Home extends Language {
           }
           </div>
         </section>
-        <Footer logo="/img/dubbo_gray.png" language={language} />
+        <Footer logo="/img/OpenYurt.png" language={language} />
       </div>
     );
   }

@@ -1,0 +1,6 @@
+{
+  "filename": "roadmap.md",
+  "__html": "<h1>Roadmap</h1>\n<p>This document outlines the development roadmap for the OpenYurt project.</p>\n<h2>2020 Q3 Roadmap</h2>\n<ul>\n<li>Add Yurt tunnel server/agent to enable cloud-to-edge network communication across intranet/firewall.</li>\n<li>Upgrade openyurt components to support Kubernetes 1.18.</li>\n<li>Introduce <code>YurtCluster</code> crd to help manage autonomous edge nodes and implement the crd controller.</li>\n<li>Add <code>YurtUnit</code> feature and enable <code>YurtUnit</code> autonomy.</li>\n<li>Add basic Pod network recovery mechanism to handle edge node restarts.</li>\n<li>Improve <code>YurtCtl</code> user experience.</li>\n<li>Add more e2e test cases and improve overall code coverage.</li>\n</ul>\n",
+  "link": "/zh-cn/docs/roadmap.html",
+  "meta": {}
+}

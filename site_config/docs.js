@@ -2,23 +2,35 @@ export default {
   'en-us': {
     sidemenu: [
       {
-        title: 'header title',
+        title: 'OpenYurt',
         children: [
           {
-            title: 'demo1',
-            link: '/en-us/docs/demo1.html',
+            title: 'Developer Guide',
+            link: '/en-us/docs/developer-guide.html',
           },
           {
-            title: 'demo2',
-            link: '/en-us/docs/demo2.html',
+            title: 'Roadmap',
+            link: '/en-us/docs/roadmap.html',
           },
           {
-            title: 'dir',
+            title: 'Todo',
+            link: '/en-us/docs/todo.html',
+          },
+          {
+            title: 'Tutorial',
             opened: true,
             children: [
               {
-                title: 'demo3',
-                link: '/en-us/docs/dir/demo3.html',
+                title: 'Yurt-e2e-test',
+                link: '/en-us/docs/tutorial/yurt-e2e-test.html',
+              },
+              {
+                title: 'Manually Setup',
+                link: '/en-us/docs/tutorial/manually-setup.html',
+              },
+              {
+                title: 'Yurtctl tutorial',
+                link: '/en-us/docs/tutorial/yurtctl.html',
               },
             ],
           },
@@ -30,23 +42,35 @@ export default {
   'zh-cn': {
     sidemenu: [
       {
-        title: '大标题',
+        title: 'OpenYurt',
         children: [
           {
-            title: '示例1',
-            link: '/zh-cn/docs/demo1.html',
+            title: 'Developer Guide',
+            link: '/zh-cn/docs/developer-guide.html',
           },
           {
-            title: '示例2',
-            link: '/zh-cn/docs/demo2.html',
+            title: 'Roadmap',
+            link: '/zh-cn/docs/roadmap.html',
           },
           {
-            title: '目录',
+            title: 'Todo',
+            link: '/zh-cn/docs/todo.html',
+          },
+          {
+            title: 'Tutorial',
             opened: true,
             children: [
               {
-                title: '示例3',
-                link: '/zh-cn/docs/dir/demo3.html',
+                title: 'Yurt-e2e-test',
+                link: '/zh-cn/docs/tutorial/yurt-e2e-test.html',
+              },
+              {
+                title: 'Manually Setup',
+                link: '/zh-cn/docs/tutorial/manually-setup.html',
+              },
+              {
+                title: 'Yurtctl tutorial',
+                link: '/zh-cn/docs/tutorial/yurtctl.html',
               },
             ],
           },

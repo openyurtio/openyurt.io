@@ -1,0 +1,6 @@
+{
+  "filename": "todo.md",
+  "__html": "<h1>yurtctl</h1>\n<ul>\n<li>[x] fail <code>set_edgehub</code>, after retring 5 times</li>\n<li>[ ] create an independent subcommand to add annotation 'autonomous' to desired edge nodes</li>\n<li>[ ] save yurtctl-servant's log to node</li>\n<li>[x] revert subcommand that revert a yurt cluster back to kubernetes</li>\n<li>[ ] specify edge nodes for upgrading yurthub</li>\n<li>[ ] cluster-info subcommand that list edge/cloud nodes</li>\n<li>[ ] add yurtctl-servant image to relase</li>\n<li>[ ] support user specified image</li>\n<li>[ ] use yurt crd to manage the cluster</li>\n</ul>\n",
+  "link": "/zh-cn/docs/todo.html",
+  "meta": {}
+}

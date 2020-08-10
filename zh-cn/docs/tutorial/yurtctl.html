@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="yurtctl" />
+	<meta name="description" content="yurtctl" />
+	<!-- 网页标签标题 -->
+	<title>yurtctl</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/documentation.css" />
+</head>
+<body>
+	<div id="root"><div class="documentation-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><a href="/zh-cn/index.html"><img class="logo" src="/img/OpenYurt.png"/></a><div class="search search-normal"><span class="icon-search"></span></div><span class="language-switch language-switch-normal">En</span><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/zh-cn/index.html" target="_self">首页</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/zh-cn/docs/developer-guide.html" target="_self">文档</a></li><li class="menu-item menu-item-normal"><a href="/zh-cn/blog/index.html" target="_self">博客</a></li><li class="menu-item menu-item-normal"><a href="/zh-cn/community/index.html" target="_self">社区</a></li></ul></div></div></header><div class="bar"><div class="bar-body"><img src="/img/system/docs.png" class="front-img"/><span>文档</span><img src="/img/system/docs.png" class="back-img"/></div></div><section class="content-section"><div class="sidemenu"><div class="sidemenu-toggle"><img src="https://img.alicdn.com/tfs/TB1E6apXHGYBuNjy0FoXXciBFXa-200-200.png"/></div><ul><li class="menu-item menu-item-level-1"><span>OpenYurt</span><ul><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/developer-guide.html" target="_self">Developer Guide</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/roadmap.html" target="_self">Roadmap</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/todo.html" target="_self">Todo</a></li><li style="height:144px;overflow:hidden" class="menu-item menu-item-level-2"><span>Tutorial<img style="transform:rotate(0deg)" class="menu-toggle" src="/img/system/arrow_down.png"/></span><ul><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurt-e2e-test.html" target="_self">Yurt-e2e-test</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/manually-setup.html" target="_self">Manually Setup</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurtctl.html" target="_self">Yurtctl tutorial</a></li></ul></li></ul></li></ul></div><div class="doc-content markdown-body"><h1><code>Yurtctl</code> tutorial</h1>
+<p>This tutorial demonstrates how to use <code>yurtctl</code> to install/uninstall OpenYurt.
+Please refer to the <a href="https://github.com/alibaba/openyurt#getting-started">Getting Started</a> section on the README page to prepare and build binary to <code>_output/bin/yurtctl</code> .
+We assume a minikube cluster (<a href="https://github.com/kubernetes/minikube/releases/tag/v1.0.0">version 1.14 or less</a>)
+is installed.</p>
+<h2>Convert a minikube cluster</h2>
+<p>Let us use <code>yurtctl</code> to convert a standard Kubernetes cluster to an OpenYurt cluster.</p>
+<ol>
+<li>Run the following command</li>
+</ol>
+<pre><code class="language-bash">$ _output/bin/yurtctl convert --provider minikube
+</code></pre>
+<ol start="2">
+<li><code>yurtctl</code> will install all required components and reset the kubelet in the edge node. The output looks like:</li>
+</ol>
+<pre><code class="language-bash">convert.go:148] mark minikube as the edge-node
+convert.go:178] deploy the yurt controller manager
+convert.go:190] deploying the yurt-hub and resetting the kubelet service...
+util.go:137] servant job(yurtctl-servant-convert-minikube) has succeeded
+</code></pre>
+<ol start="3">
+<li>yurt controller manager and yurthub Pods will be up and running in one minute. Let us verify them:</li>
+</ol>
+<pre><code class="language-bash">$ kubectl get deploy yurt-controller-manager -n kube-system
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+yurt-ctrl-mgr   1/1     1            1           23h
+$ kubectl get po yurt-hub-minikube -n kube-system
+NAME                READY   STATUS    RESTARTS   AGE
+yurt-hub-minikube   1/1     Running   0          23h
+</code></pre>
+<ol start="4">
+<li>Next, we mark desired edge nodes as autonomous (only pods running on the autonomous edge nodes will be prevented from being evicted during disconnection):</li>
+</ol>
+<pre><code class="language-bash">$ _output/bin/yurtctl markautonomous
+I0602 14:11:08.610222   89160 markautonomous.go:149] mark minikube-m02 as autonomous
+</code></pre>
+<ol start="5">
+<li>As the minikube cluster only contains one node, the node will be marked as an autonomous edge node. Let us verify this by inspecting the node's labels and annotations:</li>
+</ol>
+<pre><code>$ kubectl describe node | grep Labels -A 3
+Labels:      alibabacloud.com/is-edge-worker=true
+$ kubectl describe node | grep Annotations -A 3
+Annotations: node.beta.alibabacloud.com/autonomy: true
+</code></pre>
+<p>By now, the OpenYurt cluster is ready. Users will not notice any differences compared to native Kubernetes when operating the cluster.
+If you login to the node, you will find the local cache has been populated:</p>
+<pre><code>$ minikube ssh
+$ ls /etc/kubernetes/cache/kubelet/
+configmaps  events  leases  nodes  pods  secrets  services
+</code></pre>
+<h3>Test node autonomy</h3>
+<p>To test if edge node autonomy works as expected, we will simulate a node &quot;offline&quot; scenario.</p>
+<ol>
+<li>Let's first create a sample pod:</li>
+</ol>
+<pre><code class="language-bash">kubectl apply -f-&lt;&lt;EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bbox
+spec:
+  containers:
+  - image: busybox
+    <span class="hljs-built_in">command</span>:
+    - top
+    name: bbox
+EOF
+</code></pre>
+<ol start="2">
+<li>Make the edge node &quot;offline&quot; by changing the <code>yurthub</code>'s server-addr to an unreachable address:</li>
+</ol>
+<pre><code class="language-bash">$ minikube ssh
+$ sudo sed -i <span class="hljs-string">'s|--server-addr=.*|--server-addr=https://1.1.1.1:1111|'</span> /etc/kubernetes/manifests/yurt-hub.yaml 
+</code></pre>
+<ol start="3">
+<li>Now <code>yurthub</code> is disconnected from the apiserver and works in offline mode. To verify this, we can do the following:</li>
+</ol>
+<pre><code class="language-bash">$ minikube ssh
+$ curl -s http://127.0.0.1:10261
+{
+  <span class="hljs-string">"kind"</span>: <span class="hljs-string">"Status"</span>,
+  <span class="hljs-string">"metadata"</span>: {
+
+  },
+  <span class="hljs-string">"status"</span>: <span class="hljs-string">"Failure"</span>,
+  <span class="hljs-string">"message"</span>: <span class="hljs-string">"request( get : /) is not supported when cluster is unhealthy"</span>,
+  <span class="hljs-string">"reason"</span>: <span class="hljs-string">"BadRequest"</span>,
+  <span class="hljs-string">"code"</span>: 400
+}
+</code></pre>
+<ol start="4">
+<li>After 40 seconds, the edge node status becomes <code>NotReady</code>, but the pod/bbox won't be evicted and keeps running on the node:</li>
+</ol>
+<pre><code class="language-bash">$ kubectl get node &amp;&amp; kubectl get po
+NAME       STATUS     ROLES    AGE   VERSION
+minikube   NotReady   master   58m   v1.18.2
+NAME   READY   STATUS    RESTARTS   AGE
+bbox   1/1     Running   0          19m
+</code></pre>
+<h2>Convert a multi-nodes Kubernetes cluster</h2>
+<p>An OpenYurt cluster may consist of some edge nodes and some nodes in the cloud site.
+<code>yurtctl</code> allows users to specify a list of cloud nodes that won't be converted.</p>
+<ol>
+<li>Start with a <a href="https://cn.aliyun.com/product/kubernetes">two-nodes ack cluster</a>,</li>
+</ol>
+<pre><code class="language-bash">$ kubectl get node 
+NAME                     STATUS   ROLES    AGE   VERSION
+us-west-1.192.168.0.87   Ready    &lt;none&gt;   19h   v1.14.8-aliyun.1
+us-west-1.192.168.0.88   Ready    &lt;none&gt;   19h   v1.14.8-aliyun.1
+</code></pre>
+<ol start="2">
+<li>You can convert only one node to edge node(i.e., minikube-m02) by using this command:</li>
+</ol>
+<pre><code class="language-bash">$ _output/bin/yurtctl convert --provider ack --cloud-nodes us-west-1.192.168.0.87
+I0529 11:21:05.835781    9231 convert.go:145] mark us-west-1.192.168.0.87 as the cloud-node
+I0529 11:21:05.861064    9231 convert.go:153] mark us-west-1.192.168.0.88 as the edge-node
+I0529 11:21:05.951483    9231 convert.go:183] deploy the yurt controller manager
+I0529 11:21:05.974443    9231 convert.go:195] deploying the yurt-hub and resetting the kubelet service...
+I0529 11:21:26.075075    9231 util.go:147] servant job(yurtctl-servant-convert-us-west-1.192.168.0.88) has succeeded
+</code></pre>
+<ol start="3">
+<li>Node <code>us-west-1.192.168.0.87</code> will be marked as a non-edge node. You can verify this by inspecting its labels:</li>
+</ol>
+<pre><code class="language-bash">$ kubectl describe node us-west-1.192.168.0.87 | grep Labels
+Labels:             alibabacloud.com/is-edge-worker=<span class="hljs-literal">false</span>
+</code></pre>
+<ol start="4">
+<li>Same as before, we make desired edge nodes autonomous:</li>
+</ol>
+<pre><code class="language-bash">$ _output/bin/yurtctl markautonomous
+I0602 11:22:05.610222   89160 markautonomous.go:149] mark us-west-1.192.168.0.88 as autonomous
+</code></pre>
+<ol start="5">
+<li>When the OpenYurt cluster contains cloud nodes, yurt controller manager will be deployed on the cloud node (in this case, the node <code>us-west-1.192.168.0.87</code>):</li>
+</ol>
+<pre><code class="language-bash">$ kubectl get pods -A -o=custom-columns=<span class="hljs-string">'NAME:.metadata.name,NODE:.spec.nodeName'</span>
+NAME                                               NODE
+yurt-controller-manager-6947f6f748-lxfdx           us-west-1.192.168.0.87
+</code></pre>
+<h2>Revert/Uninstall OpenYurt</h2>
+<p>Using <code>yurtctl</code> to revert an OpenYurt cluster can be done by doing the following:</p>
+<pre><code>$ _output/bin/yurtctl revert
+revert.go:100] label alibabacloud.com/is-edge-worker is removed
+revert.go:110] yurt controller manager is removed
+revert.go:124] ServiceAccount node-controller is created
+util.go:137] servant job(yurtctl-servant-revert-minikube-m02) has succeeded
+revert.go:133] yurt-hub is removed, kubelet service is reset
+</code></pre>
+<p>Note that before performing the uninstall, please make sure all edge nodes are reachable from the apiserver.</p>
+<h2>Troubleshooting</h2>
+<h3>1. Failure due to pulling image timeout</h3>
+<p>The default timeout value of cluster conversion is 2 minutes. Sometimes pulling the related images
+might take more than 2 minutes. To avoid the conversion failure due to pulling images timeout, you can pull all images on the node manually
+or use automation tools such as <code>broadcastjob</code>(from <a href="https://github.com/openkruise/kruise/blob/master/docs/concepts/broadcastJob/README.md">Kruise</a>) in advance.</p>
+<h3>2. Adhoc failure recovery</h3>
+<p>In case any adhoc failure makes the Kubelet fail to communicate with APIServer, one can recover the original Kubelet setup by
+running the following command in edge node directly:</p>
+<pre><code>$ sudo sed -i &quot;s|--kubeconfig=.*kubelet.conf|--kubeconfig=/etc/kubernetes/kubelet.conf|g;&quot; /etc/systemd/system/kubelet.service.d/10-kubeadm.conf &amp;&amp; sudo systemctl daemon-reload &amp;&amp; sudo systemctl restart kubelet.service
+</code></pre>
+</div></section><footer class="footer-container"><div class="footer-body"><img src="/img/OpenYurt.png"/><div class="cols-container"><div class="col col-12"><h3>免责声明</h3><p>免责声明的具体内容</p></div><div class="col col-6"><dl><dt>文档</dt><dd><a href="/zh-cn/docs/demo1.html" target="_self">概览</a></dd><dd><a href="/zh-cn/docs/demo2.html" target="_self">快速开始</a></dd><dd><a href="/zh-cn/docs/dir/demo3.html" target="_self">开发者指南</a></dd></dl></div><div class="col col-6"><dl><dt>资源</dt><dd><a href="/zh-cn/blog/index.html" target="_self">博客</a></dd><dd><a href="/zh-cn/community/index.html" target="_self">社区</a></dd></dl></div></div><div class="copyright"><span>Copyright © 2018 The OpenYurt Authors | An Alibaba Middleware (Aliware) Project</span></div></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/documentation.js"></script>
+</body>
+</html>

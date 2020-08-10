@@ -1,35 +1,65 @@
 {
   "en-us": [
     {
-      "filename": "demo1.md",
-      "link": "/en-us/docs/demo1.html",
+      "filename": "developer-guide.md",
+      "link": "/en-us/docs/developer-guide.html",
       "meta": {}
     },
     {
-      "filename": "demo2.md",
-      "link": "/en-us/docs/demo2.html",
+      "filename": "roadmap.md",
+      "link": "/en-us/docs/roadmap.html",
       "meta": {}
     },
     {
-      "filename": "demo3.md",
-      "link": "/en-us/docs/dir/demo3.html",
+      "filename": "todo.md",
+      "link": "/en-us/docs/todo.html",
+      "meta": {}
+    },
+    {
+      "filename": "manually-setup.md",
+      "link": "/en-us/docs/tutorial/manually-setup.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-e2e-test.md",
+      "link": "/en-us/docs/tutorial/yurt-e2e-test.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurtctl.md",
+      "link": "/en-us/docs/tutorial/yurtctl.html",
       "meta": {}
     }
   ],
   "zh-cn": [
     {
-      "filename": "demo1.md",
-      "link": "/zh-cn/docs/demo1.html",
+      "filename": "developer-guide.md",
+      "link": "/zh-cn/docs/developer-guide.html",
       "meta": {}
     },
     {
-      "filename": "demo2.md",
-      "link": "/zh-cn/docs/demo2.html",
+      "filename": "roadmap.md",
+      "link": "/zh-cn/docs/roadmap.html",
       "meta": {}
     },
     {
-      "filename": "demo3.md",
-      "link": "/zh-cn/docs/dir/demo3.html",
+      "filename": "todo.md",
+      "link": "/zh-cn/docs/todo.html",
+      "meta": {}
+    },
+    {
+      "filename": "manually-setup.md",
+      "link": "/zh-cn/docs/tutorial/manually-setup.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-e2e-test.md",
+      "link": "/zh-cn/docs/tutorial/yurt-e2e-test.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurtctl.md",
+      "link": "/zh-cn/docs/tutorial/yurtctl.html",
       "meta": {}
     }
   ]

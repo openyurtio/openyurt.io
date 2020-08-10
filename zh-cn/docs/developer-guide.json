@@ -1,0 +1,6 @@
+{
+  "filename": "developer-guide.md",
+  "__html": "<h1>Developer Guide</h1>\n<p>There's a <code>Makefile</code> in the root folder. Here are some common options:</p>\n<p>Build all binaries (<code>yurt-controller-manager</code>, <code>yurthub</code>, <code>yurtctl</code>)</p>\n<pre><code class=\"language-bash\">make build\n</code></pre>\n<p>Build specific binary for specific architecture. (<code>amd64</code>,<code>arm</code>,<code>arm64</code>)</p>\n<pre><code class=\"language-bash\">GOOS=linux GOARCH=arm64 make build WHAT=cmd/yurtctl\n</code></pre>\n<p>Build all docker images for all supported architectures.</p>\n<pre><code class=\"language-bash\">make release\n</code></pre>\n<p>Build all docker images for specific architecture.</p>\n<pre><code class=\"language-bash\">make release ARCH=arm64\n</code></pre>\n<p>Build yurt-e2e-test binary to test Openyurt.</p>\n<pre><code class=\"language-bash\">make e2e\n</code></pre>\n<p>Please check <a href=\"./tutorial/yurt-e2e-test.md\"> yurt-e2e-test tutorial</a> for more details.</p>\n",
+  "link": "/zh-cn/docs/developer-guide.html",
+  "meta": {}
+}

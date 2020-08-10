@@ -1,0 +1,6 @@
+{
+  "filename": "yurt-e2e-test.md",
+  "__html": "<h1>Yurt-e2e-test</h1>\n<p>This tutorial shows how to build and run the e2e test for OpenYurt. The test for node autonomy is still under development.</p>\n<h2>Build</h2>\n<p>Let's build the e2e binary yurt-e2e-test as follow:</p>\n<ol>\n<li>entering the openyurt work path:</li>\n</ol>\n<pre><code class=\"language-bash\"> <span class=\"hljs-variable\">$cd</span> openyurt\n</code></pre>\n<ol start=\"2\">\n<li>building the binary:</li>\n</ol>\n<pre><code class=\"language-bash\">$ make e2e\n</code></pre>\n<h2>RUN Test</h2>\n<p>You can use yurt-e2e-test binary to test Openyurt.</p>\n<ol>\n<li>If you run yurt-e2e-test without node autonomy test, such as:</li>\n</ol>\n<pre><code class=\"language-bash\">$ ./_output/bin/darwin/amd64/yurt-e2e-test --kubeconfig=/root/.kube/config  --report-dir=./\n</code></pre>\n<p>This will run some basic tests after k8s is converted to openyurt. It refers to the operation of namespace and pod.</p>\n<ol start=\"2\">\n<li>If you run yurt-e2e-test, and want to test node autonomy, it is still under development.</li>\n</ol>\n<h2>Check test result</h2>\n<p>You can check test result in stdout or in file yurt-e2e-test-report_01.xml</p>\n",
+  "link": "/en-us/docs/tutorial/yurt-e2e-test.html",
+  "meta": {}
+}
