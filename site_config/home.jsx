@@ -4,7 +4,7 @@ export default {
   'zh-cn': {
     brand: {
       brandName: 'OpenYurt',
-      briefIntroduction: '一个原生kubernetes延伸到边缘的智能开放平台',
+      briefIntroduction: '一个延伸原生kubernetes到边缘计算的智能开放平台',
       buttons: [
         {
           text: '立即开始',
