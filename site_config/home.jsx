@@ -8,12 +8,12 @@ export default {
       buttons: [
         {
           text: '立即开始',
-          link: '/zh-cn/docs/demo1.html',
+          link: '/zh-cn/docs/developer-guide.html',
           type: 'primary',
         },
         {
           text: '查看Github',
-          link: '',
+          link: 'https://github.com/alibaba/openyurt',
           type: 'normal',
         },
       ],
@@ -107,12 +107,12 @@ export default {
       buttons: [
         {
           text: 'Quick Start',
-          link: '/en-us/docs/demo1.html',
+          link: '/en-us/docs/developer-guide.html',
           type: 'primary',
         },
         {
           text: 'View on Github',
-          link: '',
+          link: 'https://github.com/alibaba/openyurt',
           type: 'normal',
         },
       ],
