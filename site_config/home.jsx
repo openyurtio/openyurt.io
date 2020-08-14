@@ -19,22 +19,22 @@ export default {
       ],
     },
     introduction: {
-      title: '开源产品的介绍',
-      desc: '开源产品的简单介绍，提供一些该产品的优点、特性描述等',
+      title: '将Kubernetes延伸到边缘',
+      desc: 'OpenYurt是一个基于“云边一体化”概念来设计的开源平台。它依托原生Kubernetes强大的容器编排、调度能力，实现完整的边缘计算云原生基础设施架构。它帮助用户轻松完成在海量边、端资源上针对大规模应用进行交付、运维和管控。从架构上，OpenYurt最大限度地保证对原生Kubernetes无侵入，引入一套新组件来解决在边缘场景运行Kubernetes所遇到的挑战。 OpenYurt使用Apache 2.0许可。我们欢迎贡献者！',
       img: '/img/architecture.png',
     },
     functions: {
-        title: '功能',
+        title: '核心功能',
         list: [
             {
                 img: '/img/dynamic_configuration.png',
                 title: '边缘自治',
-                content: '边缘节点处于离线状态抑或是网络间歇性断联时，业务容器可以持续运行在边缘节点上。即使节点重启边缘业务容器仍可自动恢复。当网络重新连接后，边缘节点会自动同步业务容器最新状态，确保持续无缝的运行。',
+                content: '当边缘节点处于离线状态或边缘网络间歇性断联时，保证业务容器可以持续运行在边缘节点上。这意味着即使节点重启, 边缘业务容器仍可自动恢复。同时当网络恢复正常后，边缘节点自动同步业务容器最新状态，确保应用持续无缝地运行。',
             },
             {
                 img: '/img/service_discovery.png',
                 title: '云边协同',
-                content: '为位于Intranet内部的边缘节点提供安全的云边双向认证的加密通道，确保在云边网络单向连通的边缘计算场景下，用户仍可运行原生kubernetes运维命令(如kubectl exec/logs等)。同时中心式的运维监控系统(如prometheus, metrics-server等)也可以通过云边通道获取到边缘的监控数据。',
+                content: '为位于Intranet内部的边缘节点提供安全的云边双向认证的加密通道，确保在边到云网络单向连通的边缘计算场景下，用户仍可运行原生kubernetes运维命令(如kubectl exec/logs等)。同时中心式的运维监控系统(如prometheus, metrics-server等)也可以通过云边通道获取到边缘的监控数据。',
             },
             {
                 img: '/img/dynamic_DNS.png',
@@ -44,17 +44,17 @@ export default {
         ],
     },
     features: {
-      title: '特性一览',
+      title: 'Why OpenYurt',
       list: [
         {
           img: '/img/feature_transpart.png',
           title: 'Kubernetes兼容',
-          content: '它提供了完全的Kubernetes API兼容性和使用体验，极大的降低用户的学习成本。 支持所有Kubernetes工作负载，Services，operators，CNI插件和CSI插件等。',
+          content: '提供了完全的Kubernetes API兼容性和使用体验。支持所有Kubernetes工作负载，Services，operators，CNI插件和CSI插件等。',
         },
         {
           img: '/img/feature_loadbalances.png',
           title: '无缝转换',
-          content: '提供yurtctl工具，可以一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群。 同时OpenYurt组件的额外资源和维护成本非常低。',
+          content: '提供yurtctl工具，一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群。OpenYurt组件的额外资源和维护成本非常低。',
         },
         {
           img: '/img/feature_service.png',
@@ -77,28 +77,13 @@ export default {
         link: '/zh-cn/docs/demo1.html',
       },
     },
-    users: {
-      title: '用户',
-      desc: <span>简单描述</span>,
-      list: [
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-      ],
-    },
+//    users: {
+//      title: '用户',
+//      desc: <span>简单描述</span>,
+//      list: [
+//        '/img/users_alibaba.png',
+//      ],
+//    },
   },
   'en-us': {
     brand: {
@@ -128,7 +113,7 @@ export default {
             {
                 img: '/img/dynamic_configuration.png',
                 title: '边缘自治',
-                content: '边缘节点处于离线状态抑或是网络间歇性断联时，业务容器可以持续运行在边缘节点上。即使节点重启边缘业务容器仍可自动恢复。当网络重新连接后，边缘节点会自动同步业务容器最新状态，确保持续无缝的运行。',
+                content: '当边缘节点处于离线状态或边缘网络间歇性断联时，保证业务容器可以持续运行在边缘节点上。这意味着即使节点重启, 边缘业务容器仍可自动恢复。同时当网络恢复正常后，边缘节点会自动同步业务容器最新状态，确保应用持续无缝的运行。',
             },
             {
                 img: '/img/service_discovery.png',
@@ -143,7 +128,7 @@ export default {
         ],
     },
     features: {
-      title: 'Feature List',
+      title: 'Why OpenYurt',
       list: [
         {
           img: '/img/feature_transpart.png',
@@ -165,16 +150,16 @@ export default {
           title: '云平台无关',
           content: 'OpenYurt可以轻松部署在任何公共云的Kubernetes服务中。',
         },
-        {
-          img: '/img/feature_runtime.png',
-          title: 'feature5',
-          content: 'feature description',
-        },
-        {
-          img: '/img/feature_maintenance.png',
-          title: 'feature6',
-          content: 'feature description',
-        }
+//        {
+//          img: '/img/feature_runtime.png',
+//          title: 'feature5',
+//          content: 'feature description',
+//        },
+//        {
+//          img: '/img/feature_maintenance.png',
+//          title: 'feature6',
+//          content: 'feature description',
+//        }
       ]
     },
     start: {
@@ -186,27 +171,12 @@ export default {
         link: '/en-us/docs/demo1.html',
       },
     },
-    users: {
-      title: 'users',
-      desc: <span>some description</span>,
-      list: [
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-        '/img/users_alibaba.png',
-      ],
-    },
+//    users: {
+//      title: 'users',
+//      desc: <span>some description</span>,
+//      list: [
+//        '/img/users_alibaba.png',
+//      ],
+//    },
   },
 };

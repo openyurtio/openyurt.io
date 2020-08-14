@@ -1,3 +1,5 @@
+@import '../../variables.scss';
+
 .button {
   box-sizing: border-box;
   display: inline-block;
@@ -11,7 +13,8 @@
   border-radius: 4px;
   text-decoration: none;
   &-primary {
-    background: #4190FF;
+    background: #fff;
+    color: $brandColor
   }
   &-normal {
     background: transparent;
