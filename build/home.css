@@ -1892,7 +1892,7 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
     margin: 0 0 40px; }
   .home-page .function-section .func-item {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     position: relative; }
     .home-page .function-section .func-item .col {
       display: inline-flex;
@@ -1903,6 +1903,7 @@ h1, h2, h3, h4, h5, h6 {
       max-width: 750px;
       min-height: 325px; }
       .home-page .function-section .func-item .col img {
+        margin-top: 40px;
         width: 325px; }
       .home-page .function-section .func-item .col h4 {
         font-weight: 400;
