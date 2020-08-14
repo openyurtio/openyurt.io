@@ -66,6 +66,15 @@ class Home extends Language {
           <div className="animation animation4" />
           <div className="animation animation5" />
         </section>
+        <section className="introduction-section">
+          <div className="introduction-body">
+            <div className="introduction">
+              <h3>{dataSource.introduction.title}</h3>
+              <p>{dataSource.introduction.desc}</p>
+            </div>
+            <img src={getLink(dataSource.introduction.img)} />
+          </div>
+        </section>    
         <section className="function-section">
             <h3>{dataSource.functions.title}</h3>
             <div>
@@ -86,17 +95,6 @@ class Home extends Language {
               ))
             }
             </ul>
-          </div>
-        </section>
-        <section className="users-section">
-          <h3>{dataSource.users.title}</h3>
-          <p>{dataSource.users.desc}</p>
-          <div className="users">
-          {
-            dataSource.users.list.map((user, i) => (
-              <img src={getLink(user)} key={i} />
-            ))
-          }
           </div>
         </section>
         <Footer logo="/img/OpenYurt.png" language={language} />

@@ -167,7 +167,7 @@ $animation5Height: 460px;
   .introduction-section {
     background: #F9FAFA;
     .introduction-body {
-      max-width: $contentWidth;
+      max-width: 1280px;
       box-sizing: border-box;
       margin: 0 auto;
       min-height: 640px;
@@ -211,7 +211,7 @@ $animation5Height: 460px;
           opacity: 0.56;
           font-family: Avenir-Medium;
           font-size: 18px;
-          color: #999;
+          color: #666;
         }
       }
       img {
@@ -325,7 +325,7 @@ $animation5Height: 460px;
   }
 
   .feature-section {
-    background: #f3f4f5;
+    background: #fff;
     .feature-section-body {
       box-sizing: border-box;
       max-width: $contentWidth;
