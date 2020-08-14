@@ -27,17 +27,17 @@ export default {
         title: '核心功能',
         list: [
             {
-                img: '/img/dynamic_configuration.png',
+                img: '/img/autonomy.png',
                 title: '边缘自治',
                 content: '当边缘节点处于离线状态或边缘网络间歇性断联时，保证业务容器可以持续运行在边缘节点上。这意味着即使节点重启, 边缘业务容器仍可自动恢复。同时当网络恢复正常后，边缘节点自动同步业务容器最新状态，确保应用持续无缝地运行。',
             },
             {
-                img: '/img/service_discovery.png',
+                img: '/img/tunnel.png',
                 title: '云边协同',
                 content: '为位于Intranet内部的边缘节点提供安全的云边双向认证的加密通道，确保在边到云网络单向连通的边缘计算场景下，用户仍可运行原生kubernetes运维命令(如kubectl exec/logs等)。同时中心式的运维监控系统(如prometheus, metrics-server等)也可以通过云边通道获取到边缘的监控数据。',
             },
             {
-                img: '/img/dynamic_DNS.png',
+                img: '/img/unit.png',
                 title: '边缘单元化',
                 content: '从单元化的视角，轻松管理分散在不同地域的边缘资源，并对各地域单元内的业务提供独立的生命周期管理，升级，扩缩容，流量闭环等能力。且业务无需进行任何适配或改造。',
             },
