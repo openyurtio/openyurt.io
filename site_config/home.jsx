@@ -27,19 +27,24 @@ export default {
         title: '核心功能',
         list: [
             {
-                img: '/img/dynamic_configuration.png',
+                img: '/img/autonomy.png',
                 title: '边缘自治',
                 content: '当边缘节点处于离线状态或边缘网络间歇性断联时，保证业务容器可以持续运行在边缘节点上。这意味着即使节点重启, 边缘业务容器仍可自动恢复。同时当网络恢复正常后，边缘节点自动同步业务容器最新状态，确保应用持续无缝地运行。',
             },
             {
-                img: '/img/service_discovery.png',
+                img: '/img/tunnel.png',
                 title: '云边协同',
                 content: '为位于Intranet内部的边缘节点提供安全的云边双向认证的加密通道，确保在边到云网络单向连通的边缘计算场景下，用户仍可运行原生kubernetes运维命令(如kubectl exec/logs等)。同时中心式的运维监控系统(如prometheus, metrics-server等)也可以通过云边通道获取到边缘的监控数据。',
             },
             {
-                img: '/img/dynamic_DNS.png',
+                img: '/img/unit.png',
                 title: '边缘单元化',
                 content: '从单元化的视角，轻松管理分散在不同地域的边缘资源，并对各地域单元内的业务提供独立的生命周期管理，升级，扩缩容，流量闭环等能力。且业务无需进行任何适配或改造。',
+            },
+            {
+                img: '/img/easy.png',
+                title: '无缝转换',
+                content: '提供yurtctl工具，方便用户一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群，或者将OpenYurt集群还原为原生Kubernetes集群。 同时OpenYurt组件运行所需的额外资源和维护成本很低。',
             },
         ],
     },
@@ -53,13 +58,13 @@ export default {
         },
         {
           img: '/img/feature_loadbalances.png',
-          title: '无缝转换',
-          content: '提供yurtctl工具，一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群。OpenYurt组件的额外资源和维护成本非常低。',
+          title: '边缘异构资源支持',
+          content: '对不同边缘节点硬件架构(x86/arm/arm64等)，硬件规格，通信协议提供一致体验。',
         },
         {
           img: '/img/feature_service.png',
-          title: 'AI无感运行',
-          content: '为AI场景提供最佳用户体验，支持各类开源AI系统(如Tensorflow，pytorch等)利用OpenYurt平台轻松运行在用户的边缘资源上。',
+          title: '高可靠/稳定性',
+          content: '基于边缘自治和边缘单元化能力，为多地域，大规模的边缘应用的持续稳定运行提供保障。支持各类开源AI系统(如Tensorflow，pytorch等)，为AI用户提供最佳体验。',
         },
         {
           img: '/img/feature_hogh.png',
@@ -88,42 +93,42 @@ export default {
   'en-us': {
     brand: {
       brandName: 'OpenYurt',
-      briefIntroduction: '一个原生kubernetes延伸到边缘的智能开放平台',
+      briefIntroduction: 'Extending upstream Kubernetes to support edge computing seamlessly.',
       buttons: [
         {
           text: 'Quick Start',
-          link: '/en-us/docs/developer-guide.html',
+          link: '/en-us/docs/demo1.html',
           type: 'primary',
         },
         {
           text: 'View on Github',
-          link: 'https://github.com/alibaba/openyurt',
+          link: '',
           type: 'normal',
         },
       ],
     },
     introduction: {
-      title: 'introduction title',
-      desc: 'some introduction of your product',
+      title: 'Extending Kubernetes to the edge',
+      desc: 'OpenYurt is an open source edge computing project under Apache 2.0 License. It fully embraces the powerful orchestration capabilities of upstream Kubernetes and build a comprehensive edge computing platform. It empowers users to manage large volume of edge computing workloads with ease. Users can deliver, manage and monitor the edge workloads using the same upstream Kubernetes seamlessly. OpenYurt provides edge computing capabilities via add-on mechanism rather than changing the upstream Kubernetes code.',
       img: '/img/architecture.png',
     },
     functions: {
-        title: '功能',
+        title: 'Core Features',
         list: [
             {
                 img: '/img/dynamic_configuration.png',
-                title: '边缘自治',
-                content: '当边缘节点处于离线状态或边缘网络间歇性断联时，保证业务容器可以持续运行在边缘节点上。这意味着即使节点重启, 边缘业务容器仍可自动恢复。同时当网络恢复正常后，边缘节点会自动同步业务容器最新状态，确保应用持续无缝的运行。',
+                title: 'Edge Autonomy',
+                content: 'When edge nodes are offline or the network is not stable, it is important to keep the workloads not being disrupted. And when the connection resumes, the status of edge workloads will be synced with the control plane and remain consistent.',
             },
             {
                 img: '/img/service_discovery.png',
-                title: '云边协同',
-                content: '为位于Intranet内部的边缘节点提供安全的云边双向认证的加密通道，确保在云边网络单向连通的边缘计算场景下，用户仍可运行原生kubernetes运维命令(如kubectl exec/logs等)。同时中心式的运维监控系统(如prometheus, metrics-server等)也可以通过云边通道获取到边缘的监控数据。',
+                title: 'Secured Connection',
+                content: 'OpenYurt provides mutually encrypted tunnel and reverse proxy between edge nodes and the control plane. When ingress traffic is blocked due to networking policy, the control plane can still retrieve heartbeat and monitor the workloads. And users will still be able to use Kubectl and other commands to manage the edge workloads.',
             },
             {
                 img: '/img/dynamic_DNS.png',
-                title: '边缘单元化',
-                content: '从单元化的视角，轻松管理分散在不同地域的边缘资源，并对各地域单元内的业务提供独立的生命周期管理，升级，扩缩容，流量闭环等能力。且业务无需进行任何适配或改造。',
+                title: 'Edge Zoning Unit',
+                content: 'OpenYurt allow users to group workloads into different units distributed in different geo-locations. Out of box, OpenYurt is able to provide users individual lifecycle management and operational policies based on the unit zoning.',
             },
         ],
     },
@@ -132,34 +137,24 @@ export default {
       list: [
         {
           img: '/img/feature_transpart.png',
-          title: 'Kubernetes兼容',
-          content: '它提供了完全的Kubernetes API兼容性和使用体验，极大的降低用户的学习成本。 支持所有Kubernetes工作负载，Services，operators，CNI插件和CSI插件等。',
+          title: 'Kubernetes Compatible',
+          content: 'OpenYurt is fully compatible with upstream Kubernetes. It supports all Kubernetes APIs as well as all the Workload types, Service, CSI plugin etc. This enables smooth learning curve while enhancing user experience.',
         },
         {
           img: '/img/feature_loadbalances.png',
-          title: '无缝转换',
-          content: '提供yurtctl工具，可以一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群。 同时OpenYurt组件的额外资源和维护成本非常低。',
+          title: 'Seamless Conversion',
+          content: 'With yurtctl, a CLI tool, users can easily convert an upstream Kubernetes cluster into an OpenYurt one. The add-ons by OpenYurt is low maintenance as well. ',
         },
         {
           img: '/img/feature_service.png',
-          title: 'AI无感运行',
-          content: '为AI场景提供最佳用户体验，支持各类开源AI系统(如Tensorflow，pytorch等)利用OpenYurt平台轻松运行在用户的边缘资源上。',
+          title: 'Fully supports AI Workloads',
+          content: 'OpenYurt supports most popular AI platforms，such as Tensorflow and Pytorch. Running AI workloads on the edge is super easy',
         },
         {
           img: '/img/feature_hogh.png',
-          title: '云平台无关',
-          content: 'OpenYurt可以轻松部署在任何公共云的Kubernetes服务中。',
-        },
-//        {
-//          img: '/img/feature_runtime.png',
-//          title: 'feature5',
-//          content: 'feature description',
-//        },
-//        {
-//          img: '/img/feature_maintenance.png',
-//          title: 'feature6',
-//          content: 'feature description',
-//        }
+          title: 'Platform Agnostic',
+          content: 'OpenYurt can be deployed on any Kubernetes cluster, public cloud or on prem.',
+        }       
       ]
     },
     start: {
@@ -172,11 +167,11 @@ export default {
       },
     },
 //    users: {
-//      title: 'users',
-//      desc: <span>some description</span>,
+//      title: '用户',
+//      desc: <span>简单描述</span>,
 //      list: [
 //        '/img/users_alibaba.png',
 //      ],
-//    },
+//   },
   },
 };
