@@ -41,6 +41,11 @@ export default {
                 title: '边缘单元化',
                 content: '从单元化的视角，轻松管理分散在不同地域的边缘资源，并对各地域单元内的业务提供独立的生命周期管理，升级，扩缩容，流量闭环等能力。且业务无需进行任何适配或改造。',
             },
+            {
+                img: '/img/easy.png',
+                title: '无缝转换',
+                content: '提供yurtctl工具，方便用户一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群，或者将OpenYurt集群还原为原生Kubernetes集群。 同时OpenYurt组件运行所需的额外资源和维护成本很低。',
+            },
         ],
     },
     features: {
@@ -53,13 +58,13 @@ export default {
         },
         {
           img: '/img/feature_loadbalances.png',
-          title: '无缝转换',
-          content: '提供yurtctl工具，一键式将原生Kubernetes集群转换为具备边缘能力的OpenYurt集群。OpenYurt组件的额外资源和维护成本非常低。',
+          title: '边缘异构资源支持',
+          content: '对不同边缘节点硬件架构(x86/arm/arm64等)，硬件规格，通信协议提供一致体验。',
         },
         {
           img: '/img/feature_service.png',
-          title: 'AI无感运行',
-          content: '为AI场景提供最佳用户体验，支持各类开源AI系统(如Tensorflow，pytorch等)利用OpenYurt平台轻松运行在用户的边缘资源上。',
+          title: '高可靠/稳定性',
+          content: '基于边缘自治和边缘单元化能力，为多地域，大规模的边缘应用的持续稳定运行提供保障。支持各类开源AI系统(如Tensorflow，pytorch等)，为AI用户提供最佳体验。',
         },
         {
           img: '/img/feature_hogh.png',
