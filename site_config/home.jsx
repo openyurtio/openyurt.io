@@ -93,43 +93,48 @@ export default {
   'en-us': {
     brand: {
       brandName: 'OpenYurt',
-      briefIntroduction: 'Extending upstream Kubernetes to support edge computing seamlessly.',
+      briefIntroduction: 'An open intelligent platform that extends upstream Kubernetes to edge',
       buttons: [
         {
           text: 'Quick Start',
-          link: '/en-us/docs/demo1.html',
+          link: '/en-us/docs/developer-guide.html',
           type: 'primary',
         },
         {
           text: 'View on Github',
-          link: '',
+          link: 'https://github.com/alibaba/openyurt',
           type: 'normal',
         },
       ],
     },
     introduction: {
       title: 'Extending Kubernetes to the edge',
-      desc: 'OpenYurt is an open source edge computing project under Apache 2.0 License. It fully embraces the powerful orchestration capabilities of upstream Kubernetes and build a comprehensive edge computing platform. It empowers users to manage large volume of edge computing workloads with ease. Users can deliver, manage and monitor the edge workloads using the same upstream Kubernetes seamlessly. OpenYurt provides edge computing capabilities via add-on mechanism rather than changing the upstream Kubernetes code.',
+      desc: 'OpenYurt follows the philosophy of "integrated cloud and edge". It is an open platform that embraces the powerful orchestration capabilities of upstream Kubernetes. OpenYurt empowers users to manage large volume of edge computing workloads with ease. Users can deliver, manage and monitor the edge workloads using the same upstream Kubernetes APIs. From the architectural perspective, OpenYurt provides edge computing capabilities via add-on mechanism rather than changing the upstream Kubernetes code. It is an open source project under Apache 2.0 License. Come and join us!',
       img: '/img/architecture.png',
     },
     functions: {
         title: 'Core Features',
         list: [
             {
-                img: '/img/dynamic_configuration.png',
+                img: '/img/autonomy.png',
                 title: 'Edge Autonomy',
-                content: 'When edge nodes are offline or the network is not stable, it is important to keep the workloads not being disrupted. And when the connection resumes, the status of edge workloads will be synced with the control plane and remain consistent.',
+                content: 'When edge nodes are offline or the network is not stable, it is important to make sure the workloads are not being disrupted. And when the connection resumes, the status of edge workloads will be synced with the control plane and remain consistent.',
             },
             {
-                img: '/img/service_discovery.png',
-                title: 'Secured Connection',
-                content: 'OpenYurt provides mutually encrypted tunnel and reverse proxy between edge nodes and the control plane. When ingress traffic is blocked due to networking policy, the control plane can still retrieve heartbeat and monitor the workloads. And users will still be able to use Kubectl and other commands to manage the edge workloads.',
+                img: '/img/tunnel.png',
+                title: 'Edge and Cloud Synchronization',
+                content: 'OpenYurt provides mutually encrypted tunnel and reverse proxy between edge nodes and the control plane. When ingress traffic is blocked due to networking policy, the control plane can still retrieve heartbeat and monitor the workloads. And users will still be able to use Kubectl and other monitoring tools such as prometheus, metrics-server to manage and monitor the edge workloads.',
             },
             {
-                img: '/img/dynamic_DNS.png',
+                img: '/img/unit.png',
                 title: 'Edge Zoning Unit',
-                content: 'OpenYurt allow users to group workloads into different units distributed in different geo-locations. Out of box, OpenYurt is able to provide users individual lifecycle management and operational policies based on the unit zoning.',
+                content: 'OpenYurt allows users to group workloads into different units distributed in different geo-locations. Out of box, OpenYurt is able to provide users individual lifecycle management and operational policies based on the unit zoning.',
             },
+            {
+              img: '/img/easy.png',
+              title: 'Seamless conversion',
+              content: 'With yurtctl, a CLI tool, users can easily convert an upstream Kubernetes cluster into an OpenYurt one, and vice versa. The add-ons by OpenYurt is low maintenance as well.',
+          },
         ],
     },
     features: {
@@ -142,13 +147,13 @@ export default {
         },
         {
           img: '/img/feature_loadbalances.png',
-          title: 'Seamless Conversion',
-          content: 'With yurtctl, a CLI tool, users can easily convert an upstream Kubernetes cluster into an OpenYurt one. The add-ons by OpenYurt is low maintenance as well. ',
+          title: 'Supports different edge architectures',
+          content: 'OpenYurt supports Arm, Arm64 and x86. ',
         },
         {
           img: '/img/feature_service.png',
-          title: 'Fully supports AI Workloads',
-          content: 'OpenYurt supports most popular AI platforms，such as Tensorflow and Pytorch. Running AI workloads on the edge is super easy',
+          title: 'Highly reliable',
+          content: 'Built upon edge autonomy and zoning unit, OpenYurt ensures high reliability in large scaled use cases. It supports most popular AI platforms，such as Tensorflow and Pytorch. Running AI workloads on the edge is super easy.',
         },
         {
           img: '/img/feature_hogh.png',
