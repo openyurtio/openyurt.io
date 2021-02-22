@@ -32,6 +32,7 @@ export default {
       title: 'Disclaimer',
       content: 'the disclaimer content',
     },
+    cloudNative: 'We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.',
     documentation: {
       title: 'Documentation',
       list: [
@@ -91,6 +92,7 @@ export default {
       title: '免责声明',
       content: '免责声明的具体内容',
     },
+    cloudNative: 'We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.',
     documentation: {
       title: '文档',
       list: [

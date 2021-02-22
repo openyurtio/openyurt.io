@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default {
   'zh-cn': {
     brand: {
@@ -73,7 +71,6 @@ export default {
         },
       ],
     },
-    cloudNative: 'We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.',
     start: {
       title: '快速开始',
       desc: '简单描述',
@@ -163,7 +160,6 @@ export default {
         }
       ]
     },
-    cloudNative: 'We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.',
     start: {
       title: 'Quick start',
       desc: 'some description text',

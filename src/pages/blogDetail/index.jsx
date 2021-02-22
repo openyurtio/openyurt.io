@@ -98,7 +98,7 @@ class BlogDetail extends Language {
           ref={(node) => { this.markdownContainer = node; }}
           dangerouslySetInnerHTML={{ __html }}
         />
-        <Footer logo="/img/OpenYurt.png" language={language} />
+        <Footer language={language} />
       </div>
     );
   }

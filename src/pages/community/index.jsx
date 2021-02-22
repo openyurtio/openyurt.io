@@ -68,7 +68,7 @@ class Community extends Language {
           }
           </div>
         </section>
-        <Footer logo="/img/OpenYurt.png" language={language} />
+        <Footer language={language} />
       </div>
     );
   }
