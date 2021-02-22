@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { getScrollTop, getLink } from '../../../utils';
 import Header from '../../components/header';
+import Footer from '../../components/footer';
 import Button from '../../components/button';
 import Language from '../../components/language';
 import Item from './featureItem';
@@ -102,6 +103,7 @@ class Home extends Language {
             <p dangerouslySetInnerHTML={{ __html: dataSource.cloudNative }} />
           </div>
         </section>
+        <Footer logo="/img/OpenYurt.png" language={language} />
       </div>
     );
   }
