@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="yurt-app-manager-dev" />
+	<meta name="description" content="yurt-app-manager-dev" />
+	<!-- 网页标签标题 -->
+	<title>yurt-app-manager-dev</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/documentation.css" />
+</head>
+<body>
+	<div id="root"><div class="documentation-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><a href="/zh-cn/index.html"><img class="logo" src="/img/OpenYurt.png"/></a><div class="search search-normal"><span class="icon-search"></span></div><span class="language-switch language-switch-normal">En</span><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/zh-cn/index.html" target="_self">首页</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/zh-cn/docs/developer-guide.html" target="_self">文档</a></li><li class="menu-item menu-item-normal"><a href="/zh-cn/blog/index.html" target="_self">博客</a></li></ul></div></div></header><div class="bar"><div class="bar-body"><img src="/img/system/docs.png" class="front-img"/><span>文档</span><img src="/img/system/docs.png" class="back-img"/></div></div><section class="content-section"><div class="sidemenu"><div class="sidemenu-toggle"><img src="https://img.alicdn.com/tfs/TB1E6apXHGYBuNjy0FoXXciBFXa-200-200.png"/></div><ul><li class="menu-item menu-item-level-1"><span>OpenYurt</span><ul><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/developer-guide.html" target="_self">Developer Guide</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/roadmap.html" target="_self">Roadmap</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/zh-cn/docs/todo.html" target="_self">Todo</a></li><li style="height:252px;overflow:hidden" class="menu-item menu-item-level-2"><span>Tutorial<img style="transform:rotate(0deg)" class="menu-toggle" src="/img/system/arrow_down.png"/></span><ul><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurt-e2e-test.html" target="_self">Yurt-e2e-test</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/manually-setup.html" target="_self">Manually Setup</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurtctl.html" target="_self">Yurtctl tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurt-app-manager-dev.html" target="_self">Yurt app manager dev tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurt-app-manager.html" target="_self">Yurt app manager tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/zh-cn/docs/tutorial/yurt-tunnel.html" target="_self">Yurt Tunnel tutorial</a></li></ul></li></ul></li></ul></div><div class="doc-content markdown-body"><h1>Build and deploy yurt-app-manager</h1>
+<p>In this tutorial, we will show how the yurt-app-manager helps developers to build yurt-app-manager using the source code.</p>
+<h2>create and push yurt-app-manager image</h2>
+<p>Go to OpenYurt root directory:</p>
+<pre><code class="language-bash">$ <span class="hljs-built_in">cd</span> <span class="hljs-variable">$GOPATH</span>/src/github.com/openyurtio/openyurt
+</code></pre>
+<p>You shoud first set global linux environment variables:</p>
+<ul>
+<li><strong>IMAGE_REPO</strong>: which stand for your own image registry for yurt-app-manager</li>
+<li><strong>IMAGE_TAG</strong>: which stand for yurt-app-manager image tag</li>
+</ul>
+<p>For Example:</p>
+<pre><code class="language-bash"><span class="hljs-built_in">export</span> IMAGE_REPO=registry.cn-hangzhou.aliyuncs.com/edge-kubernetes
+<span class="hljs-built_in">export</span> IMAGE_TAG=<span class="hljs-string">"v0.3.0-"</span>$(git rev-parse --short HEAD)
+</code></pre>
+<pre><code class="language-bash">make clean
+make release WHAT=cmd/yurt-app-manager ARCH=amd64 REGION=cn REPO=<span class="hljs-variable">${IMAGE_REPO}</span> GIT_VERSION=<span class="hljs-variable">${IMAGE_TAG}</span>
+</code></pre>
+<p>If everything goes right, we will get <code>${IMAGE_REPO}/yurt-app-manager:${GIT_VERSION}</code> image:</p>
+<pre><code class="language-bash">docker images <span class="hljs-variable">${IMAGE_REPO}</span>/yurt-app-manager:<span class="hljs-variable">${GIT_VERSION}</span>
+</code></pre>
+<p>push yurt-app-manager image to your own registry</p>
+<pre><code class="language-bash">docker push <span class="hljs-variable">${IMAGE_REPO}</span>/yurt-app-manager:<span class="hljs-variable">${GIT_VERSION}</span>
+</code></pre>
+<h2>Create yurt-app-manager yaml files</h2>
+<pre><code class="language-bash">make gen-yaml WHAT=cmd/yurt-app-manager REPO=<span class="hljs-variable">${IMAGE_REPO}</span> GIT_VERSION=<span class="hljs-variable">${IMAGE_TAG}</span>
+</code></pre>
+<p>If everything goes right, we will have a yurt-app-manager.yaml files:</p>
+<pre><code class="language-bash">$ ls _output/yamls
+
+yurt-app-manager.yaml
+</code></pre>
+<h2>install yurt-app-manager operator</h2>
+<pre><code class="language-bash">kubectl apply -f _output/yamls/yurt-app-manager.yaml
+</code></pre>
+<p>The content of the <code>yurt-app-manager.yaml</code> file mainly includes three points:</p>
+<ul>
+<li><strong>NodePool CRD</strong></li>
+<li><strong>UnitedDeployment CRD</strong></li>
+<li><strong>yurtapp-controller-manager Deployment</strong> which installed in <code>kube-system</code> namespaces</li>
+</ul>
+<pre><code class="language-bash">kubectl get pod -n kube-system |grep yurt-app-manager
+</code></pre>
+<h2>How to Use</h2>
+<p>The Examples of NodePool and UnitedDeployment are in <code>config/yurt-app-manager/samples/</code> directory</p>
+</div></section><footer class="footer-container"><div class="cloud-native"><div class="container"><img src="https://d33wubrfki0l68.cloudfront.net/ea0d91fac8683c38ea9a1fb8a4e9914627ac6aae/8efa9/img/logos/cloud-native-computing.svg"/><p>We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.</p></div></div><div class="copyright"><span>Copyright © 2021 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: <a href="https://www.linuxfoundation.org/trademark-usage">https://www.linuxfoundation.org/trademark-usage</a></span></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/documentation.js"></script>
+</body>
+</html>

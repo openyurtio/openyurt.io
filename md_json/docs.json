@@ -21,8 +21,23 @@
       "meta": {}
     },
     {
+      "filename": "yurt-app-manager-dev.md",
+      "link": "/en-us/docs/tutorial/yurt-app-manager-dev.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-app-manager.md",
+      "link": "/en-us/docs/tutorial/yurt-app-manager.html",
+      "meta": {}
+    },
+    {
       "filename": "yurt-e2e-test.md",
       "link": "/en-us/docs/tutorial/yurt-e2e-test.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-tunnel.md",
+      "link": "/en-us/docs/tutorial/yurt-tunnel.html",
       "meta": {}
     },
     {
@@ -53,8 +68,23 @@
       "meta": {}
     },
     {
+      "filename": "yurt-app-manager-dev.md",
+      "link": "/zh-cn/docs/tutorial/yurt-app-manager-dev.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-app-manager.md",
+      "link": "/zh-cn/docs/tutorial/yurt-app-manager.html",
+      "meta": {}
+    },
+    {
       "filename": "yurt-e2e-test.md",
       "link": "/zh-cn/docs/tutorial/yurt-e2e-test.html",
+      "meta": {}
+    },
+    {
+      "filename": "yurt-tunnel.md",
+      "link": "/zh-cn/docs/tutorial/yurt-tunnel.html",
       "meta": {}
     },
     {
