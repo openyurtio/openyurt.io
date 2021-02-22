@@ -32,6 +32,18 @@ export default {
                 title: 'Yurtctl tutorial',
                 link: '/en-us/docs/tutorial/yurtctl.html',
               },
+              {
+                title: 'Yurt app manager dev tutorial',
+                link: '/en-us/docs/tutorial/yurt-app-manager-dev.html',
+              },
+              {
+                title: 'Yurt app manager tutorial',
+                link: '/en-us/docs/tutorial/yurt-app-manager.html',
+              },
+              {
+                title: 'Yurt Tunnel tutorial',
+                link: '/en-us/docs/tutorial/yurt-tunnel.html',
+              },
             ],
           },
         ],
@@ -71,6 +83,18 @@ export default {
               {
                 title: 'Yurtctl tutorial',
                 link: '/zh-cn/docs/tutorial/yurtctl.html',
+              },
+              {
+                title: 'Yurt app manager dev tutorial',
+                link: '/zh-cn/docs/tutorial/yurt-app-manager-dev.html',
+              },
+              {
+                title: 'Yurt app manager tutorial',
+                link: '/zh-cn/docs/tutorial/yurt-app-manager.html',
+              },
+              {
+                title: 'Yurt Tunnel tutorial',
+                link: '/zh-cn/docs/tutorial/yurt-tunnel.html',
               },
             ],
           },

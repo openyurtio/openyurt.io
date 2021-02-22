@@ -163,6 +163,45 @@ $animation5Height: 460px;
         margin-right: 0;
       }
     }
+
+    .github-buttons {
+      margin-top: 20px;
+      text-align: center;
+
+      a {
+        margin-right: 12px;
+
+        &:last-child {
+          margin-right: 0;
+        }
+
+        div {
+          border-radius: 2px;
+          display: inline-block;
+          height: 24px;
+          line-height: 24px;
+          font-size: 12px;
+          padding: 0 8px;
+          color: #fff;
+          background: rgba(255, 255, 255, 0.2);
+
+          img {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-top: -6px;
+          }
+
+          .count {
+            font-family: TXD_D_Medium;
+            font-size: 16px;
+            padding-left: 4px;
+            display: inline-block;
+            height: 100%;
+          }
+        }
+      }
+    }
   }
   .introduction-section {
     background: #F9FAFA;
@@ -193,7 +232,7 @@ $animation5Height: 460px;
         top: 165px;
         width: 3px;
         height: 17px;
-        background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%); 
+        background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%);
       }
       .introduction {
         display: inline-block;
@@ -224,7 +263,7 @@ $animation5Height: 460px;
         .introduction {
           display: inline-block;
           width: 100%;
-          max-width: 100%; 
+          max-width: 100%;
         }
         img {
           margin: 0;
@@ -257,7 +296,7 @@ $animation5Height: 460px;
       transform: translateX(-50%);
       width: 3px;
       height: 17px;
-      background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%); 
+      background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%);
     }
     h3 {
       font-family: Avenir-Heavy;
@@ -281,7 +320,7 @@ $animation5Height: 460px;
         min-height: 325px;
 
         img {
-	  margin-top: 40px;	
+	  margin-top: 40px;
           width: 325px;
         }
 
@@ -352,7 +391,7 @@ $animation5Height: 460px;
         transform: translateX(-50%);
         width: 3px;
         height: 17px;
-        background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%); 
+        background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%);
       }
       h3 {
         font-family: Avenir-Heavy;
@@ -426,7 +465,7 @@ $animation5Height: 460px;
         top: 48px;
         width: 3px;
         height: 17px;
-        background: #fff; 
+        background: #fff;
       }
       .left-part {
         display: inline-block;
@@ -512,7 +551,7 @@ $animation5Height: 460px;
       transform: translateX(-50%);
       width: 3px;
       height: 17px;
-      background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%); 
+      background-image: linear-gradient(0deg, $startColor 0%, $intermediateColor 51%, $endColor 100%);
     }
     h3 {
       font-family: Avenir-Heavy;
