@@ -562,3 +562,29 @@ $animation5Height: 460px;
     }
   }
 }
+
+.cloud-native-section {
+  padding: 60px 0;
+  background: #f4f4f4;
+  .container {
+    max-width: 990px;
+    text-align: center;
+    margin: 0 auto;
+    img {
+      width: 300px;
+      max-width: 100%;
+      vertical-align: middle;
+      border: none;
+    }
+    p {
+      font-weight: 300;
+      font-size: 24px;
+      margin: 24px 0;
+    }
+  }
+  @media (min-width: 1200px) {
+    .container {
+        width: 1170px;
+    }
+  }
+}
