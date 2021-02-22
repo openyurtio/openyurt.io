@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="yurt-app-manager" />
+	<meta name="description" content="yurt-app-manager" />
+	<!-- 网页标签标题 -->
+	<title>yurt-app-manager</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/documentation.css" />
+</head>
+<body>
+	<div id="root"><div class="documentation-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><a href="/en-us/index.html"><img class="logo" src="/img/OpenYurt.png"/></a><div class="search search-normal"><span class="icon-search"></span></div><span class="language-switch language-switch-normal">中</span><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/en-us/index.html" target="_self">HOME</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/en-us/docs/developer-guide.html" target="_self">DOCS</a></li><li class="menu-item menu-item-normal"><a href="/en-us/blog/index.html" target="_self">BLOG</a></li></ul></div></div></header><div class="bar"><div class="bar-body"><img src="/img/system/docs.png" class="front-img"/><span>Documentation</span><img src="/img/system/docs.png" class="back-img"/></div></div><section class="content-section"><div class="sidemenu"><div class="sidemenu-toggle"><img src="https://img.alicdn.com/tfs/TB1E6apXHGYBuNjy0FoXXciBFXa-200-200.png"/></div><ul><li class="menu-item menu-item-level-1"><span>OpenYurt</span><ul><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/developer-guide.html" target="_self">Developer Guide</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/roadmap.html" target="_self">Roadmap</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/todo.html" target="_self">Todo</a></li><li style="height:252px;overflow:hidden" class="menu-item menu-item-level-2"><span>Tutorial<img style="transform:rotate(0deg)" class="menu-toggle" src="/img/system/arrow_down.png"/></span><ul><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-e2e-test.html" target="_self">Yurt-e2e-test</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/manually-setup.html" target="_self">Manually Setup</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurtctl.html" target="_self">Yurtctl tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-app-manager-dev.html" target="_self">Yurt app manager dev tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-app-manager.html" target="_self">Yurt app manager tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-tunnel.html" target="_self">Yurt Tunnel tutorial</a></li></ul></li></ul></li></ul></div><div class="doc-content markdown-body"><h1>Use yurt-app-manager to manage edge nodes and workloads</h1>
+<p>In this tutorial, we will show how the yurt-app-manager helps users manage
+there edge nodes and workload.
+Suppose you have a Kubernetes cluster in an Openyurt environment, or a native Kubernetes cluster with at least two nodes.</p>
+<h2>Install yurt-app-manager</h2>
+<h3>1. install yurt-app-manager operator</h3>
+<p>Go to OpenYurt root directory:</p>
+<pre><code class="language-bash">$ <span class="hljs-built_in">cd</span> <span class="hljs-variable">$GOPATH</span>/src/github.com/openyurtio/openyurt
+</code></pre>
+<pre><code class="language-bash">kubectl apply -f config/yurt-app-manager/release/yurt-app-manager-v0.3.0.yaml
+</code></pre>
+<p>Wait for the yurt-app-manager operator  to be created successfully</p>
+<pre><code class="language-bash">kubectl get pod -n kube-system |grep yurt-app-manager
+</code></pre>
+<h2>How to Use</h2>
+<p>The Examples of NodePool and UnitedDeployment are in <code>config/yurt-app-manager/samples/</code> directory</p>
+<h3>NodePool</h3>
+<ul>
+<li>1 create an nodepool</li>
+</ul>
+<pre><code class="language-bash">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: Pool-A
+spec:
+  <span class="hljs-built_in">type</span>: Edge
+  annotations:
+    apps.openyurt.io/example: <span class="hljs-built_in">test</span>-Pool-A
+  labels:
+    apps.openyurt.io/example: <span class="hljs-built_in">test</span>-Pool-A
+  taints:
+  - key: apps.openyurt.io/example
+    value: <span class="hljs-built_in">test</span>-Pool-A
+    effect: NoSchedule
+EOF
+</code></pre>
+<ul>
+<li>2 Get NodePool</li>
+</ul>
+<pre><code class="language-bash">$ kubectl get np Pool-A
+
+NAME       TYPE   READYNODES   NOTREADYNODES   AGE
+Pool-A     Edge                                28s
+</code></pre>
+<ul>
+<li>3 Add Node To NodePool</li>
+</ul>
+<p>Add an node into <code>Pool-A</code> NodePool, Set the <code>apps.openyurt.io/desired-nodepool</code> label on the host, and value is the name of the Pool-A NodePool</p>
+<pre><code class="language-bash">$ kubectl label node {Your_Node_Name} apps.openyurt.io/desired-nodepool=Pool-A
+
+{Your_Node_Name} labeled
+</code></pre>
+<pre><code class="language-bash">$ kubectl get np Pool-A
+NAME       TYPE   READYNODES   NOTREADYNODES   AGE
+Pool-A     Edge   1            0               5m19s
+</code></pre>
+<p>Once a Node adds a NodePool, it inherits the annotations, labels, and taints defined in the nodepool Spec,at the same time, the Node will add a new tag: <code>apps.openyurt.io/nodepool</code>. For Example:</p>
+<pre><code class="language-bash">$ kubectl get node {Your_Node_Name} -o yaml
+
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    apps.openyurt.io/example: <span class="hljs-built_in">test</span>-Pool-A
+  labels:
+    apps.openyurt.io/desired-nodepool: Pool-A
+    apps.openyurt.io/example: <span class="hljs-built_in">test</span>-Pool-A
+    apps.openyurt.io/nodepool: Pool-A
+spec:
+  taints:
+  - effect: NoSchedule
+    key: apps.openyurt.io/example
+    value: <span class="hljs-built_in">test</span>-Pool-A
+status:
+***
+</code></pre>
+<h3>UnitedDeployment</h3>
+<ul>
+<li>1 create an uniteddeployment which use deployment template</li>
+</ul>
+<pre><code class="language-bash">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: UnitedDeployment
+metadata:
+  labels:
+    controller-tools.k8s.io: <span class="hljs-string">"1.0"</span>
+  name: ud-test
+spec:
+  selector:
+    matchLabels:
+      app: ud-test
+  workloadTemplate:
+    deploymentTemplate:
+      metadata:
+        labels:
+          app: ud-test
+      spec:
+        template:
+          metadata:
+            labels:
+              app: ud-test
+          spec:
+            containers:
+              - name: nginx
+                image: nginx:1.19.1
+  topology:
+    pools:
+    - name: edge
+      nodeSelectorTerm:
+        matchExpressions:
+        - key: apps.openyurt.io/nodepool
+          operator: In
+          values:
+          - Pool-A
+      replicas: 3
+      tolerations:
+      - effect: NoSchedule
+        key: apps.openyurt.io/example
+        operator: Exists
+  revisionHistoryLimit: 5
+EOF
+</code></pre>
+<ul>
+<li>2 Get UnitedDeployment</li>
+</ul>
+<pre><code class="language-bash">$ kubectl get ud
+NAME      READY   WORKLOADTEMPLATE   AGE
+ud-test   1       Deployment         23s
+</code></pre>
+<p>check the sub deployment created by yurt-app-manager controller</p>
+<pre><code class="language-bash">$ kubectl get deploy
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+ud-test-edge-ttthd   1/1     1            1           100s
+</code></pre>
+<p>check the pod created by UnitedeDeployment , and you will find that these pods will be created on all the hosts under the <code>Pool-A</code> NodePool,  and all the pods created by UnitedDeployment use the same image: <code>nginx:1.19.1</code></p>
+<pre><code>$ kubectl get pod -l app=ud-test
+
+NAME                                  READY   STATUS    RESTARTS   AGE
+ud-test-edge-ttthd-5db8f454dd-8jd4l   1/1     Running   0          7m
+ud-test-edge-ttthd-5db8f454dd-ggmfb   1/1     Running   0          34s
+ud-test-edge-ttthd-5db8f454dd-r6ptr   1/1     Running   0          34s
+</code></pre>
+<ul>
+<li>3 Change UnitedDeployment workloadTemplate's image
+change image from <code>nginx:1.19.1</code> to <code>nginx:1.19.3</code>, and you will find that all pods created by UnitedDeployment use the same image:<code>nginx:1.19.3</code></li>
+</ul>
+<pre><code class="language-bash">kubectl patch ud ud-test --<span class="hljs-built_in">type</span>=<span class="hljs-string">'json'</span> -p <span class="hljs-string">'[{"op": "replace", "path": "/spec/workloadTemplate/deploymentTemplate/spec/template/spec/containers/0/image", "value": "nginx:1.19.3"}]'</span>
+kubectl get pod -l app=ud-test
+</code></pre>
+<ul>
+<li>4 Scale the number of pods under a node pool</li>
+</ul>
+<pre><code class="language-bash">$ kubectl patch ud ud-test --<span class="hljs-built_in">type</span>=<span class="hljs-string">'json'</span> -p <span class="hljs-string">'[{"op": "replace", "path": "/spec/topology/pools/0/replicas", "value": 6}]'</span>
+</code></pre>
+<p>You will find that the number of pods will be expanded to six</p>
+<pre><code class="language-bash">$ kubectl get pod -l app=ud-test
+NAME                                  READY   STATUS    RESTARTS   AGE
+ud-test-edge-ttthd-5bbb4b8664-2f5ss   1/1     Running   0          10m
+ud-test-edge-ttthd-5bbb4b8664-8sjs7   1/1     Running   0          3m20s
+ud-test-edge-ttthd-5bbb4b8664-99dml   1/1     Running   0          10m
+ud-test-edge-ttthd-5bbb4b8664-dvb8s   1/1     Running   0          10m
+ud-test-edge-ttthd-5bbb4b8664-lxhgr   1/1     Running   0          3m20s
+ud-test-edge-ttthd-5bbb4b8664-zj8ls   1/1     Running   0          3m20s
+</code></pre>
+</div></section><footer class="footer-container"><div class="cloud-native"><div class="container"><img src="https://d33wubrfki0l68.cloudfront.net/ea0d91fac8683c38ea9a1fb8a4e9914627ac6aae/8efa9/img/logos/cloud-native-computing.svg"/><p>We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.</p></div></div><div class="copyright"><span>Copyright © 2021 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: <a href="https://www.linuxfoundation.org/trademark-usage">https://www.linuxfoundation.org/trademark-usage</a></span></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/documentation.js"></script>
+</body>
+</html>

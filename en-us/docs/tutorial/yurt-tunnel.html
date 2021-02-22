@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="keywords" content="yurt-tunnel" />
+	<meta name="description" content="yurt-tunnel" />
+	<!-- 网页标签标题 -->
+	<title>yurt-tunnel</title>
+	<link rel="shortcut icon" href="/img/docsite.ico"/>
+	<link rel="stylesheet" href="/build/documentation.css" />
+</head>
+<body>
+	<div id="root"><div class="documentation-page" data-reactroot=""><header class="header-container header-container-normal"><div class="header-body"><a href="/en-us/index.html"><img class="logo" src="/img/OpenYurt.png"/></a><div class="search search-normal"><span class="icon-search"></span></div><span class="language-switch language-switch-normal">中</span><div class="header-menu"><img class="header-menu-toggle" src="/img/system/menu_gray.png"/><ul><li class="menu-item menu-item-normal"><a href="/en-us/index.html" target="_self">HOME</a></li><li class="menu-item menu-item-normal menu-item-normal-active"><a href="/en-us/docs/developer-guide.html" target="_self">DOCS</a></li><li class="menu-item menu-item-normal"><a href="/en-us/blog/index.html" target="_self">BLOG</a></li></ul></div></div></header><div class="bar"><div class="bar-body"><img src="/img/system/docs.png" class="front-img"/><span>Documentation</span><img src="/img/system/docs.png" class="back-img"/></div></div><section class="content-section"><div class="sidemenu"><div class="sidemenu-toggle"><img src="https://img.alicdn.com/tfs/TB1E6apXHGYBuNjy0FoXXciBFXa-200-200.png"/></div><ul><li class="menu-item menu-item-level-1"><span>OpenYurt</span><ul><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/developer-guide.html" target="_self">Developer Guide</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/roadmap.html" target="_self">Roadmap</a></li><li style="height:36px;overflow:hidden" class="menu-item menu-item-level-2"><a href="/en-us/docs/todo.html" target="_self">Todo</a></li><li style="height:252px;overflow:hidden" class="menu-item menu-item-level-2"><span>Tutorial<img style="transform:rotate(0deg)" class="menu-toggle" src="/img/system/arrow_down.png"/></span><ul><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-e2e-test.html" target="_self">Yurt-e2e-test</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/manually-setup.html" target="_self">Manually Setup</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurtctl.html" target="_self">Yurtctl tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-app-manager-dev.html" target="_self">Yurt app manager dev tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-app-manager.html" target="_self">Yurt app manager tutorial</a></li><li class="menu-item menu-item-level-3"><a href="/en-us/docs/tutorial/yurt-tunnel.html" target="_self">Yurt Tunnel tutorial</a></li></ul></li></ul></li></ul></div><div class="doc-content markdown-body"><h1>Yurt-tunnel tutorial</h1>
+<h2>Use Yurt-tunnel to connect apiserver and edge node</h2>
+<p>In this tutorial, we will show how the yurt-tunnel helps the apiserver send
+request to nodes when the network traffic from apiserver to the node is
+blocked. To mimic the real scenario where the cloud node and edge nodes may
+locate in separate network regions, we use a two-nodes minikube as the
+experimental cluster.</p>
+<h3>1. Provision a minikube cluster</h3>
+<p>Start from version 1.10, minikube allows users to provision multinode clusters.
+Depending on the version you are using, minikube may use docker as the default
+driver, which is not supported by yurt-tunnel. Therefore, make sure to choose
+hyperkit or virtualbox as your driver. For example, the OSX user can create a
+two-nodes minikube cluster by typing the following command:</p>
+<pre><code class="language-bash">minikube start --nodes 2 --driver hyperkit
+</code></pre>
+<p>If everything goes right, we will have a two-nodes cluster up and running:</p>
+<pre><code class="language-bash">$ kubectl get nodes -o wide
+NAME           STATUS   ROLES    AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE               KERNEL-VERSION   CONTAINER-RUNTIME
+minikube       Ready    master   3h50m   v1.18.3   192.168.64.3   &lt;none&gt;        Buildroot 2019.02.11   4.19.114         docker://19.3.12
+minikube-m02   Ready    &lt;none&gt;   3h48m   v1.18.3   192.168.64.9   &lt;none&gt;        Buildroot 2019.02.11   4.19.114         docker://19.3.12
+</code></pre>
+<p>In the rest of this tutorial, we will assume that the node named <code>minikube</code> is the
+cloud node, and the node named <code>minikube-m02</code> is the edge node.</p>
+<h3>2. Create a test pod</h3>
+<p>As we plan to test the functionality of routing requests from the apiserver to
+nodes, which usually happens when the apiserver receives requests of accessing
+the pods, let's create a test pod that will run on the edge node.</p>
+<pre><code class="language-bash">$ kubectl apply -f-&lt;&lt;EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: <span class="hljs-built_in">test</span>-po
+  namespace: default
+spec:
+  nodeName: minikube-m02
+  containers:
+  - name: <span class="hljs-built_in">test</span>-po
+    image: busybox
+    <span class="hljs-built_in">command</span>:
+    - top
+EOF
+</code></pre>
+<p>After the <code>test-po</code> is running, we can check the connection between the apiserver
+and the node by typing the following commands:</p>
+<pre><code class="language-bash">$ kubectl <span class="hljs-built_in">exec</span> <span class="hljs-built_in">test</span>-po -- date
+Fri Aug  7 23:17:27 UTC 2020
+</code></pre>
+<h3>4. Block the network traffic from the apiserver to the node</h3>
+<p>Next, let's block the network traffic from the apiserver to the node by dropping
+network packages that are sent from the apiserver to the node. Specifically,
+we add a nat rule to the cloud node that drops all packets to the node with
+destination port set as 10250 (kubelet listens on port 10250 which receives
+https request from the apiserver).</p>
+<pre><code class="language-bash">$ minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/<span class="hljs-string">')  _   _ | |_      __
+/'</span> _ ` _ `\| |/<span class="hljs-string">' _ `\| || , &lt;  ( ) ( )| '</span>_`\  /<span class="hljs-string">'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'</span>(_,__/<span class="hljs-string">'`\____)
+
+$ sudo iptables -A OUTPUT -p tcp -d 192.168.64.9 --dport 10250 -j DROP
+</span></code></pre>
+<p>Now, if we try to execute the <code>date</code> command in <code>test-po</code> again, the command
+will hang.</p>
+<h3>5. Setup the yurt-tunnel manually</h3>
+<p>It is recommended to use <code>yurtctl</code> tool to deploy yurt-tunnel components by
+adding the <code>--deploy-yurttunnel</code> option when coverting a Kubernetes cluster. For example,</p>
+<pre><code class="language-bash">yurtctl convert --cloud-nodes minikube --provider minikube --deploy-yurttunnel
+</code></pre>
+<p>You may also setup the yurt-tunnel manually by deploying yurt-tunnel-server
+and yurt-tunnel-agent separately.</p>
+<p>To set up the yurt-tunnel-server, let's first add a label to the cloud node</p>
+<pre><code class="language-bash">kubectl label nodes minikube openyurt.io/is-edge-worker=<span class="hljs-literal">false</span>
+</code></pre>
+<p>Then, we can deploy the yurt-tunnel-server:</p>
+<pre><code class="language-bash">$ kubectl apply -f config/setup/yurt-tunnel-server.yaml
+</code></pre>
+<p>Next, we can set up the yurt-tunnel-agent. Like before, we add a label to the
+edge node, which allows the yurt-tunnel-agent to be run on the edge node:</p>
+<pre><code class="language-bash">kubectl label nodes minikube-m02 openyurt.io/edge-enable-reverseTunnel-client=<span class="hljs-literal">true</span>
+</code></pre>
+<p>And, apply the yurt-tunnel-agent yaml:</p>
+<pre><code class="language-bash">kubectl apply -f config/setup/yurt-tunnel-agent.yaml
+</code></pre>
+<p>After the agent and the server are running, we should execute the command in
+the test-po again.</p>
+</div></section><footer class="footer-container"><div class="cloud-native"><div class="container"><img src="https://d33wubrfki0l68.cloudfront.net/ea0d91fac8683c38ea9a1fb8a4e9914627ac6aae/8efa9/img/logos/cloud-native-computing.svg"/><p>We are a <a href="https://www.cncf.io">Cloud Native Computing Foundation</a> sandbox project.</p></div></div><div class="copyright"><span>Copyright © 2021 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: <a href="https://www.linuxfoundation.org/trademark-usage">https://www.linuxfoundation.org/trademark-usage</a></span></div></footer></div></div>
+	<script src="https://f.alicdn.com/react/15.4.1/react-with-addons.min.js"></script>
+	<script src="https://f.alicdn.com/react/15.4.1/react-dom.min.js"></script>
+	<script>
+		window.rootPath = '';
+  </script>
+	<script src="/build/documentation.js"></script>
+</body>
+</html>
