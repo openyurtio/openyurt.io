@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { getScrollTop, getLink } from '../../../utils';
 import Header from '../../components/header';
 import Button from '../../components/button';
-import Footer from '../../components/footer';
 import Language from '../../components/language';
 import Item from './featureItem';
 import FunctionItem from './functionItem';
@@ -74,7 +73,7 @@ class Home extends Language {
             </div>
             <img src={getLink(dataSource.introduction.img)} />
           </div>
-        </section>    
+        </section>
         <section className="function-section">
             <h3>{dataSource.functions.title}</h3>
             <div>
@@ -97,7 +96,12 @@ class Home extends Language {
             </ul>
           </div>
         </section>
-        <Footer logo="/img/OpenYurt.png" language={language} />
+        <section className="cloud-native-section">
+          <div className="container">
+            <img src="https://d33wubrfki0l68.cloudfront.net/ea0d91fac8683c38ea9a1fb8a4e9914627ac6aae/8efa9/img/logos/cloud-native-computing.svg" />
+            <p dangerouslySetInnerHTML={{ __html: dataSource.cloudNative }} />
+          </div>
+        </section>
       </div>
     );
   }
