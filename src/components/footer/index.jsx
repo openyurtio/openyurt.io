@@ -20,7 +20,7 @@ class Footer extends React.Component {
             <p dangerouslySetInnerHTML={{ __html: dataSource.cloudNative }} />
           </div>
         </div>
-        <div className="copyright"><span>{dataSource.copyright}</span></div>
+        <div className="copyright"><span dangerouslySetInnerHTML={{__html: dataSource.copyright}}/></div>
       </footer>
     );
   }

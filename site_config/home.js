@@ -11,7 +11,7 @@ export default {
         },
         {
           text: '查看Github',
-          link: 'https://github.com/alibaba/openyurt',
+          link: 'https://github.com/openyurtio/openyurt',
           type: 'normal',
         },
       ],
@@ -100,7 +100,7 @@ export default {
         },
         {
           text: 'View on Github',
-          link: 'https://github.com/alibaba/openyurt',
+          link: 'https://github.com/openyurtio/openyurt',
           type: 'normal',
         },
       ],

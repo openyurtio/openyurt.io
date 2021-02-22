@@ -63,7 +63,7 @@ export default {
         },
       ],
     },
-    copyright: 'Copyright © 2018 The OpenYurt Authors | An Alibaba Middleware (Aliware) Project',
+    copyright: 'Copyright © 2021 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: <a href="https://www.linuxfoundation.org/trademark-usage">https://www.linuxfoundation.org/trademark-usage</a>',
   },
   'zh-cn': {
     pageMenu: [
@@ -123,6 +123,6 @@ export default {
         },
       ],
     },
-    copyright: 'Copyright © 2018 The OpenYurt Authors | An Alibaba Middleware (Aliware) Project',
+    copyright: 'Copyright © 2021 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: <a href="https://www.linuxfoundation.org/trademark-usage">https://www.linuxfoundation.org/trademark-usage</a>',
   },
 };

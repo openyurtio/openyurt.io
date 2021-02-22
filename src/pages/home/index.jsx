@@ -16,6 +16,8 @@ class Home extends Language {
     super(props);
     this.state = {
       headerType: 'primary',
+      starCount: 0,
+      forkCount: 0,
     };
   }
 
@@ -32,9 +34,20 @@ class Home extends Language {
         });
       }
     });
+
+    // 写死协议，因github会做协议跳转，这种跳转会被Safari拦截
+    fetch('https://api.github.com/repos/openyurtio/openyurt')
+        .then(res => res.json())
+        .then((data) => {
+          this.setState({
+            starCount: data.stargazers_count,
+            forkCount: data.forks_count,
+          });
+        });
   }
 
   render() {
+    const { starCount, forkCount } = this.state;
     const language = this.getLanguage();
     const dataSource = homeConfig[language];
     const { headerType } = this.state;
@@ -58,6 +71,20 @@ class Home extends Language {
             {
               dataSource.brand.buttons.map(b => <Button type={b.type} key={b.type} link={b.link} target={b.target}>{b.text}</Button>)
             }
+            </div>
+            <div className="github-buttons">
+              <a href="https://github.com/openyurtio/openyurt" target="_blank" rel="noopener noreferrer">
+                <div className="star">
+                  <img src="https://img.alicdn.com/tfs/TB1FlB1JwHqK1RjSZFPXXcwapXa-32-32.png" />
+                  <span className="count">{starCount}</span>
+                </div>
+              </a>
+              <a href="https://github.com/openyurtio/openyurt/fork" target="_blank" rel="noopener noreferrer">
+                <div className="fork">
+                  <img src="https://img.alicdn.com/tfs/TB1zbxSJwDqK1RjSZSyXXaxEVXa-32-32.png" />
+                  <span className="count">{forkCount}</span>
+                </div>
+              </a>
             </div>
           </div>
           <div className="animation animation1" />
