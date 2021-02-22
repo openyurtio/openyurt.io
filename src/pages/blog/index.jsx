@@ -47,7 +47,7 @@ class Blog extends Language {
             </ul>
           </div>
         </section>
-        <Footer logo="/img/OpenYurt.png" language={language} />
+        <Footer language={language} />
       </div>
     );
   }

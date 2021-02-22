@@ -107,7 +107,7 @@ class Documentation extends Language {
             dangerouslySetInnerHTML={{ __html }}
           />
         </section>
-        <Footer logo="/img/OpenYurt.png" language={language} />
+        <Footer language={language} />
       </div>
     );
   }
