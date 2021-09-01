@@ -6,7 +6,7 @@ export default {
       {
         title: 'Edge computing cloud native project:OpenYurt',
         author: '郭飞，徙远，新胜',
-        dateStr: 'May 29，2018',
+        dateStr: 'May 29，2020',
         desc: 'introduce of OpenYurt, including generation background, technical characteristics, core competence, road map',
         link: '/zh-cn/blog/OpenYurt-01.html',
       },
@@ -17,9 +17,9 @@ export default {
     postsTitle: '所有文章',
     list: [
       {
-        title: 'Edge computing cloud native project:OpenYurt',
+        title: '边缘计算云原生项目OpenYurt',
         author: '郭飞，徙远，新胜',
-        dateStr: 'May 29，2018',
+        dateStr: 'May 29，2020',
         desc: 'OpenYurt介绍，包括诞生背景，技术特点，核心能力，发展路线',
         link: '/zh-cn/blog/OpenYurt-01.html',
       },
