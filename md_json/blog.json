@@ -59,8 +59,8 @@
   ],
   "zh-cn": [
     {
-      "filename": "OpenYurt-01.md",
-      "link": "/zh-cn/blog/OpenYurt-01.html",
+      "filename": "Play_with_Openyurt_on_Raspberry_Pi.md",
+      "link": "/zh-cn/blog/Play_with_Openyurt_on_Raspberry_Pi.html",
       "meta": {}
     },
     {
@@ -118,6 +118,16 @@
         "key1": "hello",
         "key2": "world"
       }
+    },
+    {
+      "filename": "introduce_of_OpenYurt.md",
+      "link": "/zh-cn/blog/introduce_of_OpenYurt.html",
+      "meta": {}
+    },
+    {
+      "filename": "use_of_yurtctl.md",
+      "link": "/zh-cn/blog/use_of_yurtctl.html",
+      "meta": {}
     }
   ]
 }
