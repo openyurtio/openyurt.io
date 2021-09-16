@@ -59,6 +59,11 @@
   ],
   "zh-cn": [
     {
+      "filename": "Expansion_Capability_of_Yurthub.md",
+      "link": "/zh-cn/blog/Expansion_Capability_of_Yurthub.html",
+      "meta": {}
+    },
+    {
       "filename": "Play_with_Openyurt_on_Raspberry_Pi.md",
       "link": "/zh-cn/blog/Play_with_Openyurt_on_Raspberry_Pi.html",
       "meta": {}

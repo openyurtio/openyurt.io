@@ -31,6 +31,13 @@ export default {
         desc: 'introduce of edge autonomy and the design detail about YurtHub that realizes the edge autonomy of OpenYurt',
         link: '/zh-cn/blog/YurtHub_Design_Detail.html',
       },
+      {
+        title: 'Viewing Expansion Ability of YurtHub from Edge Autonomy',
+        author: '新胜',
+        dateStr: 'June 29，2020',
+        desc: 'Focus on the expansion capabilities of YurtHub: 1) Edge network autonomy; 2) Multi-cloud address support; 3) Cloud flow control in the node dimension; 4) Node certificate rotation management',
+        link: '/zh-cn/blog/Expansion_Capability_of_Yurthub.html',
+      },
     ],
   },
   'zh-cn': {
@@ -42,7 +49,7 @@ export default {
         author: '郭飞，徙远，新胜',
         dateStr: 'May 29，2020',
         desc: 'OpenYurt介绍，包括诞生背景，技术特点，核心能力，发展路线',
-        link: '/zh-cn/blog/use_of_yurtctl.html',
+        link: '/zh-cn/blog/introduce_of_OpenYurt.html',
       },
       {
         title: 'OpenYurt 开箱测评 | 一键让原生 K8s 集群具备边缘计算能力',
@@ -64,6 +71,13 @@ export default {
         dateStr: 'June 18，2020',
         desc: '介绍边缘自治特性以及OpenYurt实现边缘自治的设计细节',
         link: '/zh-cn/blog/YurtHub_Design_Detail.html',
+      },
+      {
+        title: '从边缘自治看YurtHub的扩展能力',
+        author: '新胜',
+        dateStr: 'June 29，2020',
+        desc: '主要介绍了YurtHub的扩展能力: 1) 边缘网络自治; 2) 多云端地址支持; 3) 节点维度的流量控制; 4) 节点证书轮换管理',
+        link: '/zh-cn/blog/Expansion_Capability_of_Yurthub.html',
       },
     ],
   },
