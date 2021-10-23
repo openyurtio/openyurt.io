@@ -38,6 +38,13 @@ export default {
         desc: 'Focus on the expansion capabilities of YurtHub: 1) Edge network autonomy; 2) Multi-cloud address support; 3) Cloud flow control in the node dimension; 4) Node certificate rotation management',
         link: '/zh-cn/blog/Expansion_Capability_of_Yurthub.html',
       },
+      {
+        title: 'How Openyurt runs the business pod in edge scenarios',
+        author: '新胜',
+        dateStr: 'Oct 15，2021',
+        desc: 'Seamlessly run business Pods using InClusterConfig in edge scenarios',
+        link: '/zh-cn/blog/How_run_business_pod_in_edge_scenarios.html',
+      },
     ],
   },
   'zh-cn': {
@@ -78,6 +85,13 @@ export default {
         dateStr: 'June 29，2020',
         desc: '主要介绍了YurtHub的扩展能力: 1) 边缘网络自治; 2) 多云端地址支持; 3) 节点维度的流量控制; 4) 节点证书轮换管理',
         link: '/zh-cn/blog/Expansion_Capability_of_Yurthub.html',
+      },
+      {
+        title: '边缘场景下，Openyurt如何无缝运行业务Pod',
+        author: '新胜',
+        dateStr: 'Oct 15，2021',
+        desc: 'OpenYurt: 在边缘场景无缝运行使用InClusterConfig的业务Pod',
+        link: '/zh-cn/blog/How_run_business_pod_in_edge_scenarios.html',
       },
     ],
   },
