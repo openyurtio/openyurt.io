@@ -1,6 +1,8 @@
 # 边缘网关缓存能力的优雅实现
 2021-03-29  **阿里巴巴云原生**
+
 ![image](../../img/blog_img/OpenYurt.png)
+
 
 ## OpenYurt如何解决边缘自治问题
 
@@ -10,8 +12,10 @@
 
 ### 1）Yurthub架构
 在之前的文章中，我们详细介绍了YurtHub 组件的能力。其架构图如下：
+
 ![image](../../img/blog_img/yurthub.png)
 YurtHub是一个带有数据缓存功能的“透明网关”，和云端网络断连状态下，如果节点或者组件重启，各个组件（kubelet/kube-proxy 等)将从 YurtHub 中获取到业务容器相关数据，有效解决边缘自治的问题。这也意味着我们需要实现一个轻量的带数据缓存能力的反向代理。
+
 
 
 ### 2）第一想法
@@ -44,7 +48,9 @@ func HandleResponse(rw http.ResponseWriter, resp *http.Response) {
 - 问题 1：如何对流数据同时进行读写
 
 针对流式数据的读写(一边返回一边缓存)，如下图所示，其实需要的不过是把 response.Body(io.Reader) 转换成一个 io.Reader 和一个 io.Writer。或者说是一个 io.Reader 和 io.Writer 合成一个 io.Reader。这很容易就联想到 Linux 里面的 Tee 命令。
+
 ![image](../../img/blog_img/responsebody_write.png)
+
 
 而在 Golang 中 Tee 命令是实现就是 io.TeeReader，那问题 1 的伪代码如下:
 ``` 
@@ -62,7 +68,9 @@ func HandleResponse(rw http.ResponseWriter, resp *http.Response) {
 - 问题 2：如何在缓存前先清洗流数据
 
 如下图所示，缓存前先清洗流数据，请求端和过滤端需要同时读取 response.Body（2 次读取问题）。也就是需要将 response.Body(io.Reader) 转换成两个 io.Reader。
+
 ![image](../../img/blog_img/responseread.png)
+
 
 
 也意味着问题 2 转化成：问题 1 中缓存端的 io.Writer 转换成 Data Filter 的 io.Reader。其实在 Linux 命令中也能找到类似命令，就是管道。因此问题 2 的伪代码如下：
