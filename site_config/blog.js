@@ -45,6 +45,13 @@ export default {
         desc: 'Seamlessly run business Pods using InClusterConfig in edge scenarios',
         link: '/zh-cn/blog/How_run_business_pod_in_edge_scenarios.html',
       },
+      {
+        title: 'Elegant realization of edge gateway caching capabilities',
+        author: '新胜',
+        dateStr: 'Mar 29，2021',
+        desc: 'the introduce about how OpenYurt solves the problem of edge autonomy',
+        link: '/zh-cn/blog/Elegant_realization_of_edge_gateway_caching_capabilities.html',
+      },
     ],
   },
   'zh-cn': {
@@ -92,6 +99,13 @@ export default {
         dateStr: 'Oct 15，2021',
         desc: 'OpenYurt: 在边缘场景无缝运行使用InClusterConfig的业务Pod',
         link: '/zh-cn/blog/How_run_business_pod_in_edge_scenarios.html',
+      },
+      {
+        title: '边缘网关缓存能力的优雅实现',
+        author: '新胜',
+        dateStr: 'Mar 29，2021',
+        desc: '1）OpenYurt如何解决边缘自治问题；2）YurtHub的实现',
+        link: '/zh-cn/blog/Elegant_realization_of_edge_gateway_caching_capabilities.html',
       },
     ],
   },
