@@ -52,6 +52,13 @@ export default {
         desc: 'the introduce about how OpenYurt solves the problem of edge autonomy',
         link: '/zh-cn/blog/Elegant_realization_of_edge_gateway_caching_capabilities.html',
       },
+      {
+        title: 'How to build Kubernetes Native Cloud side efficient collaborative network',
+        author: '郑超',
+        dateStr: 'Nov 06，2020',
+        desc: 'the introduce of the component of OpenYurt, Yurt-Tunnel',
+        link: '/zh-cn/blog/How_to_build_Kubernetes_native_cloud_edge_efficient_collaborative_network.html', 
+      },
     ],
   },
   'zh-cn': {
@@ -106,6 +113,13 @@ export default {
         dateStr: 'Mar 29，2021',
         desc: '1）OpenYurt如何解决边缘自治问题；2）YurtHub的实现',
         link: '/zh-cn/blog/Elegant_realization_of_edge_gateway_caching_capabilities.html',
+      },
+      {
+        title: '如何构建Kubernetes原生云边高效协同网络',
+        author: '郑超',
+        dateStr: 'Nov 06，2020',
+        desc: '介绍OpenYurt核心能力——云边通信以及相关组件',
+        link: '/zh-cn/blog/How_to_build_Kubernetes_native_cloud_edge_efficient_collaborative_network.html',
       },
     ],
   },
