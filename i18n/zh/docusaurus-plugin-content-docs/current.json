@@ -1,0 +1,28 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "快速开始",
+    "description": "The label for category Getting Started in sidebar docs"
+  },
+  "sidebar.docs.category.References": {
+    "message": "参考",
+    "description": "The label for category References in sidebar docs"
+  },
+  "sidebar.docs.category.Core Concepts": {
+    "message": "核心概念",
+    "description": "The label for Core Concepts in sidebar docs"
+  },
+  "sidebar.docs.category.Best Practices": {
+    "message": "最佳实践",
+    "description": "The label for category case studies in sidebar docs"
+  },
+  "sidebar.docs.category.User Manuals": {
+    "message": "用户手册"
+  },
+  "sidebar.docs.category.Developer Manuals": {
+    "message": "开发者手册"
+  }
+}
