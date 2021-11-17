@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunktemp_web=self.webpackChunktemp_web||[]).push([[8480],{2256:function(e){e.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/openyurt","name":"openyurt","count":3,"permalink":"/blog/tags/openyurt"}')}}]);

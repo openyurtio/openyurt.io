@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkopenyurt_io=self.webpackChunkopenyurt_io||[]).push([[3170],{8948:function(t){t.exports=JSON.parse('{"allTagsPath":"/zh/blog/tags","slug":"/zh/blog/tags/yurttunnel","name":"yurttunnel","count":1,"permalink":"/zh/blog/tags/yurttunnel"}')}}]);
