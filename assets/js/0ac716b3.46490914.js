@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunktemp_web=self.webpackChunktemp_web||[]).push([[6255],{7385:function(t){t.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"/blog/tags/yurtctl","name":"yurtctl","count":1,"permalink":"/blog/tags/yurtctl"}')}}]);

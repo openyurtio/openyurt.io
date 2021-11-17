@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel>
+        <title>OpenYurt Blog</title>
+        <link>https://openyurt.io/blog</link>
+        <description>OpenYurt Blog</description>
+        <lastBuildDate>Fri, 15 Oct 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[How Openyurt runs the business pod in edge scenarios]]></title>
+            <link>https://openyurt.io/blog/How-run-business-pod-in-edge-scenarios</link>
+            <guid>How-run-business-pod-in-edge-scenarios</guid>
+            <pubDate>Fri, 15 Oct 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[1.背景介绍]]></description>
+            <content:encoded><![CDATA[<h3>1.背景介绍</h3><p>OpenYurt是业界首个非侵入的边缘计算云原生开源项目，通过边缘自治，云边协同，边缘单元化，边缘流量闭环等能力为用户提供云边一体化的使用体验。不少用户在使用OpenYurt的时候，经常需要把存量的使用InClusterConfig访问kube-apiserver的Pod通过OpenYurt迁移到边缘环境中。如下图所示：</p><p><img src="../static/img/blog/InCluster1.png"/></p><p>在OpenYurt集群中，提供了使用InClusterConfig的业务Pod零修改就可以运行在边缘环境的能力。</p><h3>2.面临挑战</h3><p>使用InClusterConfig的业务Pod在边缘环境中运行，需要解决如下问题：</p><ul><li><p>问题一：Pod通过InClusterConfig地址访问kube-apiserver，节点上默认网络规则（iptables/ipvs）将会把请求转发到kube-apiserver的PodIP，同时云端与边缘位于不同网络平面，边缘是无法访问到云端的PodIP。所以边缘业务Pod无法通过InClusterConfig访问到kube-apiserver。</p><p><img src="../static/img/blog/Incluster2.png" alt="Incluster2"/></p></li><li><p>问题二：在解决问题一后，如果云边网络断开时业务Pod容器出现重启等状况，边缘Pod将无法从kube-apiserver获取到业务配置，这会影响到业务Pod的重启运行。</p></li></ul><h3>3.解决方案</h3><p>从上述问题可以看出，我们需要无感知的调整边缘pod的访问地址，同时需要在边缘环境中缓存业务配置，保证云边断网时也可以利用边缘缓存业务配置，保证云边断网时也可以利用边缘缓存来获取业务Pod的配置信息。具体解决方案如下；</p><h5>3.1边缘Pod访问的云端endpoint优化</h5><ul><li><p>Pod通过InClusterConfig访问kube-apiserver，源码如下：</p><pre><code class="language-go">func InClusterConfig() (*Config, error) {
+const (
+    tokenFile  = &quot;/var/run/secrets/kubernetes.io/serviceaccount/token&quot;
+    rootCAFile = &quot;/var/run/secrets/kubernetes.io/serviceaccount/ca.crt&quot;
+// 通过Kuberentes service对应的环境变量来获取访问地址
+host, port := os.Getenv(&quot;KUBERNETES_SERVICE_HOST&quot;), os.Getenv(&quot;KUBERNETES_SERVICE_PORT&quot;)
+if len(host) == 0 || len(port) == 0 {
+    return nil, ErrNotInCluster
+}
+
+// skip some code...
+
+return &amp;Config{
+    Host:            &quot;https://&quot; + net.JoinHostPort(host, port),
+    TLSClientConfig: tlsClientConfig,
+    BearerToken:     string(token),
+    BearerTokenFile: tokenFile,
+}, nil
+}
+</code></pre></li></ul><ul><li><p>因此想无感知调整边缘Pod访问的云端endpoint，只需要无侵入修改Pod的KUBERNETES_SERVICE_HOST和KUBERNETE_SERVICE_PORT两个环境变量或者修改kubernetes service地址。解决方案如下：</p><ul><li><p>解决方案一：增加一个admission controller在边缘Pod创建时把kube-apiserver的公网地址自动注入到Pod的环境变量KUBERNETES_SERVICE_HOST和KUBERNETE_SERVICE_PORT</p></li><li><p>解决方案二：边缘数据过滤框架中增加一个fillter yurthub的边缘数据过滤框架类似于admission controller ,专门用于边缘场景下在边缘应用无感知的状态下，无侵入的修改或者过滤云端返回的数据。目前支持的过滤器有：Masterservice，servicetopology，discardcloudservice等</p></li><li><p>解决方案对比：</p><table><thead><tr><th align="center"></th><th align="center">解决方案一</th><th align="center">解决方案二</th></tr></thead><tbody><tr><td align="center">实现方案</td><td align="center">增加一个admission controller</td><td align="center">边缘数据过滤框架中增加一个filter</td></tr><tr><td align="center">复杂度</td><td align="center">高（需要区别Pod运行在边缘还是云端）</td><td align="center">低</td></tr><tr><td align="center">显示修改数据</td><td align="center">Pod中增加环境变量配置</td><td align="center">无</td></tr></tbody></table></li></ul></li></ul><p>综合实现复杂度，非侵入等设计理念，在OpenYurt中我们选择了解决方案二。如下图所示：</p><p><img src="../static/img/blog/InCluster3.png"/></p><h5>3.2业务Pod的边缘自治</h5><p>在云边网络断开状态下，业务Pod重启时，将无法从云端kube-apiserver获取到业务配置信息，因此需要在边缘本地缓存Pod的业务数据。</p><p><img src="../static/img/blog/InCluster4.png"/></p><p>说明1：业务Pod通过yurthub访问kube-apiserver，也意味着<!-- -->[3.1 边缘Pod访问的云端endpoint优化]<!-- -->章节中提到的KUBERNETES_SERVICE_HOST和KUBERNETE_SERVICE_PORT环境变量被修改为yurthub https endpoint(169.254.2.1:10268)。</p><p>说明2：如果业务Pod的大量list/watch操作导致大量本地cache，可能会造成本地磁盘压力，因此yurthub对业务Pod的缓存能力默认是关闭的，用户可以通过yurt-hub-cfg configmap的cache_agents字段中增加User-Agent信息来打开对应Pod的数据缓存。例如：</p><pre><code class="language-go">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: yurt-hub-cfg
+  namespace: kube-system
+data:
+  # 缓存边缘ingress-controller pod访问kube-apiserver的数据
+  cache_agents: &quot;ingress-controller&quot;
+</code></pre><h3>4.总结</h3><ul><li><p>如果存量Pod无需访问kube-apiserver或者InClusterConfig访问kube-apiserver，这些类型Pod可以零修改运行到OpenYurt集群的边缘环境上。通过其他方式访问kube-apiserver的业务Pod目前无法保证零修改运行到边缘环境。</p></li><li><p>边缘业务Pod是否正常访问kube-apiserver，首先可以查看业务pod的环境变量是否正常：</p><p>KUBERNETES_SERVICE_HOST=127.0.0.1或者169.254.2.1，KUBERNETES_SERVICE_PORT=10268。然后可以查看yurthub组件的日志是否有业务Pod相关的请求日志。当然也可以查询业务Pod的日志是否正常。最后可以确认/etc/kubernetes/cache目录是否有相关组件的缓存数据，如果没有可以再确认kube-system/yurt-hub-cfg configmap是否已经配置。</p></li><li><p>使用InClusterConfig的Pod零修改运行到边缘环境的能力，整体实现由yurthub组件承载，没有给OpenYurt架构增加额外的负担，同时用户在使用过程中对该能力也基本无感知，对原生业务Pod无侵入。</p></li></ul><h3>参考链接：</h3><p>1.<a href="https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod">Accessing the API from a Pod</a></p><p>2.<a href="https://github.com/openyurtio/openyurt/blob/master/docs/proposals/20210720-data-filtering-framework.md">data filtering framework on the edge</a></p><p>3.<a href="https://mp.weixin.qq.com/s/4BLfvMJJA623ZwRSgUE69A">深度解读OpenYurt：边缘自治能力设计解析</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Elegant realization of edge gateway caching capabilities]]></title>
+            <link>https://openyurt.io/blog/Edge-gateway-caching-capabilities</link>
+            <guid>Edge-gateway-caching-capabilities</guid>
+            <pubDate>Mon, 29 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[image]]></description>
+            <content:encoded><![CDATA[<p><img src="../static/img/blog/OpenYurt.png" alt="image"/></p><h2>OpenYurt如何解决边缘自治问题</h2><p>想要实现将 Kubernetes 系统延展到边缘计算场景，那么边缘节点将通过公网和云端连接，网络连接有很大不可控因素，可能带来边缘业务运行的不稳定因素，这是云原生和边缘计算融合的主要难点之一。</p><p>解决这个问题，需要使边缘侧具有自治能力，即当云边网络断开或者连接不稳定时，确保边缘业务可以持续运行。在 OpenYurt 中，该能力由 yurt-controller-manager 和 YurtHub 组件提供。</p><h3>1）Yurthub架构</h3><p>在之前的文章中，我们详细介绍了YurtHub 组件的能力。其架构图如下：</p><p><img src="../static/img/blog/yurthub.png" alt="image"/>
+YurtHub是一个带有数据缓存功能的“透明网关”，和云端网络断连状态下，如果节点或者组件重启，各个组件（kubelet/kube-proxy 等)将从 YurtHub 中获取到业务容器相关数据，有效解决边缘自治的问题。这也意味着我们需要实现一个轻量的带数据缓存能力的反向代理。</p><h3>2）第一想法</h3><p>实现一个缓存数据的反向代理，第一想法就是从 response.Body 中读取数据，然后分别返回给请求 client 和本地的 Cache 模块。伪代码如下:</p><pre><code>func HandleResponse(rw http.ResponseWriter, resp *http.Response) {
+        bodyBytes, _ := ioutil.ReadAll(resp.Body)
+        go func() {
+                // cache response on local disk
+                cacher.Write(bodyBytes)
+        }
+
+        // client reads data from response
+        rw.Write(bodyBytes)
+}
+</code></pre><p>当深入思考后，在 Kubernetes 系统中，上述实现会引发下面的问题：</p><ul><li><p>问题 1：流式数据需要如何处理(如: K8s 中的 watch 请求)，意味 ioutil.ReadAll() 一次调用无法返回所有数据。即如何可以返回流数据同时又缓存流数据。</p></li><li><p>问题 2：同时在本地缓存数据前，有可能需要对传入的 byte slice 数据先进行清洗处理。这意味着需要修改 byte slice，或者先备份 byte slice 再处理。这样会造成内存的大量消耗，同时针对流式数据，到底申请多大的 slice 也不好处理。</p></li></ul><h3>3) 优雅实现探讨</h3><p>针对上面的问题，我们将问题逐个抽象，可以发现更优雅的实现方法。</p><ul><li>问题 1：如何对流数据同时进行读写</li></ul><p>针对流式数据的读写(一边返回一边缓存)，如下图所示，其实需要的不过是把 response.Body(io.Reader) 转换成一个 io.Reader 和一个 io.Writer。或者说是一个 io.Reader 和 io.Writer 合成一个 io.Reader。这很容易就联想到 Linux 里面的 Tee 命令。</p><p><img src="../static/img/blog/responsebody_write.png" alt="image"/></p><p>而在 Golang 中 Tee 命令是实现就是 io.TeeReader，那问题 1 的伪代码如下:</p><pre><code>func HandleResponse(rw http.ResponseWriter, resp *http.Response) {
+        // create TeeReader with response.Body and cacher
+        newRespBody := io.TeeReader(resp.Body, cacher)
+
+        // client reads data from response
+        io.Copy(rw, newRespBody)
+}
+</code></pre><p>通过 TeeReader 的对 Response.Body 和 Cacher 的整合，当请求 client 端从 response.Body 中读取数据时，将同时向 Cache 中写入返回数据，优雅的解决了流式数据的处理。</p><ul><li>问题 2：如何在缓存前先清洗流数据</li></ul><p>如下图所示，缓存前先清洗流数据，请求端和过滤端需要同时读取 response.Body（2 次读取问题）。也就是需要将 response.Body(io.Reader) 转换成两个 io.Reader。</p><p><img src="../static/img/blog/responseread.png" alt="image"/></p><p>也意味着问题 2 转化成：问题 1 中缓存端的 io.Writer 转换成 Data Filter 的 io.Reader。其实在 Linux 命令中也能找到类似命令，就是管道。因此问题 2 的伪代码如下：</p><pre><code>func HandleResponse(rw http.ResponseWriter, resp *http.Response) {
+        pr, pw := io.Pipe()
+        // create TeeReader with response.Body and Pipe writer
+        newRespBody := io.TeeReader(resp.Body, pw)
+        go func() {
+                // filter reads data from response 
+                io.Copy(dataFilter, pr)
+        }
+
+        // client reads data from response
+        io.Copy(rw, newRespBody)
+}
+</code></pre><p>通过 io.TeeReader 和 io.PiPe，当请求 client 端从 response.Body 中读取数据时，Filter 将同时从 Response 读取到数据，优雅的解决了流式数据的 2 次读取问题。</p><h2>YurtHub实现</h2><p>最后看一下 YurtHub 中相关实现，由于 Response.Body 为 io.ReadCloser，所以实现了 dualReadCloser。同时 YurtHub 可能也面临对 http.Request 的缓存，所以增加了 isRespBody 参数用于判定是否需要负责关闭 response.Body。</p><pre><code>// https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L156
+// NewDualReadCloser create an dualReadCloser object
+func NewDualReadCloser(rc io.ReadCloser, isRespBody bool) (io.ReadCloser, io.ReadCloser) {
+    pr, pw := io.Pipe()
+    dr := &amp;dualReadCloser{
+        rc:         rc,
+        pw:         pw,
+        isRespBody: isRespBody,
+    }
+
+    return dr, pr
+}
+
+type dualReadCloser struct {
+    rc io.ReadCloser
+    pw *io.PipeWriter
+    // isRespBody shows rc(is.ReadCloser) is a response.Body
+    // or not(maybe a request.Body). if it is true(it&#x27;s a response.Body),
+    // we should close the response body in Close func, else not,
+    // it(request body) will be closed by http request caller
+    isRespBody bool
+}
+
+// Read read data into p and write into pipe
+func (dr *dualReadCloser) Read(p []byte) (n int, err error) {
+    n, err = dr.rc.Read(p)
+    if n &gt; 0 {
+        if n, err := dr.pw.Write(p[:n]); err != nil {
+            klog.Errorf(&quot;dualReader: failed to write %v&quot;, err)
+            return n, err
+        }
+    }
+
+    return
+}
+
+// Close close two readers
+func (dr *dualReadCloser) Close() error {
+    errs := make([]error, 0)
+    if dr.isRespBody {
+        if err := dr.rc.Close(); err != nil {
+            errs = append(errs, err)
+        }
+    }
+
+    if err := dr.pw.Close(); err != nil {
+        errs = append(errs, err)
+    }
+
+    if len(errs) != 0 {
+        return fmt.Errorf(&quot;failed to close dualReader, %v&quot;, errs)
+    }
+
+    return nil
+}
+</code></pre><p>在使用 dualReadCloser 时，可以在 httputil.NewSingleHostReverseProxy 的 modifyResponse() 方法中看到。代码如下：</p><pre><code>// https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/proxy/remote/remote.go#L85
+func (rp *RemoteProxy) modifyResponse(resp *http.Response) error {rambohe-ch, 10 months ago: • hello openyurt
+            // 省略部分前置检查                                                          
+            rc, prc := util.NewDualReadCloser(resp.Body, true)
+            go func(ctx context.Context, prc io.ReadCloser, stopCh &lt;-chan struct{}) {
+                err := rp.cacheMgr.CacheResponse(ctx, prc, stopCh)
+                if err != nil &amp;&amp; err != io.EOF &amp;&amp; err != context.Canceled {
+                    klog.Errorf(&quot;%s response cache ended with error, %v&quot;, util.ReqString(req), err)
+                }
+            }(ctx, prc, rp.stopCh)
+
+            resp.Body = rc
+}
+</code></pre><h2>总结</h2><p>OpenYurt 于 2020 年 9 月进入 CNCF 沙箱后，持续保持了快速发展和迭代，在社区同学一起努力下，目前已经开源的能力有：</p><ul><li>边缘自治</li><li>边缘单元化管理</li><li>云边协同运维</li><li>一键式无缝转换能力</li></ul><p><a href="https://mp.weixin.qq.com/s/vdFrCDiIhPLVbOnf6vRxEw">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Getting Started with OpenYurt:play with OpenYurt on Raspberry Pi]]></title>
+            <link>https://openyurt.io/blog/Play-with-OpenYurt-on-Raspberry-Pi</link>
+            <guid>Play-with-OpenYurt-on-Raspberry-Pi</guid>
+            <pubDate>Tue, 05 Jan 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[image]]></description>
+            <content:encoded><![CDATA[<p><img src="../static/img/blog/Raspberry_Pi.png" alt="image"/></p><p>随着边缘计算的快速发展，越来越多的数据需要到网络的边缘侧进行存储、处理和分析，边缘的设备和应用呈爆发式增长。如何高效的管理边缘侧的资源和应用是业界面临的一个主要问题。当前，采用云原生的方法，将云计算的能力下沉到边缘并在云端做统一调度、管控的云边端一体化架构得到了业界的广泛认可。</p><p>2020 年 5 月，阿里巴巴开源首个 Kubernetes 无侵入的边缘计算云原生项目 OpenYurt，并于同年 9 月份进入 CNCF SandBox。OpenYurt 针对边缘场景中网络不稳定、云边运维困难等问题，对原生 Kubernetes 无侵入地增强，重点提供了边缘节点自治、云边运维通道、边缘单元化的能力。</p><p>如图下所示，
+<img src="../static/img/blog/kubernetes.png" alt="image"/></p><p>本文通过在云端部署 Kubernetes 集群的控制面，并将树莓派接入集群来搭建云管边场景。基于这个环境演示 OpenYurt 的核心能力，带大家快速上手 OpenYurt。</p><h2>环境准备</h2><h3>1）基础环境介绍</h3><p>在云端，购买 ENS 节点（ENS 节点具有公网 IP，方便通过公网对外暴露服务）来部署原生 K8s 集群的管控组件。其中系统采用 ubuntu18.04、hostname 为 master-node、docker 版本为 19.03.5。</p><p>在边缘，将树莓派 4 与本地的路由器连接，组成边缘私网环境，路由器通过 4G 网卡访问互联网。其中树莓派 4 预装系统为 ubuntu18.04、hostname为 edge-node、docker 版本为 19.03.5。
+<img src="../static/img/blog/edge_raspberry_pi.png" alt="image"/></p><h3>2)原生K8s集群搭建</h3><p>本文演示环境基于社区1.16.6版本的K8s集群，并采用社区提供的kubeadm工具来搭建集群，具体操作如下：</p><ul><li>在云端节点和树莓派上分别执行如下命令安装 Kubernetes 组件。</li></ul><pre><code>curl -s https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add -
+echo &quot;deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main&quot; &gt; /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt install -y kubelet=1.16.6-00 kubeadm=1.16.6-00 kubectl=1.16.6-00
+</code></pre><ul><li>使用kubeadm 初始化云端节点（在云端节点上执行如下命令），部署过程中采用阿里云的镜像仓库，为了支持树莓派的接入，该仓库的镜像做了 manifest 列表，能够支持 amd64/arm64 两种不同的 CPU 架构。</li></ul><pre><code># master-node
+kubeadm init --image-repository=registry.cn-hangzhou.aliyuncs.com/edge-kubernetes --kubernetes-version=v1.16.6 --pod-network-cidr=10.244.0.0/16
+</code></pre><ul><li>依据初始化完成之后的提示，拷贝 config 文件到 $HOME/.kube 中：</li></ul><pre><code>mkdir -p $HOME/.kube
+ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+</code></pre><ul><li>树莓派接入云端集群依据第二步中初始化完成以后输出的节点接入信息，在树莓派上执行接入命令。</li></ul><pre><code>kubeadm join 183.195.233.42:6443 --token XXXX \
+ --discovery-token-ca-cert-hash XXXX
+</code></pre><ul><li>添加 cni 配置（云端管控节点和树莓派都需要配置），本文搭建的集群使用主机网络。创建 cni 配置文件 /etc/cni/net.d/0-loopback.conf，并将如下内容拷贝到该文件中。</li></ul><pre><code>{
+ &quot;cniVersion&quot;: &quot;0.3.0&quot;,
+ &quot;name&quot;: &quot;lo&quot;,
+ &quot;type&quot;: &quot;loopback&quot;
+}
+</code></pre><ul><li>在 master 节点上查看部署效果。</li></ul><pre><code>NAME STATUS ROLES AGE VERSION INTERNAL-IP EXTERNAL-IP OS-IMAGE KERNEL-VERSION CONTAINER-RUNTIME
+edge-node Ready &lt;none&gt;   74s    v1.16.6   192.168.0.100    &lt;none&gt;        Ubuntu 18.04.4 LTS   4.19.105-v8-28      docker://19.3.5
+master-node   Ready    master   2m5s   v1.16.6   183.195.233.42   &lt;none&gt;        Ubuntu 18.04.2 LTS   4.15.0-52-generic   docker://19.3.5
+</code></pre><ul><li>删除 CoreDNS（本文 Demo 中 CoreDNS 不需要使用），并将 master 节点的 taints 去掉（方便后续部署 OpenYurt 组件）。</li></ul><pre><code>kubectl delete deployment coredns -n kube-system
+kubectl taint node master-node node-role.kubernetes.io/master-
+</code></pre><h2>原生 K8s 集群在边缘场景中的问题</h2><p>基于上述环境，我们来测试一下原生 K8s 在云管边架构中对云边运维的支持和对云边网络断开时的反应。首先，我们从云端部署一个测试应用 nginx，在 master 节点上执行 kubectl apply -f nginx.yaml，具体的部署 yaml 如下。</p><p>注意：nodeSelector 选择 edge-node 节点，主机网络配置为 true，并配置 pod 的容忍时间为 5s（默认 5min, 此处配置便于演示 pod 驱逐）。</p><pre><code>apiVersion: v1
+kind: Pod
+metadata:
+ name: nginx
+spec:
+ tolerations:
+ - key: &quot;node.kubernetes.io/unreachable&quot;
+ operator: &quot;Exists&quot;
+ effect: &quot;NoExecute&quot;
+ tolerationSeconds: 5
+ - key: &quot;node.kubernetes.io/not-ready&quot;
+ operator: &quot;Exists&quot;
+ effect: &quot;NoExecute&quot;
+ tolerationSeconds: 5
+ nodeSelector:
+ kubernetes.io/hostname: edge-node
+ containers:
+ - name: nginx
+ image: nginx
+ hostNetwork: true
+</code></pre><p>查看部署结果：</p><pre><code>
+root@master-node:~# kubectl get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx 1/1 Running 0 11s 192.168.0.100 edge-node &lt;none&gt; 
+</code></pre><h3>1）测试常用的集群运维指令，包括 logs、exec、port-forward</h3><p>在 master 节点上运维边缘节点应用，执行 logs/exec/port-forward 等指令，查看结果。</p><pre><code>root@master-node:~# kubectl logs nginx
+Error from server: Get https://192.168.0.100:10250/containerLogs/default/nginx/nginx: dial tcp 192.168.0.100:10250: connect: connection refused
+
+root@master-node:~# kubectl exec -it nginx sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+Error from server: error dialing backend: dial tcp 192.168.0.100:10250: connect: connection refused
+
+root@master-node:~# kubectl port-forward pod/nginx 8888:80
+error: error upgrading connection: error dialing backend: dial tcp 192.168.0.100:10250: connect: connection refused
+</code></pre><p>从执行结果看，原生的k8s在云管边的场景中，无法提供从云端运维边缘应用的能力。这是因为边缘节点部署在用户的私网环境，从云端无法通过边缘节点的 IP 地址直接访问边缘节点。</p><h3>2）测试边缘断网时对业务的影响</h3><p>边缘节点与云端管控通过公网连接，经常会出现网络不稳定，云端断连的情况。这里我们将做两个断网相关的测试：</p><ul><li><p>断网 1 分钟-&gt;恢复网络</p></li><li><p>断网 1 分钟-&gt;重启边缘节点-&gt;恢复网络</p></li></ul><p>观察两个测试过程中节点和 Pod 的状态变化。本文 Demo 中的断网方式是将路由器的公网连接断开。</p><h4>1.断网1分钟-&gt;恢复网络</h4><p>断开网络，大约 40s 后，节点变成 NotReady（正常节点 10s 钟上报一次心跳，当 4 次没有上报心跳时，管控组件认为节点异常）。</p><pre><code>
+root@master-node:~# kubectl get nodes
+NAME STATUS ROLES AGE VERSION
+edge-node NotReady &lt;none&gt;   5m13s   v1.16.6
+master-node   Ready      master   6m4s    v1.16.6
+</code></pre><p>继续等待 5s 之后（正常节点变为 NotReady 之后，5m 才开始驱逐 pod，此处为了测试效果，将 pod 的容忍时间配成了 5s），应用 pod 被驱逐，状态变为 Terminating。</p><pre><code>root@master-node:~# kubectl get pods
+NAME READY STATUS RESTARTS AGE
+nginx 1/1 Terminating 0 3m45s
+</code></pre><p>将网络恢复，观察节点及 pod 变化。</p><pre><code>root@master-node:~# kubectl get pods
+No resources found in default namespace.
+</code></pre><p>网络恢复后，节点状态变成 ready，业务 pod 被清除，这是因为边缘节点的 Kubelet 获取到业务 Pod 的 Terminating 状态，对业务 Pod 做删除操作，并返回删除成功，云端也做了相应的清理。至此，业务 Pod 由于云边网络的不稳定而被驱逐，然而在断网期间，边缘节点其实是可以正常工作的。</p><p>重新创建应用 nginx，用于下面测试。</p><pre><code>root@master-node:~# kubectl get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx 1/1 Running 0 4s 192.168.0.100 edge-node &lt;none&gt;           &lt;none&gt;
+</code></pre><h4>2.断网1分钟-&gt;重启边缘节点-&gt;恢复网络</h4><p>接下来，我们测试在断网的情况下，边缘节点的重启对业务的影响。断网 1 分钟之后，Node 和 Pod 状态同上面测试结果，Node 变为 NotReady，Pod 的状态变为 Terminating。此时，切换到私有网络环境，登录到树莓派上，将树莓派重启，重启完成后等待大约 1 分钟，观察重启前后节点上的容器列表。</p><p>重启前边缘节点容器列表（此时云边端开，虽然在云端获取的 pod 是 Terminating 状态，但是边缘并未 Watch 到 Terminating 的操作，所以边缘的应用还正常运行）。</p><pre><code>root@edge-node:~# docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+9671cbf28ca6 e86f991e5d10 &quot;/docker-entrypoint.…&quot; About a minute ago Up About a minute k8s_nginx_nginx_default_efdf11c6-a41c-4b95-8ac8-45e02c9e1f4d_0
+6272a46f93ef registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 2 minutes ago Up About a minute k8s_POD_nginx_default_efdf11c6-a41c-4b95-8ac8-45e02c9e1f4d_0
+698bb024c3db f9ea384ddb34 &quot;/usr/local/bin/kube…&quot; 8 minutes ago Up 8 minutes k8s_kube-proxy_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_0
+31952700c95b registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 8 minutes ago Up 8 minutes k8s_POD_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_0
+</code></pre><p>重启后节点容器列表，断网重启后，kubelet 无法从云端获取 Pod 信息，不会重建 Pod。</p><pre><code>root@edge-node:~# docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+root@edge-node:~#
+</code></pre><p>从重启前后的对比看，边缘节点在断网重启之后，节点上的 Pod 全部无法恢复。这就会导致在云边断网时，一旦节点重启，应用将无法工作。</p><p>将网络恢复，观察节点及 pod 变化，同上面测试结果，网络恢复后，节点变为 Ready，业务 Pod 被清除。</p><pre><code>root@master-node:~# kubectl get nodes
+NAME STATUS ROLES AGE VERSION
+edge-node Ready &lt;none&gt;   11m   v1.16.6
+master-node   Ready    master   12m   v1.16.6
+root@master-node:~# kubectl get pods
+No resources found in default namespace.
+</code></pre><p>接下来，再次部署业务 nginx，测试 OpenYurt 集群对云边运维的支持和对云边断网时的反应。</p><pre><code>
+root@master-node:~# kubectl get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx 1/1 Running 0 12s 192.168.0.100 edge-node &lt;none&gt;           &lt;none&gt;
+</code></pre><h2>原生 K8s 集群一键转换为 OpenYurt 集群</h2><p>探究了原生 Kubernetes 在云边一体化架构中的不足之后，我们来看下 OpenYurt 集群是否能满足这种场景。现在，我们利用 OpenYurt 社区提供的集群转换工具 yurtctl，来将原生 K8s 集群转换成 OpenYurt 集群。在 master 节点上执行如下命令， 该命令指定了组件的镜像以及云端节点，并指定安装云边运维通道 yurt-tunnel。</p><pre><code>yurtctl convert --yurt-controller-manager-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurt-controller-manager:v0.2.1 --yurt-tunnel-agent-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurt-tunnel-agent:v0.2.1 --yurt-tunnel-server-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurt-tunnel-server:v0.2.1 --yurtctl-servant-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurtctl-servant:v0.2.1 --yurthub-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurthub:v0.2.1 --cloud-nodes=master-node --deploy-yurttunnel
+</code></pre><p>转换大概需要 2min，转换完成之后，观察业务 pod 的状态，可以看到转换过程中对业务 pod 无影响（也可以在转换过程中在新的终端使用 kubectl get pod -w 观察业务 pod 的状态）。</p><pre><code>root@master-node:~# kubectl get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx 1/1 Running 0 2m4s 192.168.0.100 edge-node &lt;none&gt;           &lt;none&gt;
+</code></pre><p>执行完成之后的组件分布如下图 所示，其中橙色部分是 OpenYurt 相关的组件，蓝色部分是原生 K8s 组件。相应地，我们观察云端节点和边缘节点的 pod。</p><p><img src="../static/img/blog/OpenYurt_Cluster.png" alt="image"/></p><p>云端节点 yurt 相关的 pod：yurt-controller-manager 和 yurt-tunnel-server。</p><pre><code>root@master-node:~# kubectl get pods --all-namespaces -owide | grep master | grep yurt
+kube-system yurt-controller-manager-7d9db5bf85-6542h 1/1 Running 0 103s 183.195.233.42 master-node &lt;none&gt;           &lt;none&gt;
+kube-system   yurt-tunnel-server-65784dfdf-pl5bn         1/1     Running   0          103s    183.195.233.42   master-node   &lt;none&gt;           &lt;none&gt;
+</code></pre><p>边缘节点新增 yurt 相关的 pod: yurt-hub（static pod）和 yurt-tunnel-agent。</p><pre><code>root@master-node:~# kubectl get pods --all-namespaces -owide | grep edge | grep yurt
+kube-system yurt-hub-edge-node 1/1 Running 0 117s 192.168.0.100 edge-node &lt;none&gt;           &lt;none&gt;
+kube-system   yurt-tunnel-agent-7l8nv                    1/1     Running   0          2m      192.168.0.100    edge-node     &lt;none&gt;           &lt;none&gt;
+</code></pre><h2>测试 OpenYurt 集群在边缘场景中的能力</h2><h3>1. 测试 logs/exec/port-forward 等运维指令，查看结果</h3><pre><code>root@master-node:~# kubectl logs nginx
+/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
+/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+10-listen-on-ipv6-by-default.sh: info: Getting the checksum of /etc/nginx/conf.d/default.conf
+10-listen-on-ipv6-by-default.sh: info: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+
+
+root@master-node:~# kubectl exec -it nginx sh
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+# ls
+bin dev docker-entrypoint.sh home media opt root sbin sys usr
+boot docker-entrypoint.d etc lib mnt proc run srv tmp var
+# exit
+
+
+root@master-node:~# kubectl port-forward pod/nginx 8888:80
+Forwarding from 127.0.0.1:8888 -&gt; 80
+Handling connection for 8888
+</code></pre><p>测试 port-forward 时，在 master 节点上执行 curl 127.0.0.1:8888，可以访问 nginx 服务。</p><p>从演示结果看，OpenYurt 能够很好地支持常用的云边运维指令。</p><h3>2. 测试边缘断网时对业务的影响</h3><p>同样我们重复原生 K8s 中断网的两个测试，在测试之前我们先为边缘节点 edge-node 开启自治。在 OpenYurt 集群中，边缘节点的自治是通过一个 annotation 来标识的。</p><pre><code>root@master-node:~# kubectl annotate node edge-node node.beta.alibabacloud.com/autonomy=true
+node/edge-node annotated
+</code></pre><h4>1）断网 1 分钟-&gt;网络恢复</h4><p>同样，将路由器公网断开，观察 Node 和 Pod 的状态。大约过了 40s，节点的状态变成 NotReady，而大约过 1min 以后，Pod 的状态一直是 Running，并不会被驱逐。</p><pre><code>root@master-node:~# kubectl get nodes
+NAME STATUS ROLES AGE VERSION
+edge-node NotReady &lt;none&gt;   24m   v1.16.6
+master-node   Ready      master   25m   v1.16.6
+root@master-node:~# kubectl get pods
+NAME    READY   STATUS    RESTARTS   AGE
+nginx   1/1     Running   0          5m7s
+</code></pre><p>恢复网络，观察 Node 和 Pod 的状态，Node 状态变为 Ready，Pod 保持 Running。可见云边网络不稳定时，对边缘节点的业务 Pod 无影响。</p><pre><code>root@master-node:~# kubectl get nodes
+NAME STATUS ROLES AGE VERSION
+edge-node Ready &lt;none&gt;   25m   v1.16.6
+master-node   Ready    master   26m   v1.16.6
+root@master-node:~# kubectl get pods
+NAME    READY   STATUS    RESTARTS   AGE
+nginx   1/1     Running   0          6m30s
+</code></pre><h4>2）断网 1 分钟-&gt;重启边缘节点-&gt;恢复网络</h4><p>接下来，我们测试在断网的情况下，边缘节点的重启对业务的影响。断网 1 分钟之后，Node 和 Pod 状态同上面测试结果，Node 变为 NotReady，Pod 保持 Running。同样，我们登录到树莓派上，将树莓派重启，观察重启前后节点上的容器列表。</p><p>重启前边缘节点容器列表：</p><pre><code>root@edge-node:~# docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+38727ec9270c 70bf6668c7eb &quot;yurthub --v=2 --ser…&quot; 7 minutes ago Up 7 minutes k8s_yurt-hub_yurt-hub-edge-node_kube-system_d75d122e752b90d436a71af44c0a53be_0
+c403ace1d4ff registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 7 minutes ago Up 7 minutes k8s_POD_yurt-hub-edge-node_kube-system_d75d122e752b90d436a71af44c0a53be_0
+de0d693e9e74 473ae979be68 &quot;yurt-tunnel-agent -…&quot; 7 minutes ago Up 7 minutes k8s_yurt-tunnel-agent_yurt-tunnel-agent-7l8nv_kube-system_75d28494-f577-43fa-9cac-6681a1215498_0
+a0763f143f74 registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 7 minutes ago Up 7 minutes k8s_POD_yurt-tunnel-agent-7l8nv_kube-system_75d28494-f577-43fa-9cac-6681a1215498_0
+80c247714402 e86f991e5d10 &quot;/docker-entrypoint.…&quot; 7 minutes ago Up 7 minutes k8s_nginx_nginx_default_b45baaac-eebc-466b-9199-2ca5c1ede9fd_0
+01f7770cb0f7 registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 7 minutes ago Up 7 minutes k8s_POD_nginx_default_b45baaac-eebc-466b-9199-2ca5c1ede9fd_0
+7e65f83090f6 f9ea384ddb34 &quot;/usr/local/bin/kube…&quot; 17 minutes ago Up 17 minutes k8s_kube-proxy_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_1
+c1ed142fc75b registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 17 minutes ago Up 17 minutes k8s_POD_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_1
+</code></pre><p>重启后边缘节点容器列表：</p><pre><code>root@edge-node:~# docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+0c66b87066a0 473ae979be68 &quot;yurt-tunnel-agent -…&quot; 12 seconds ago Up 11 seconds k8s_yurt-tunnel-agent_yurt-tunnel-agent-7l8nv_kube-system_75d28494-f577-43fa-9cac-6681a1215498_2
+a4fb3e4e8c8f e86f991e5d10 &quot;/docker-entrypoint.…&quot; 58 seconds ago Up 56 seconds k8s_nginx_nginx_default_b45baaac-eebc-466b-9199-2ca5c1ede9fd_1
+fce730d64b32 f9ea384ddb34 &quot;/usr/local/bin/kube…&quot; 58 seconds ago Up 57 seconds k8s_kube-proxy_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_2
+c78166ea563f registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 59 seconds ago Up 57 seconds k8s_POD_yurt-tunnel-agent-7l8nv_kube-system_75d28494-f577-43fa-9cac-6681a1215498_1
+799ad14bcd3b registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 59 seconds ago Up 57 seconds k8s_POD_nginx_default_b45baaac-eebc-466b-9199-2ca5c1ede9fd_1
+627673da6a85 registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; 59 seconds ago Up 58 seconds k8s_POD_kube-proxy-rjws7_kube-system_51576be4-2b6d-434d-b50b-b88e2d436fef_2
+04da705e4120 70bf6668c7eb &quot;yurthub --v=2 --ser…&quot; About a minute ago Up About a minute k8s_yurt-hub_yurt-hub-edge-node_kube-system_d75d122e752b90d436a71af44c0a53be_1
+260057d935ee registry.cn-hangzhou.aliyuncs.com/edge-kubernetes/pause:3.1 &quot;/pause&quot; About a minute ago Up About a minute k8s_POD_yurt-hub-edge-node_kube-system_d75d122e752b90d436a71af44c0a53be_1
+</code></pre><p>从重启前后的对比看，边缘节点在断网重启之后，节点上的 pod 能正常拉起，OpenYurt 的节点自治能力可以在断网下保证业务的稳定运行。</p><p>恢复网络，节点 Ready，观察业务 pod 的状态，网络恢复后，业务 pod 状态保持 running，有一次重启记录，符合预期。</p><pre><code>root@master-node:~# kubectl get pods -owide
+NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+nginx 1/1 Running 1 11m 192.168.0.100 edge-node &lt;none&gt;           &lt;none&gt;
+</code></pre><p>最后，我们从yurtctl的能力将OpenYurt集群，转换为原生K8s集群。同样，可以观察转换过程中对现有业务不会有影响。</p><pre><code>yurtctl revert --yurtctl-servant-image=registry.cn-hangzhou.aliyuncs.com/openyurt/yurtctl-servant:v0.2.1
+</code></pre><p>OpenYurt 作为阿里首个边缘云原生开源项目，基于商业化产品 ACK@Edge，在集团内部经历了长时间的打磨。已经应用在 CDN、IoT、盒马、ENS、菜鸟物流等众多场景。针对边缘场景，该项目坚持保持原生 K8s 的特性，以 Addon 的形式提供了边缘节点自治、云边端一体化运维通道等能力。最近在社区同学的一起努力下又开源了边缘单元化管理能力，同时后续还会继续开源更多的边缘管理能力，欢迎大家积极参与贡献。</p><p><a href="https://mp.weixin.qq.com/s/Anr8UhTaNe3FCnKKfKoXNQ">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[How to build Kubernetes Native Cloud side efficient collaborative network]]></title>
+            <link>https://openyurt.io/blog/Build-side-efficient-collaborative-network</link>
+            <guid>Build-side-efficient-collaborative-network</guid>
+            <pubDate>Fri, 06 Nov 2020 00:00:00 GMT</pubDate>
+            <description><![CDATA[导读：OpenYurt是阿里巴巴开源的云边协同一体化架构，与同类开源方案相比，OpenYurt拥有可实现边缘计算全场景覆盖的能力。]]></description>
+            <content:encoded><![CDATA[<p>导读：OpenYurt是阿里巴巴开源的云边协同一体化架构，与同类开源方案相比，OpenYurt拥有可实现边缘计算全场景覆盖的能力。</p><ul><li>OpenYurt是如何在弱网和断网环境下实现边缘自治的——<a href="./2021-03-29-Edge-gateway-caching-capabilities.md">YurtHub</a></li><li>OpenYurt另一个核心能力——云边通信，以及相关组件Yurttunnel</li></ul><h2>Yurttunnel使用场景</h2><p>在应用的部署和运维过程中，用户常常需要获取应用的日志，或直接登录到应用的运行环境中进行调试。在 Kubernetes 环境中，我们通常使用 kubectl log，kubectl exec 等指令来实现这些需求。如下图所示，在 kubectl 请求链路上， kubelet 将扮演服务器端，负责处理由 kube-apiserver(KAS) 转发来的请求，这就要求 KAS 和 kubelet 之间需要存在一条网络通路，允许 KAS 主动访问 kubelet。
+<img src="../static/img/blog/kubectl.png" alt="image"/>
+然而，在边缘计算场景中，边缘节点常位于本地专有网络中，这虽然保证了边缘节点的安全，但也造成位于云端管控节点的KAS无法直接访问位于边缘节点的kubelet。因此，为了支持通过云端节点对边缘端应用进行运维操作，我们必须在云、边之间建立反向运维通道。</p><h2>反向通道</h2><p>Yurttunnel是OpenYurt近期开源的一个重要组件，用来解决云边通信问题。反向通道是解决跨网络通信的一种常见方式，而 Yurttunnel 的本质就是一个反向通道。一个边缘集群下属的节点常位于不同的 network region 中，而位于同一个 region 内的节点之间是可以相互通信的，因此在设置反向通道时，我们只需保证在每个 region 内设置一个与 proxy server 相连的 agent 即可。具体包括以下几个步骤：</p><ul><li><p>在管控组件所在网络内，部署 proxy server。</p></li><li><p>proxy server 对外开放一个公网可以访问的 IP。</p></li><li><p>在每个 region 部署个 agent，并通过 server 的公网 IP 与 server 建立长连接。</p></li><li><p>管控组件对边缘节点的访问请求都将转发致 proxy server。</p></li><li><p>proxy server 再将请求通过对应的长连接发往目标节点。</p></li></ul><p><img src="../static/img/blog/proxy_server_agent.png" alt="image"/>
+在 Yurttunnel 中，我们选择使用上游<a href="https://github.com/kubernetes-sigs/apiserver-network-proxy">项目apiserver-network-proxy(ANP)</a> 来实现server 和 agent 间的通信。ANP 是基于 kubernetes 1.16 Alpha 新功能<a href="https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apiserver/pkg/server/egressselector/egress_selector.go">EgressSelector</a> 开发，意在实现 Kubernetes 集群组件的跨 intranet 通信（例如，master 位于管控 VPC，而 kubelet 等其他组件位于用户 VPC）。</p><p>读者可能会好奇，既然 OpenYurt 是基于 ACK@Edge 开源的，而在生产环境中， ACK@Edge 的云边运维通道使用的是自研组件 tunnellib，那为什么在开源版本里我们要选用一个新的组件呢？这里不得不再次提到 OpenYurt 的核心设计理念 “Extend upstream Kubernetes to Edge”。</p><p>诚然，tunnellib 经过了复杂线上环境的考验，组件性能稳定，但我们更希望能与上游保持最大的技术公约数，让 OpenYurt 的用户体验更接近原生 Kubernetes ；同时，在 ACK@Edge 的开发和运维过程中，我们发现，边缘集群的许多需求也同样存在于其他场景中（例如，大多数云厂商也需要实现节点跨网络通信），并且运维通道的传输效率也能进一步优化（4.5章将详述优化过程）。因此，秉承开放分享、平等普惠的开源精神，我们希望能将开发和运维过程中积累的的宝贵经验在上游社区与更多的开发者分享。</p><h2>ANP并非开箱即用</h2><p>然而 ANP 项目仍处于起步阶段，功能尚未完善，许多问题仍有待解决。我们从实践中发现的主要问题包括：</p><ul><li><p>如何转发云端节点的请求 -- 反向通道正常工作的一个前提是，管控节点发往边缘节点的请求必须先经过 proxy server。对于 Kubernetes 1.16 + 版本，KAS 能借由 EgressSelector 将发往节点的请求先发往指定的 proxy server。但对于 1.16 以前的版本，KAS 及其他管控组件（Prometheus 和 metrics server）只能直接访问节点，而不能绕道 proxy server。可以预见的是，部分用户在短期内，仍将使用 1.16 以前的版本，并且 Prometheus 和 metrics server 等管控组件在短期内也没有支持 EgressSelector 的计划。因此，我们要解决的第一个问题是，如何将管控组件发往节点的请求转发致 proxy server。</p></li><li><p>如何确保 server 副本覆盖所有的 region -- 在生产环境中，一个边缘集群常常包含上万个节点，并同时服务上百名用户，如果一个集群只有一个 proxy server， 那么，一旦 proxy server 出现故障，所有用户都将无法对位于边缘节点上的 pod 进行操作。因此，我们必须同时部署多个 proxy server 副本以保证集群高可用。同时，proxy server 的工作负荷将随着访问流量的增大而增大，用户的访问延时也势必增加。因此在部署 proxy server 时，我们还需考虑如何对 proxy server 进行水平拓展，以应对高并发场景。一个应对单点故障和高并发场景的经典解决方案是，部署多个 proxy server 副本，并使用负载均衡进行流量分发。然而在 OpenYurt 场景下，对于 KAS 发来的任意请求，LoadBalancer (LB) 会转发给哪个 server 副本是不可控的，因此，需要解决的第二个问题是，如何保证每个 server 副本都能与所有的 agent 建立连接。</p></li><li><p>如何将请求转发给正确的 agent -- 在运行过程中，proxy server 在收到请求后，需根据请求的 destination IP，将请求转发至位于对应 network region 内的 agent。然而，ANP目前的实现，假设所有的节点都位于一个网络空间内， server 会随机挑选一个 agent 转发请求。因此，我们需要解决的第三个问题是，如何将请求正确地转发给指定的 agent。 </p></li><li><p>如何解除组件对节点证书的依赖 -- 在运行时，我们需要为 server 提供一套 TLS 证书，以实现 server 与 KAS，server 与 agent 间的安全通信。同时，我们也需要为 agent 准备一套 TLS client 证书，用以建立 agent 和 server 间的 gRPC 信道。ANP 目前的实现，要求 server 必须和 KAS 部署在同一个节点上，并且在启动时挂载节点 volume 共享 KAS tls 证书。同样，agent 也需要在启动时挂载 volume 共享 kubelet tls 证书。这无形中降低了部署的灵活性，造成了组建对节点证书的强依赖，在有些情况下，用户可能希望将 server 部署在非 KAS 所在节点上。因此，另一个需要关注的问题是，如何解除组件对节点证书的依赖。</p></li></ul><ul><li>如何缩小 Tunnel 带宽 -- ANP 的一个核心设计思想，是使用 gRPC 封装 KAS 所有对外 HTTP 请求。这里选择 gRPC，主要是看重其对流（stream）的支持和清晰的接口规范，此外，强类型的客户端和服务器端可以有效减少运行时错误，提高系统稳定性。然而，我们也发现，相较于直接使用 TCP 协议，采用 ANP 也会带来额外的开销增加带宽。从产品层面考虑，Tunnel 流量走的是公网，带宽的增加也意味着用户成本的增加。因此，一个非常重要的问题是，在提高系统稳定性的同时，我们是否也能缩小带宽？ </li></ul><h2>Yurttunnel设计解析</h2><h3>1.制定DNAT规则转发云端节点的请求</h3><p>如前文所述，ANP 是基于上游新功能 EgressSelector 开发的，该功能允许用户在启动 KAS 时通过传入 egress configuration 来要求 KAS 将 egress 请求转发到指定的 proxy server。但由于我们需要兼顾新老版本的 Kubernetes 集群，并且考虑到，其他管控组件（Prometheus 和 metric server）并不支持 EgressSelector 特性，我们需要保证在无法使用 EgressSelector 的情况下也能将 KAS egress 请求转发致 proxy server。为此，我们在每一个云端管控节点上都部署一个 Yurttunnel Server 副本，并在 Server 中内嵌一个新组件 Iptabel Manager。Iptable Manager 会通过在宿主机的 Iptable 中的 OUTPUT 链中添加 DNAT 规则，将管控组件对节点的请求转发致 Yurttunnel Server。</p><p>同时，当启用 EgressSelector 后，KAS 对外请求都遵循一个统一的格式，因此我们新增一个组件， ANP interceptor。ANP interceptor 会负责截取从 master 发来的 http 请求，并将其封装成 EgressSelector 格式。Yurttunnel 请求转发的具体流程见图三。
+<img src="../static/img/blog/yurttunnel.png" alt="image"/></p><h3>2.动态获取Server副本数</h3><p>在上一节中，我们提到，我们将采用负载均衡的方式来管理yurttunnel server，所有的ingress请求都会通过LB分发给一个server副本。由于我们无法预测LB会挑选哪个server副本，我们必须保证每个 server 副本都要与所有的 agent 建立连接。这里，我们将使用 ANP 自带的功能实现这一需求，具体流程如下：</p><ul><li><p>在启动 yurttunnel server 时，我们会将副本数（serverCount）传入每个 server 副本中，并且为每个副本指定一个 server ID；</p></li><li><p>agent 连接 LB 后，LB会随机选择一个 server 副本并让其与 agent 建立长连接；</p></li><li><p>与此同时，server 会通过该通道向 agent 返回一个 ACK package，这个 package 中将包含 serverCount 和 serverID；</p></li><li><p>agent 通过解析 ACK package，可以获悉 server 副本的个数，并在本地记录已连接的 serverID；</p></li><li><p>如果 agent 发现，本地连接的 server 副本数小于 serverCount，则会再次向 LB 发送连接请求，直至本地记录的 serverID 数与 server Count 数一致为止。</p></li></ul><p>该机制虽然帮助我们实现了server副本的全网段覆盖。但同时，也存在不可忽视的缺点，由于 agent 无法选择与哪个 server 副本建立连接，因此，为了连接所有的 server 副本，agent 必须反复访问 LB。在这个过程中，server 由于还没有与所有的 agent 建立连接，KAS 发来的请求可能无法转发至对应的节点。一个潜在的解决方案是，为每个 server副本创建一个独立的 LB，负责与 agent 之间的连接，同时在agent端记录所有 server副本对应 LB 的信息，这一方案能帮助 agent 快速地与所有的 server 副本建立连接。该方案的具体实现细节，目前仍在与上游社区的开发者讨论中。</p><h3>3.为ANP添加代理策略</h3><p>在OpenYurt的网络模型下，边缘节点分布在不同的network region中，随机选择的 agent 可能无法将请求转发至位于其他 region 内的节点上。因此我们不得不修改 ANP server 底层代理转发的逻辑。然而，根据长期的经验，我们相信，proxy server 支持不同的代理策略，例如，将请求转发至指定数据中心，region，或者指定主机，是一个较为通用的需求。经过和 ANP 社区开发者讨论，我们决定重构 ANP 管理 agent 连接的接口，允许用户根据需求实现新的代理策略，并计划将该 feature 最终合入上游代码库。目前重构工作仍在进行中，在 Yurttunnel 第一个开源版本中，我们暂时采用以下配置：</p><ul><li><p>在每个边缘节点上部署一个 agent。</p></li><li><p>agent 在 server 处登记时，使用 agent 所在节点的 IP 作为 agentID。</p></li><li><p>server 在转发请求时，通过匹配请求目标 IP 和 agentID，将请求转发至对应的 agent。</p></li></ul><p>我们计划在OpenYurt后续发布Yurt Unit（边缘节点分区管控）之后，配合新增的ANP代理转发策略，实现agent的分区部署，和请求的分区转发。</p><h3>4.动态申请安全证书</h3><p>为了解除yurttunnel组件对节点证书的依赖，我们在yurttunnel中新增cert manager组件，cert manager会在server和agent运行后，向KAS提交certificate signning request(CSR)。server 将使用申请到的证书来确保其与 KAS 和 agent 间的安全通信，agent 会使用申请到的证书确保其与 server 间 gRPC 信道的安全。由于 agent 和 kubelet 间是通过 tcp 协议连接，因此，我们无需为 agent 和 kubelet 间的连接准备证书。</p><h3>5.压缩Tunnel带宽，节约成本</h3><p>在上文，我们提到，使用gRPC封装Tunnel虽然可以提高传输稳定性，但同时也会增加公网流量。这是否意味着稳定性和性能，我们只能二选一？通过对不同用户场景的分析，我们发现，在大多数情况下，用户使用运维通道是为了获取容器日志（即 kubectl log），而传统日志文件，存在许多相同的文本信息，因此我们推断使用 gzip 等压缩算法能有效缩小带宽。为了验证这一假设，我们在 ANP 底层的 gRPC 库中添加了 gzip compressor，并且对比了与使用原生 TCP 连接场景下的数据传输量。</p><p>我们考虑的第一个实验场景是，分别通过 TCP 连接和 ANP 获取同一 kubeproxy 容器的日志，我们截取了这一过程中 Tunnel 上双向 package 和 bytes 总量。</p><p><img src="../static/img/blog/kube_proxy.png" alt="image"/></p><p>如上表所示，通过使用 ANP， 总传输数据量下降了 29.93%。</p><p>经过长时间运行，容器的日志文本常常可以达到十几兆，为了模拟获取大文本日志的场景。我们创建了一包含 10.5M systemd log（即 journalctl）的 ubuntu 容器，同样我们分别使用原生 TCP 连接和 ANP 传输该日志文件，并测量了 Tunnel 上的数据总量
+<img src="../static/img/blog/large_log.png" alt="image"/></p><p>如上表所示，在日志文本较大的情况下，通过使用 ANP， 总传输数据量下降了 40.85%。</p><p>由此可见，相较于原生 TCP 连接，ANP 不仅能提供更高的传输稳定性，还可以大幅降低公网流量。考虑到边缘集群动辄上万的节点规模，新的解决方案将帮助用户在公网流量方面节约大量开销。</p><p>##Yurttunnel系统架构
+<img src="../static/img/blog/Yurttunnel_arch.png" alt="image"/></p><p>综上，Yurttunnel 主要包含以下组件：</p><ul><li><p>Yurttunnel Server - 负责将 apiserver，prometheus，metrics server 等管控组件发往节点的请求，转发至对应的 agent。具体包括以下子组件：</p><ul><li>ANP Proxy Server - 对 ANP gRPC server 的封装，负责管理与 Yurttunnel Agent 之间的长连接，并转发请求。</li><li>Iptable Manager - 修改管控节点的 DNAT 规则，以确保管控组件的请求能被转发至 Yurttunnel Server。</li><li>Cert Manager - 为 Yurttunnel Server 生成 TLS 证书。</li><li>Request Interceptor - 将 KAS 对节点的 HTTP 请求封装到符合 ANP 规则的 gRPC 包里。</li></ul></li><li><p>Yurttunnel Agent - 与 Yurttunnel Server 主动建立连接，并将 Yurttunnel Server 发来的请求转发给 Kubelet。具体包括两个子组件：</p><ul><li>ANP Proxy Agent - 对 ANP gRPC agent 的封装，相较于上游，我们额外加入了 gzip compressor 以压缩数据。</li><li>Cert Manager - 为 Yurttunnel Agent 生成 TLS 证书。</li></ul></li><li><p>Yurttunnel Server Service - 通常是一个 SLB，负责将管控组件发来的请求分发给合适的 Yurttunnel Server 副本，保证 Yurttunnel 的高可用和负载均衡。</p></li></ul><h2>总结和展望</h2><p>Yurttunnel 作为 OpenYurt 近期开源的重要组件，打通了 OpenYurt 集群的云边通道，为边缘集群上的容器运维提供了一个统一的入口。通过对上游解决方案进行改造，Yurttunnel 不仅提供了更高的传输稳定性，也大幅降低了数据传输量。</p><p><a href="https://mp.weixin.qq.com/s/nRUv4u9JbiIdrUPB_cZOBg">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Viewing Expansion Ability of YurtHub from Edge Autonomy]]></title>
+            <link>https://openyurt.io/blog/Expansion-capability-of-Yurthub</link>
+            <guid>Expansion-capability-of-Yurthub</guid>
+            <pubDate>Mon, 29 Jun 2020 00:00:00 GMT</pubDate>
+            <description><![CDATA[导读：OpenYurt 自开源以来，以非侵入式的架构设计融合云原生和边缘计算两大领域，引起了不少行业内同学的关注。阿里云推出开源项目 OpenYurt，一方面是把阿里云在云原生边缘计算领域的经验回馈给开源社区，另一方面也希望加速云计算向边缘延伸的进程，并和社区共同探讨未来云原生边缘计算架构的统一标准。]]></description>
+            <content:encoded><![CDATA[<p>导读：OpenYurt 自开源以来，以非侵入式的架构设计融合云原生和边缘计算两大领域，引起了不少行业内同学的关注。阿里云推出开源项目 OpenYurt，一方面是把阿里云在云原生边缘计算领域的经验回馈给开源社区，另一方面也希望加速云计算向边缘延伸的进程，并和社区共同探讨未来云原生边缘计算架构的统一标准。
+本文主要介绍了 OpenYurt 中组件 YurtHub 的扩展能力。</p><h2>OpenYurt介绍</h2><p>阿里云边缘容器服务上线 1 年后，正式开源了云原生边缘计算解决方案 OpenYurt，跟其他开源的容器化边缘计算方案的区别在于：OpenYurt 秉持 Extending your native Kubernetes to edge 的理念，对 Kubernetes 系统零修改，并提供一键式转换原生 Kubernetes 为 openyurt，让原生 K8s 集群具备边缘集群能力。</p><p>同时随着 OpenYurt 的持续演进，也一定会继续保持如下发展理念：</p><ul><li><p>非侵入式增强 K8s</p></li><li><p>保持和云原生社区主流技术同步演进</p></li></ul><h2>YurtHub架构说明</h2><p>在<a href="./2020-06-18-YurtHub-design-detail.md">前面的文章</a>中，我们介绍了 OpenYurt 的边缘自治能力，重点解读了其中的组件 YurtHub。其架构图如下：
+OpenYurt组件YurtHub构架图：</p><p><img src="../static/img/blog/yurthub.png" alt="image"/></p><p>与Kubernetes设计理念契合，YurtHub的优势之一是，非常容易扩展出更多的能力。</p><h2>YurtHub的拓展能力</h2><h3>1）边缘网络自治</h3><p>首先介绍一下何谓边缘网络自治：即在边缘和云端网络断连时，不管是业务容器重启，或是边缘节点重启等，边缘业务的跨节点通信可以持续工作或是自动恢复。</p><p>在OpenYurt中，实现边缘自治需要解决如下的问题（以flannel vxlan overlay网络为例）：</p><ul><li>问题 1: 节点上的网络配置可以自治，kube-proxy 的 iptables / ipvs 规则，flannel 的 fdb / arp / route 配置，coredns 的域名解析等网络配置，在节点重启后可以自动恢复，否则边缘跨节点通信将无法持续；</li><li>问题 2: 业务容器 IP 保持不变，因为和云端网络断连状态下容器 IP 变化将无法通知到其他节点；</li><li>问题 3: vtep(vxlan tunnel endpoint) 的 mac 地址保持不变，原因和容器 IP 保持不变类似。</li></ul><p>从问题 1 可以看出，必须解决 kube-proxy / flannel / coredns 等组件的自治，才能实现网络配置的自治。如果之前边缘自治是采用重构 kubelet 来实现的话，要实现边缘网络自治就会碰到很大的麻烦，如果强行把重构的 kubelet 自治能力移植到各个网络组件 (kube-proxy / flannel / coredns)，也对整个架构将是噩梦。</p><p>在 OpenYurt 中因为 YurtHub 的独立性，kube-proxy / flannel / coredns 等网络组件轻松使用 YurtHub 来实现网络配置的自治能力。因为 YurtHub 缓存了 service 等网络配置资源在 local storage，即使断网并且节点重启，网络组件仍然可以获得断网前的 object 状态以及相应的配置信息。如下图所示:</p><p><img src="../static/img/blog/local_storage.png" alt="image"/></p><p>问题 2，3 和 Kubernetes core 无关，主要涉及到 cni 插件和 flanneld 的增强，后续文章中再详细介绍。</p><h3>2）多云端地址支持</h3><p>公有云上的 Kubernetes 高可用部署时，多实例 kube-apiserver 前面一般都挂了一个 SLB，但是在专有云场景下或者边缘计算场景下，节点需要通过多个云端地址来访问。比如:</p><ul><li>专有云场景：因为没有 SLB 服务，用户需要在云端通过 VIP 方式来自行实现 kube-apiserver 的负载均衡，或者像 kubespray 那样在每个节点上部署一个 nginx 来实现多云端地址的访问；</li><li>边缘计算场景: 考虑到边缘和云端之间网络的稳定性和安全性要求，某些场景下用户也通过专线和公网两种方式和云端通信，比如优先采用专线，当专线故障时能自动切换到公网通信。</li></ul><p>YurtHub正式考虑到了上述的需求，支持多云端地址访问。云端地址的负载均衡模式可以选择：</p><ul><li><p>rr(round-robin)：轮转模式，默认选择该模式；</p></li><li><p>priority: 优先级模式，高优先级地址故障后才使用低优先级地址。</p></li></ul><p>具体可以参照 YurtHub 的 LB 模块，如下图所示：</p><p><img src="../static/img/blog/local_storage.png" alt="image"/></p><h3>3）节点维度的云端流控</h3><p>对于一个分布式系统来说，流控都是一个无法回避的问题。原生 Kubernetes 从集群视角在 kube-apiserver 中以及从访问者视角在 client-go 库中封装了流量管控，在边缘计算场景下，client-go 的流量管控既分散又对业务有一定侵入，显然不能很好的解决流控问题。</p><p>YurtHub 在边缘可以接管不论是系统组件还是业务容器对云端访问的流量，可以很好的解决节点维度的云端流控问题。目前 YurtHub 的流控配置是：单节点上对云端的并发请求数超过 250 个时，将拒绝新的请求。</p><h3>4）节点证书轮转管理</h3><p>Kubernetes 已经支持节点证书自动轮换，即当节点证书快过期前，kubelet 会自动向云端申请新的节点证书。但是在边缘计算场景下，很有可能因为边缘和云端网络的断连，造成 kubelet 将无法完成证书的轮换。证书过期后即使和云端网络连接恢复，节点证书也可能无法自动轮换，并造成 kubelet 的频繁重启。</p><p>YurtHub 在接管节点和云端通信流量时，同时也可以接管节点的证书管理。这样既解决了各类安装工具对节点证书的管理的不一致，也解决了证书过期后网络再恢复时的证书轮换问题。另外目前 YurtHub 还是 kubelet 共享节点证书，YurtHub 的独立节点证书管理功能将在近期开源。</p><h3>5）其他</h3><p>YurtHub 除了前面介绍的扩展能力，还有很多有价值的能力，在此也简单介绍：</p><ul><li>节点多租隔离管理：在具备多租隔离能力的 Kubernetes 集群中，假定节点归属于某个租户，那么 YurtHub 将可以确保节点上所有云端请求都只返回节点所属租户的资源。比如说 list service 将只返回该租户的 service。而这种多租隔离能力不需要其他组件做任何修改。当然如果要实现集群内的多租隔离，需要配合相应的多组 CRD 等，详细可以参照<a href="https://github.com/kubernetes-sigs/multi-tenancy">项目kubernetes-sigs/multi-tenancy</a></li><li>集群间节点迁移：某些场景下，边缘节点需要从集群 A 迁移到集群 B，常规操作是先从集群 A 下线，然后再次接入集群 B，最后在集群 B 部署节点上的应用。因为 YurtHub 对节点流量以及节点证书的接管，可以直接对 YurtHub 注入集群B的信息，让节点无损迁移到集群 B；</li><li>通过域名访问云端kube-apiserver等等一些其他功能。</li></ul><h2>总结</h2><p>通过上述的扩展能力可以看出：</p><ul><li>YurtHub 不仅仅是边缘节点上的带有数据缓存能力的反向代理，而且对 Kubernetes 节点应用生命周期管理加了一层新的封装，提供边缘计算所需要的核心管控能力；</li></ul><ul><li>YurtHub 不仅仅适用于边缘计算场景，其实还可以作为节点侧的一个常备组件，适用于使用 Kubernetes 的任意场景。相信这也会驱动 YurtHub 向更高性能，更高稳定性发展。</li></ul><p><a href="https://mp.weixin.qq.com/s/gYxK3GLhDRNkHibYgTchOg">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[YurtHub Design Detail:edge autonomy of OpenYurt]]></title>
+            <link>https://openyurt.io/blog/YurtHub-design-detail</link>
+            <guid>YurtHub-design-detail</guid>
+            <pubDate>Thu, 18 Jun 2020 00:00:00 GMT</pubDate>
+            <description><![CDATA[image]]></description>
+            <content:encoded><![CDATA[<p><img src="../static/img/blog/OpenYurt.png" alt="image"/></p><p>导读：OpenYurt 开源两周以来，以非侵入式的架构设计融合云原生和边缘计算两大领域，引起了不少行业内同学的关注。阿里云推出开源项目 OpenYurt，一方面是把阿里云在云原生边缘计算领域的经验回馈给开源社区，另一方面也希望加速云计算向边缘延伸的进程，并和社区共同探讨未来云原生边缘计算架构的统一标准。
+本文将详细介绍OpenYurt的边缘自治能力的设计细节。</p><h2>边缘自治特性</h2><h3>1）特性介绍</h3><p>将 Kubernetes 系统延展到边缘计算场景，边缘节点将通过公网和云端连接，从公网的不稳定性以及成本等因素考虑，边缘要求断网状态或者弱网状态下边缘业务可以持续运行。我们从 Gartner 的边缘计算报告中提到的边缘计算诉求中，边缘自治也是主要诉求之一：
+<img src="../static/img/blog/Gartner.png" alt="image"/></p><p>从 Kubernetes 系统架构来看，主要因为 Slave Agent(Kubelet) 中的容器信息保存在内存中，断网状态下因为无法从云端获取业务数据，如果节点或者 Kubelet 重启，将无法进行业务容器恢复。
+<img src="../static/img/blog/slave_agent.png" alt="image"/></p><h3>2）边缘自治需要解决的问题</h3><p>因此边缘自治在Kubernetes系统里，需要解决下面的问题：</p><ul><li><p>问题 1：节点异常或重启时，内存数据丢失，网络断连时业务容器无法恢复；</p></li><li><p>问题 2：网络长时间断连，云端控制器对业务容器进行驱逐；</p></li><li><p>问题 3：长时间断连后网络恢复时，边缘和云端数据的一致性保障。</p></li></ul><h4>问题1的解决方案1</h4><p>重构 kubelet 组件，复用或者参考 kubelet 的 checkpoint 功能，持久化容器业务数据到本地磁盘，网络断连状态下利用本地缓存数据实现业务恢复。
+<img src="../static/img/blog/checkpoint.png" alt="image"/>
+该方案经过重构 kubelet，成功解决边缘自治的需求，具备如下优点：</p><ul><li><p>通过重构 kubelet，方便在 kubelet 中集成对端设备的管理能力；</p></li><li><p>通过重构 kubelet，可以对 kubelet 进行轻量化改造。此优点但是也意味着原生 kubelet 功能缺失的问题。</p></li></ul><p>但是也有如下不足：</p><ul><li><p>可维护性差: 侵入式修改 kubelet core，跟随社区版本升级非常困难，熟悉kubelet的同学都会有同感，kubelet 组件由于直接负责计算，存储，网络交互，所以其代码结构和逻辑异常复杂。因此持续维护一个深度修改过的 kubelet 的工作量可想而知；</p></li><li><p>可扩展性差: 因为自治能力直接做到重构的 kubelet 组件中，这样边缘节点如果其他组件(如网络组件)想复用边缘自治能力将面临重复造轮子的境地；</p></li><li><p>场景耦合更深: 例如在 kubelet 重构中增加了 IOT 设备管理，将可能使 kubelet 和 IOT 场景深度耦合。</p></li></ul><h4>问题1的解决方案2（OpenYurt使用方案）</h4><p>在边缘节点上增加 web 缓存及请求代理 hub(取名为 YurtHub，商业产品中名为 edge-hub)，边缘侧组件(kubelet)和云端通信将经由该组件。YurtHub 相当于带有数据缓存功能的”透明网关“，和云端网络断连状态下，如果节点或者 kubelet 重启，将从 YurtHub 中获取到业务容器相关数据，有效解决边缘自治的问题</p><p><img src="../static/img/blog/edge_hub.png" alt="image"/></p><p>相比解决方案1，有如下优势：</p><ul><li><p>kubelet 零修改，意味原生 kubelet 能力天然具备，同时跟随 Kubernetes 版本升级零负担；</p></li><li><p>可扩展性强，节点其他组件轻松复用 YurtHub；</p></li><li><p>与 Kubernetes 设计理念契合，YurtHub 非常容易扩展出更多的能力。</p></li></ul><p>当然 OpenYurt 的解决方案，也会面临如下的问题：原生 kubelet 比较 high-weight，在资源紧张场景下应用会比较挑战。目前商业产品中节点规格推荐 2U4G 起步。</p><h4>问题2的解决方案</h4><p>该问题正是通过开源组件 yurt-controller-manager 中的 Node Controller 来解决的。如 github 主页介绍所示：
+<img src="../static/img/blog/OpenYurt_arch.png" alt="image"/></p><h4>问题3的解决方案</h4><p>Kubernetes 系统中，用户是通过云端对边缘进行管控的(如应用部署，升级，扩缩容等)，因此当边缘和云端网络断联时，边缘节点将不会从云端同步用户对节点的管控操作，因此断网期间，只要 YurtHub 保持本地缓存数据和断网时刻一致(即断网期间边缘缓存数据不更新)，而网络恢复时，再从云端同步最新数据即可。</p><p><a href="https://mp.weixin.qq.com/s/4BLfvMJJA623ZwRSgUE69A">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Yurtctl:make the native k8s cluster achieve edge computing capabilities]]></title>
+            <link>https://openyurt.io/blog/Use-of-yurtctl</link>
+            <guid>Use-of-yurtctl</guid>
+            <pubDate>Mon, 08 Jun 2020 00:00:00 GMT</pubDate>
+            <description><![CDATA[image]]></description>
+            <content:encoded><![CDATA[<p><img src="../static/img/blog/OpenYurt.png" alt="image"/></p><p>随着物联网技术以及 5G 技术的高速发展，将云计算的能力延伸至边缘设备端，并通过中心进行统一交付、管控，已成为云计算的重要发展趋势。为服务更多开发者把握这一趋势，5月29日，阿里巴巴正式对外开源了基于 ACK@Edge（边缘集群托管服务）的云原生边缘计算框架 ——
+<a href="https://github.com/openyurtio/openyurt">OpenYurt</a></p><p>自 OpenYurt 开源以来受到了开发者的关注，今天这篇文章将带大家快速上手 OpenYurt ，介绍如何使用 OpenYurt 提供的命令行管理工具 Yurtctl， 高效快速地部署 OpenYurt 集群。</p><h2>OpenYurt介绍</h2><p>OpenYurt 主打“云边一体化”概念，依托 Kubernetes 强大的容器应用编排能力，满足了云边一体化的应用分发、交付、和管控的诉求。相较于其他基于 Kubernetes 的边缘计算框架，OpenYurt 秉持着“最小修改”原则，通过在边缘节点安装 Yurthub 组件，和在云端部署 Yurt-controller-manager，保证了在对 Kubernetes 零侵入的情况下，提供管理边缘计算应用所需的相关能力。</p><p>OpenYurt 能帮用户解决在海量边、端资源上完成大规模应用交付、运维、管控的问题，并提供中心服务下沉通道，实现和边缘计算应用的无缝对接。在设计 OpenYurt 之初，我们就非常强调保持用户体验的一致性，不增加用户运维负担，让用户真正方便地 “Extending your native kubernetes to edge”。</p><h2>Yurtctl：一键让原生k8s集群具备边缘计算能力</h2><p>为了让原生 K8s 集群具备边缘计算能力，OpenYurt 以 addon 为载体，非侵入式给原生 K8s 增强了如下能力：</p><ul><li>边缘自治能力（YurtHub：已开源），保证在弱网或者重启节点的情况下，部署在边缘节点上的应用也能正常运行；</li><li>云边协同能力（待开源），通过云边运维通道解决边缘的运维需求，同时提供云边协同能力；</li><li>单元化管理能力（待开源），为分散的边缘节点，边缘应用，应用间流量提供单元化闭环管理能力；</li></ul><p>基于过往ACK@Edge的线上运维经验，我们开源了Yurtctl命令行工具，帮助实现了原生Kubernetes和OpenYurt之间的无缝转换以及对OpenYurt相关组件的高效运维。</p><h3>Yurtctl的工作原理</h3><p><img src="../static/img/blog/Yurtctl_convert.png" alt="image"/></p><p>Yurtctl是一个中心化的管控工具。在 OpenYurt云边一体的架构里，Yurtctl 将直接与 APIServer 进行交互。它借助原生 Kubernetes的Job workload对每个node进行运维操作。如上图所示，在执行转换（convert）操作时，Yurtctl 会通过 Job 将一个 servant Pod 部署到用户指定的边缘节点上。</p><p>servant Pod 里的容器执行的具体操作请参考：（OpenYurt:release-v0.1-beta.1～v0.3）
+<a href="https://github.com/openyurtio/openyurt/blob/release-v0.1-beta.1/config/yurtctl-servant/setup_edgenode">https://github.com/openyurtio/openyurt/blob/release-v0.1-beta.1/config/yurtctl-servant/setup_edgenode</a></p><p>由于 servant Pod 需要直接操作节点 root 用户的文件系统（例如将 yurthub 配置文件放置于 /etc/kubernetes/manifests 目录下），并且需要重置系统管理程序（kubelet.service），servant Pod 中的 container 将被赋予 privileged 权限，允许其与节点共享 pid namespace，并将借由 nsenter 命令进入节点主命名空间完成相关操作。当 servant Job 成功执行后，Job 会自动删除。如果失败，Job 则会被保留，方便运维人员排查错误原因。借由该机制，Yurtctl 还可对 Yurthub 进行更新或者删除。</p><h2>案例：一键转换OpenYurt集群</h2><p>###1）获取yurtctl
+OpenYurt github 仓库包括了 yurtctl 的源码，下载 OpenYurt 仓库之后，即可通过编译获得 yurtctl，具体命令如下：</p><pre><code>$ make build WHAT=cmd/yurtctl
+hack/make-rules/build.sh cmd/yurtctl
+Building cmd/yurtctl
+</code></pre><p>编译成功之后，yurtctl 可执行文件就可以在 _output/bin/ 目录下找到。 </p><p>###2）将Kubernetes转换为OpenYurt
+如果我们想将一个双节点（node1 和 node2）的 Kubernetes 集群转换成 OpenYurt 集群，并且只想让 node2 成为自治边缘节点，那么可以通过执行 yurtctl convert 来实现，具体命令如下：</p><pre><code>$ yurtctl convert --cloud-nodes node1 --provider ack
+I0603 14:34:33.714304   40825 convert.go:164] mark node1 as the cloud-node
+I0603 14:34:33.719816   40825 convert.go:172] mark node2 as the edge-node
+I0603 14:34:33.736609   40825 convert.go:198] deploy the yurt controller manager
+I0603 14:34:33.742272   40825 convert.go:210] deploying the yurt-hub and resetting the kubelet service...
+I0603 14:34:53.810165   40825 util.go:168] servant job(yurtctl-servant-convert-node2) has succeeded
+</code></pre><p>成功配置节点之后，我们需要将边缘节点标记为自治状态，具体命令如下：</p><pre><code>$ yurtctl markautonomous # 如果用户只想标记部分边缘节点，则可以使用 --autonomous-nodes 选项指定
+I0602 11:22:05.610222   89160 markautonomous.go:149] mark node2 as autonomous
+</code></pre><p>接着我们就可以测试 node2 在断网环境下是否能实现节点自治。首先，在 node2 上部署一个测试 pod：</p><pre><code>$ kubectl apply -f-&lt;&lt;EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bbox
+spec:
+  nodeName: node2
+  containers:
+  - image: busybox
+    command:
+    - top
+    name: bbox
+EOF
+pod/bbox created
+</code></pre><p>登陆到 node2 上，将 Yurthub 的 --server-addr 参数设置为一个不可访问的地址：</p><pre><code>sudo sed -i &#x27;s|--server-addr=.*|--server-addr=https://1.1.1.1:1111|&#x27; /etc/kubernetes/manifests/yurt-hub.yaml
+</code></pre><p>耐心等待 40 秒，我们将观察到，即使 node2 已经处于 NotReady 状态，pod1 仍然处于 Running 状态。这说明当边缘节点处于自治状态时，即使 node 不在线，Pod 也不会被云端 node controller 驱逐。</p><pre><code>$ kubectl get node 
+NAME           STATUS     ROLES    AGE   VERSION
+node1          Ready      master   14m   v1.14.8
+node2          NotReady   &lt;none&gt;   12m   v1.14.8
+$ kubectl get pod
+NAME   READY   STATUS    RESTARTS   AGE
+bbox   1/1     Running   0          5m12s
+</code></pre><p>这时如果将 node2 重启，我们可以用 docker ps （假设节点使用 docker 作为 container runtime）命令来验证 bbox Pod 会被重新拉起。</p><pre><code>$ docker ps --format &#x27;table {{.ID}}\t{{.Image}}\t{{.RunningFor}}&#x27; | grep busybox
+d0c8134fddc1        busybox          About a minutes ago
+</code></pre><p>这是因为 Kubelet 会从 Yurthub 读取缓存的数据，恢复重启前的Pod状态。这部分技术细节我们会在后续的文章里详细介绍。</p><p>###3）将OpenYurt转换回Kubernetes
+相对的，通过运行 yurtctl revert 命令，用户可以将一个 OpenYurt 集群转换回 Kubernetes 集群。假设我们想将上述双节点 Kubernetes 集群转换回 Kubernetes 模式，那么只需运行以下命令即可（运行该命令前，请先将 node2 上的 yurthub 重新连上 apiserver）：</p><pre><code>$ yurtctl revert
+I0603 14:38:55.522376   41016 revert.go:106] label alibabacloud.com/is-edge-worker is removed
+I0603 14:38:55.527998   41016 revert.go:116] yurt controller manager is removed
+I0603 14:38:55.548354   41016 revert.go:130] ServiceAccount node-controller is created
+I0603 14:39:05.572686   41016 util.go:168] servant job(yurtctl-servant-revert-node2) has succeeded
+I0603 14:39:05.572718   41016 revert.go:142] yurt-hub is removed, kubelet service is reset
+</code></pre><p>如果还想了解更多 yurtctl 的使用方法，请参考 OpenYurt github 仓库下的yurtctl的教程：<a href="https://github.com/alibaba/openyurt/tree/master/docs/tutorial%E3%80%82">https://github.com/alibaba/openyurt/tree/master/docs/tutorial。</a></p><h2>what&#x27;s Next</h2><p>Yurtctl 目标是成为运维人员管理 OpenYurt 集群的有力工具。因此我们会持续演进 Yurtctl 以支持 OpenYurt 的新功能和新增的运维流程或场景。例如，不久之后 OpenYurt 还将开源 Yurttunnel，Yurtunit 等组件，Yurtctl 也将对这些组件提供支持。我们同时欢迎大家提出对 Yurtctl 的需求，一起努力使其更加完善。</p><h2>社区建设</h2><p>OpenYurt 社区欢迎新用户加入和参与共建。用户可以通过 Github issue 获取技术支持、报告 bug、提出需求意见等，或者通过 OpenYurt 用户钉钉群直接和 core 开发人员取得联系。
+<a href="https://mp.weixin.qq.com/s/tQIIfwClRRmEYO9dE3znhw">原文链接</a></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[OpenYurt:edge computing cloud native project]]></title>
+            <link>https://openyurt.io/blog/Introduce-of-OpenYurt</link>
+            <guid>Introduce-of-OpenYurt</guid>
+            <pubDate>Fri, 29 May 2020 00:00:00 GMT</pubDate>
+            <description><![CDATA[image]]></description>
+            <content:encoded><![CDATA[<p><img src="../static/img/blog/OpenYurt.png" alt="image"/></p><p>导读：北京时间 5 月 29 日，在阿里云容器服务 ACK@Edge（边缘集群托管服务） 上线一周年之际，阿里巴巴正式宣布将其核心能力开源，并向社区贡献完整的边缘计算云原生项目 -- OpenYurt。</p><p>边缘云计算是基于云计算技术的核心和边缘计算的能力，构筑在边缘基础设施之上的新型计算平台，并正在成为行业的新焦点。OpenYurt 作为阿里巴巴首个边缘计算云原生开源项目，汇聚了阿里巴巴众多边缘计算业务团队的深厚技术积累，深度挖掘了边缘计算 + 云原生落地实施诉求。</p><p>两年前，OpenYurt 作为公共云服务 ACK@Edge 的核心框架，就已经应用于 CDN、音视频直播、物联网、物流、工业大脑、城市大脑等实际应用场景中，并服务于阿里云 LinkEdge、盒马、优酷、视频云（视频点播、视频直播、实时通信、视频监控、智能视觉）等多个业务或项目中。</p><p>阿里巴巴云原生开源负责人、云原生应用平台资深技术专家李响表示：“随着边缘计算的场景和需求不断增加，‘云边协同’、‘边缘云原生’正在逐渐成为新的技术焦点。OpenYurt 开源项目实践‘云边一体化’概念，依托原生 Kubernetes 强大的容器编排、调度能力，实现完全边缘计算云原生基础设施架构，帮助开发者轻松完成在海量边、端资源上的大规模应用的交付、运维、管控。我们希望 OpenYurt 开源能推动社区在云原生和边缘计算交叉领域的协同发展。”</p><h2>什么是OpenYurt</h2><p><img src="../static/img/blog/OpenYurt-01.png" alt="image"/></p><p>使用 OpenYurt（Yurt，/jɜːrt/，蒙古包）作为本次开源项目名称，期望以其“形”来表示边缘计算侧重于创建一个集中管理但物理分布的基础设施，并支持自动/自治运行操作的含义。</p><p>OpenYurt 主打“云边一体化”概念，依托原生 Kubernetes 强大的容器编排、调度能力，通过众多边缘计算应用场景锤炼，实现了一整套对原生 Kubernetes“零”侵入的边缘云原生方案，提供诸如边缘自治、高效运维通道、边缘单元化管理、边缘流量拓扑管理，安全容器、边缘 Serverless/FaaS、异构资源支持等能力。OpenYurt 能帮用户解决在海量边、端资源上完成大规模应用交付、运维、管控的问题，并提供中心服务下沉通道，实现和边缘计算应用的无缝对接。</p><h3>1）OpenYurt诞生背景</h3><p><img src="../static/img/blog/OpenYurt-02.png" alt="image"/>
+从 2017 年底开始，阿里云物联网（IoT）和 CDN (内容分发网络)服务作为典型的边缘计算业务正面临着产品规模的爆发式增长、运维复杂度急剧攀升、运维效率不高的“三难”境地，因此引入云原生理念、全面转型边缘应用的运维管理模式成为亟需解决的问题。</p><p>正是在这样的背景下，OpenYurt 诞生于阿里云容器服务团队，并在接下来的两年多时间内，作为公共云服务 ACK@Edge 的核心框架被广泛应用于 CDN、音视频直播、物联网、物流、工业大脑、城市大脑等实际应用场景中，并正在服务于阿里云 LinkEdge、盒马、优酷、视频云（视频点播，视频直播，实时通信，视频监控，智能视觉）等多个业务或项目中。</p><h3>2）OpenYurt技术特点</h3><p>OpenYurt沿用了目前业界流行的“中心管控、边缘自治”的边缘应用管理架构，将“云边端一体化协同”作为目标，赋能云原生能力向边缘端拓展。在技术实现上，OpenYurt贯彻了“Extending your native Kubernetes to Edge”的核心设计理念，其技术方案有如下特点：</p><ul><li>对原生Kubernetes“零”侵入，保证对原生k8s API的完全兼容。</li></ul><p>OpenYurt通过proxy node network traffic，对 Kubernetes 节点应用生命周期管理加了一层新的封装，提供边缘计算所需要的核心管控能力；</p><ul><li><p>无缝转换，OpenYurt提供了工具将原生Kubernetes“一键式”转换成支持边缘计算能力的 Kubernetes 集群；</p></li><li><p>低Overhead，OpenYurt参考了大量边缘计算场景的实际需求，在保证功能和可靠性的基础上，本着最小化，最简化的设计理念，严格限制新增组件的资源诉求。  </p></li></ul><h3>3）OpenYurt核心能力</h3><p><img src="../static/img/blog/OpenYurt_arch.png" alt="image"/></p><ul><li>边缘自治能力： </li></ul><p>YurtHub作为节点上的临时配置中心，在网络连接中断的情况下，持续为节点上所有设备和客户业务提供数据配置服务。YurtHub 提供了对大量原生 Kubernetes API的支持，可以在节点和边缘单元维度提供“ShadowApiserver”的能力，在边缘计算弱网络链接场景的价值尤为突出；</p><ul><li>边缘运维通道</li></ul><p>在边缘场景，由于大多数边缘节点没有暴露在公网之上，中心管控无缝和边缘节点主动建立网络链接，所有的Kubernetes原生应用运维APIs（logs/exec/metrics）会失去效力；
+YurtTunnel 通过在管控与边缘节点之间建立反向通道，并和节点的生命周期完整联动，承载原生运维 APIs 的流量；</p><ul><li>集群转换能力
+Yurtctl作为OpenYurt官方命令行工具，提供原生Kubernetes集群支持边缘计算infrastructure的一键式切换。</li></ul><p>其他更高级的功能比如边缘流量管理、单元化管理，部署、区域自治等将会逐步开源。</p><h3>4）OpenYurt Roadmap</h3><p>作为阿里云容器服务 ACK@Edge 的开源版本，OpenYurt 将采用全开源社区开发模式，每季度发布新版本更新，包含社区上游安全/关键 bug 修复和新特性、新能力，并逐步将产品完整能力开源。</p><p>主导这次开源的阿里巴巴云原生应用平台团队，目前已经开源 OAM、OpenKruise、Dragonfly、Apache RocketMQ、Apache Dubbo 等众多明星项目，是国内最资深的云原生开源贡献团队。OpenYurt 项目的开源，本着“Extending your native Kubernetes to Edge”的设计理念，让云原生技术在边缘计算领域的生态建设与普及前进了一大步，也为全球开发者拓展云原生边界贡献了一份力量。</p><p><a href="https://mp.weixin.qq.com/s/0LwCE4CpVdttmvx4FAMArg">原文链接</a></p>]]></content:encoded>
+        </item>
+    </channel>
+</rss>
