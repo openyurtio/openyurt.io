@@ -2,11 +2,274 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://openyurt.io/zh/blog</id>
     <title>OpenYurt Blog</title>
-    <updated>2021-10-15T00:00:00.000Z</updated>
+    <updated>2021-11-24T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://openyurt.io/zh/blog"/>
     <subtitle>OpenYurt Blog</subtitle>
     <icon>https://openyurt.io/zh/img/openyurt.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Use service topology to realize topology-aware traffic routing]]></title>
+        <id>How-to-use-service-topology</id>
+        <link href="https://openyurt.io/zh/blog/How-to-use-service-topology"/>
+        <updated>2021-11-24T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Service Topology enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same availability NodePool.]]></summary>
+        <content type="html"><![CDATA[<p><em>Service Topology</em> enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same availability NodePool. </p><p>The following picture shows the general function of the <em>service topology</em>.</p><p><img src="../static/img/blog/service-topology-example.png" alt="service-topology"/></p><p>To use <em>service topology</em>, the <code>EndpointSliceProxying</code> <a href="https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/">feature gate</a> must be enabled, and kube-proxy needs to be configured to connect to Yurthub instead of the API server.</p><p>You can set the <code>topologyKeys</code> values of a service to direct traffic as follows. If <code>topologyKeys</code> is not specified or empty, no topology constraints will be applied.</p><table><thead><tr><th align="center"><strong>annotation Key</strong></th><th align="center"><strong>annotation Value</strong></th><th align="center"><strong>explain</strong></th></tr></thead><tbody><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">kubernetes.io/hostname</td><td align="center">Only to endpoints on the same node.</td></tr><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">kubernetes.io/zone<br/> or <br/>openyurt.io/nodepool</td><td align="center">Only to endpoints on the same nodepool.</td></tr></tbody></table><h2>Prerequisites</h2><ol><li>Kubernetes v1.18 or above, since EndpointSlice resource needs to be supported.</li><li>Yurt-app-manager is deployed in the cluster.</li></ol><h2>How to use</h2><p>Ensure that kubernetes version is v1.18+.</p><pre><code class="language-bash">$ kubectl get node
+NAME                 STATUS   ROLES    AGE     VERSION
+kind-control-plane   Ready    master   6m21s   v1.18.19
+kind-worker          Ready    &lt;none&gt;   5m42s   v1.18.19
+kind-worker2         Ready    &lt;none&gt;   5m42s   v1.18.19
+</code></pre><p>Ensure that yurt-app-manager is deployed in the cluster.</p><pre><code class="language-BASH">$ kubectl get pod -n kube-system 
+NAME                                         READY   STATUS    RESTARTS   AGE
+coredns-66bff467f8-jxvnw                     1/1     Running   0          7m28s
+coredns-66bff467f8-lk8v5                     1/1     Running   0          7m28s
+etcd-kind-control-plane                      1/1     Running   0          7m39s
+kindnet-5dpxt                                1/1     Running   0          7m28s
+kindnet-ckz88                                1/1     Running   0          7m10s
+kindnet-sqxs7                                1/1     Running   0          7m10s
+kube-apiserver-kind-control-plane            1/1     Running   0          7m39s
+kube-controller-manager-kind-control-plane   1/1     Running   0          5m38s
+kube-proxy-ddgjt                             1/1     Running   0          7m28s
+kube-proxy-j25kr                             1/1     Running   0          7m10s
+kube-proxy-jt9cw                             1/1     Running   0          7m10s
+kube-scheduler-kind-control-plane            1/1     Running   0          7m39s
+yurt-app-manager-699ffdcb78-8m9sf            1/1     Running   0          37s
+yurt-app-manager-699ffdcb78-fdqmq            1/1     Running   0          37s
+yurt-controller-manager-6c95788bf-jrqts      1/1     Running   0          6m17s
+yurt-hub-kind-control-plane                  1/1     Running   0          3m36s
+yurt-hub-kind-worker                         1/1     Running   0          4m50s
+yurt-hub-kind-worker2                        1/1     Running   0          4m50s
+</code></pre><h3>Configure kube-proxy</h3><p>To use <em>service topology</em>, the <code>EndpointSliceProxying</code> <a href="https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/">feature gate</a> must be enabled, and kube-proxy needs to be configured to connect to Yurthub instead of the API server.</p><pre><code class="language-bash">$ kubectl edit cm -n kube-system kube-proxy
+apiVersion: v1
+data:
+  config.conf: |-
+    apiVersion: kubeproxy.config.k8s.io/v1alpha1
+    bindAddress: 0.0.0.0
+    featureGates: # 1. enable EndpointSliceProxying feature gate.
+      EndpointSliceProxying: true
+    clientConnection:
+      acceptContentTypes: &quot;&quot;
+      burst: 0
+      contentType: &quot;&quot;
+      #kubeconfig: /var/lib/kube-proxy/kubeconfig.conf # 2. comment this line.
+      qps: 0
+    clusterCIDR: 10.244.0.0/16
+    configSyncPeriod: 0s
+</code></pre><p>Restart kube-proxy.</p><pre><code class="language-bash">$ kubectl delete pod --selector k8s-app=kube-proxy -n kube-system
+pod &quot;kube-proxy-cbsmj&quot; deleted
+pod &quot;kube-proxy-cqwcs&quot; deleted
+pod &quot;kube-proxy-m9dgk&quot; deleted
+</code></pre><h3>Create NodePools</h3><ul><li>Create test nodepools.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: beijing
+spec:
+  type: Cloud
+
+---
+
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: hangzhou
+spec:
+  type: Edge
+  annotations:
+    apps.openyurt.io/example: test-hangzhou
+  labels:
+    apps.openyurt.io/example: test-hangzhou
+
+---
+
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: shanghai
+spec:
+  type: Edge
+  annotations:
+    apps.openyurt.io/example: test-shanghai
+  labels:
+    apps.openyurt.io/example: test-shanghai
+EOF
+</code></pre><ul><li>Add nodes to the nodepool.</li></ul><pre><code class="language-bash">$ kubectl label node kind-control-plane apps.openyurt.io/desired-nodepool=beijing
+node/kind-control-plane labeled
+
+$ kubectl label node kind-worker apps.openyurt.io/desired-nodepool=hangzhou
+node/kind-worker labeled
+
+$ kubectl label node kind-worker2 apps.openyurt.io/desired-nodepool=shanghai
+node/kind-worker2 labeled
+</code></pre><ul><li>Get NodePool.</li></ul><pre><code class="language-bash">$ kubectl get np
+NAME       TYPE    READYNODES   NOTREADYNODES   AGE
+beijing    Cloud   1            0               63s
+hangzhou   Edge    1            0               63s
+shanghai   Edge    1            0               63s
+</code></pre><h3>Create UnitedDeployment</h3><ul><li>Create test united-deployment1. To facilitate testing, we use a <code>serve_hostname</code> image. Each time port 9376 is accessed, the hostname container returns its own hostname.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: UnitedDeployment
+metadata:
+  labels:
+    controller-tools.k8s.io: &quot;1.0&quot;
+  name: united-deployment1
+spec:
+  selector:
+    matchLabels:
+      app: united-deployment1
+  workloadTemplate:
+    deploymentTemplate:
+      metadata:
+        labels:
+          app: united-deployment1
+      spec:
+        template:
+          metadata:
+            labels:
+              app: united-deployment1
+          spec:
+            containers:
+              - name: hostname
+                image: mirrorgooglecontainers/serve_hostname
+                ports:
+                - containerPort: 9376
+                  protocol: TCP
+  topology:
+    pools:
+    - name: hangzhou
+      nodeSelectorTerm:
+        matchExpressions:
+        - key: apps.openyurt.io/nodepool
+          operator: In
+          values:
+          - hangzhou
+      replicas: 2
+    - name: shanghai
+      nodeSelectorTerm:
+        matchExpressions:
+        - key: apps.openyurt.io/nodepool
+          operator: In
+          values:
+          - shanghai
+      replicas: 2
+  revisionHistoryLimit: 5
+EOF
+</code></pre><ul><li>Create test united-deployment2. Here we use <code>nginx</code> image, in order to access the <code>hostname</code> pod that created by united-deployment1 above.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: UnitedDeployment
+metadata:
+  labels:
+    controller-tools.k8s.io: &quot;1.0&quot;
+  name: united-deployment2
+spec:
+  selector:
+    matchLabels:
+      app: united-deployment2
+  workloadTemplate:
+    deploymentTemplate:
+      metadata:
+        labels:
+          app: united-deployment2
+      spec:
+        template:
+          metadata:
+            labels:
+              app: united-deployment2
+          spec:
+            containers:
+              - name: nginx
+                image: nginx:1.19.3
+                ports:
+                - containerPort: 80
+                  protocol: TCP
+  topology:
+    pools:
+    - name: hangzhou
+      nodeSelectorTerm:
+        matchExpressions:
+        - key: apps.openyurt.io/nodepool
+          operator: In
+          values:
+          - hangzhou
+      replicas: 2
+    - name: shanghai
+      nodeSelectorTerm:
+        matchExpressions:
+        - key: apps.openyurt.io/nodepool
+          operator: In
+          values:
+          - shanghai
+      replicas: 2
+  revisionHistoryLimit: 5
+EOF
+</code></pre><ul><li>Get pods that created by the unitedDeployment.</li></ul><pre><code class="language-bash">$ kubectl get pod -l &quot;app in (united-deployment1,united-deployment2)&quot; -owide
+NAME                                                 READY   STATUS    RESTARTS   AGE   IP           NODE           NOMINATED NODE   READINESS GATES
+united-deployment1-hangzhou-fv6th-66ff6fd958-f2694   1/1     Running   0          18m   10.244.2.3   kind-worker    &lt;none&gt;           &lt;none&gt;
+united-deployment1-hangzhou-fv6th-66ff6fd958-twf95   1/1     Running   0          18m   10.244.2.2   kind-worker    &lt;none&gt;           &lt;none&gt;
+united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt   1/1     Running   0          18m   10.244.1.3   kind-worker2   &lt;none&gt;           &lt;none&gt;
+united-deployment1-shanghai-5p8zk-84bdd476b6-wjck2   1/1     Running   0          18m   10.244.1.2   kind-worker2   &lt;none&gt;           &lt;none&gt;
+united-deployment2-hangzhou-lpkzg-6d958b67b6-gf847   1/1     Running   0          15m   10.244.2.4   kind-worker    &lt;none&gt;           &lt;none&gt;
+united-deployment2-hangzhou-lpkzg-6d958b67b6-lbnwl   1/1     Running   0          15m   10.244.2.5   kind-worker    &lt;none&gt;           &lt;none&gt;
+united-deployment2-shanghai-tqgd4-57f7555494-9jvjb   1/1     Running   0          15m   10.244.1.5   kind-worker2   &lt;none&gt;           &lt;none&gt;
+united-deployment2-shanghai-tqgd4-57f7555494-rn8n8   1/1     Running   0          15m   10.244.1.4   kind-worker2   &lt;none&gt;           &lt;none&gt;
+</code></pre><h3>Create Service with TopologyKeys</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-ud1
+  annotations:
+    openyurt.io/topologyKeys: openyurt.io/nodepool
+spec:
+  selector:
+    app: united-deployment1
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 9376
+EOF
+</code></pre><h3>Create Service without TopologyKeys</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-ud1-without-topology
+spec:
+  selector:
+    app: united-deployment1
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 9376
+EOF
+</code></pre><h3>Test Service Topology</h3><p>We use the <code>nginx</code> pod in the shanghai nodepool to test <em>service topology</em>. Therefore, its traffic can only be routed to the nodes that in shanghai nodepool when it accesses a service with the <code>openyurt.io/topologyKeys: openyurt.io/nodepool</code> annotation.</p><p>For comparison, we first test the service without serviceTopology annotation. As we can see, its traffic can be routed to any nodes.</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
+united-deployment1-hangzhou-fv6th-66ff6fd958-twf95
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
+united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
+united-deployment1-hangzhou-fv6th-66ff6fd958-twf95
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
+united-deployment1-hangzhou-fv6th-66ff6fd958-f2694
+
+</code></pre><p>Then we test the service with serviceTopology annotation. As expected, its traffic can only be routed to the nodes in shanghai nodepool.</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
+united-deployment1-shanghai-5p8zk-84bdd476b6-wjck2
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
+united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
+united-deployment1-shanghai-5p8zk-84bdd476b6-wjck2
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
+root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
+united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
+</code></pre>]]></content>
+        <author>
+            <name>Feng Zeng</name>
+            <uri>https://github.com/windydayc</uri>
+        </author>
+    </entry>
     <entry>
         <title type="html"><![CDATA[OpenYurt：在边缘场景无缝运行使用InClusterConfig的业务Pod]]></title>
         <id>How-run-business-pod-in-edge-scenarios</id>
