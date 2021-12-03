@@ -8,7 +8,12 @@ module.exports = {
             collapsed: false,
             items: [
                 'introduction',
-                'manually-setup',
+                {
+                    'Install': [
+                        'manually-setup',
+                        'openyurt-install/yurtctl-convert-revert',
+                    ]
+                }
             ],
         },
         {
