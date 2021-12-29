@@ -2,10 +2,9 @@
 title: 系统架构
 ---
 
-
 OpenYurt的整体架构如下:
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/97598/1640749374931-1d15ddd1-5247-4e57-a6b5-4edd8c4dc604.png)
+![img](../../../../../static/img/docs/core-concepts/arch.png)
 
 其中蓝色框为原生Kubernets组件，橙色框中组件为OpenYurt组件。
 
@@ -56,6 +55,8 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组建访问云�
 - **NodeResourceManager:**
   - 管理 OpenYurt 集群本地资源的组件，用户可以通过修改集群内 ConfigMap 的定义来动态配置集群内宿主机上的本地资源。
   - 以DaemonSet形态部署在Edge Node上
+
+
 
 
 

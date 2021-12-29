@@ -12,7 +12,7 @@ YurtHub 作为 OpenYurt 中的一个重要组件，在云边场景下为边缘�
 
 YurtHub 通过本地缓存资源，使得在云边网络断连的情况下，Pod 以及 Kubelet 也能够通过 YurtHub 获取所需资源而保持其正常运行。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856712/1637826535702-b4456482-26e6-4e11-94a3-e5625c38bcea.png)
+![img](../../../../../static/img/docs/core-concepts/yurthub-autonomy.png)
 
 ### 2）流量闭环
 
@@ -21,8 +21,7 @@ YurtHub 通过本地缓存资源，使得在云边网络断连的情况下，Pod
 在这样的背景下，不同节点池中的资源具有一定的独立性，分区中的节点可能要求对 Service 访问流量只在同一区域内流通，而不会跨节点分区访问。因此，YurtHub 提供了流量闭环的功能：将 Service 对应的后端限制在同一节点池中，使得 Service 的访问流量只在同一节点池中流通。
 
 
-
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856712/1637825529096-25c1bf87-4e4e-4e46-9ef4-b0e7d528e569.png)
+![img](../../../../../static/img/docs/core-concepts/yurthub-service-topology.png)
 
 ### 3）Pod 无缝迁移
 
@@ -30,7 +29,7 @@ YurtHub 通过本地缓存资源，使得在云边网络断连的情况下，Pod
 
 为了解决以上两个问题，YurtHub 提供了 Pod 零修改迁移到边缘环境中的能力。对于使用 InClusterConfig 访问 Kube APIServer 的 Pod，YurtHub 在不修改 Pod 本身的配置的前提下，自动调整节点上 Pod 的访问地址，将 Pod 的请求转发至 YurtHub，使得 Pod 在云边断网时也能够正常运行，实现了 Pod 在云场景下到云边场景的无缝迁移。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856712/1637833373949-d4f71366-b2d3-472a-8f9c-c1f428c03b8a.png)
+![img](../../../../../static/img/docs/core-concepts/yurthub-pod.png)
 
 ### 4）多云端地址支持
 
@@ -56,11 +55,7 @@ YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。
 
 对于 “edge” 模式的 YurtHub，其组件架构如下图所示。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856712/1637822853664-b3ccf1a5-764a-4e07-9154-49b50d4876db.png)
-
-
-
-
+![img](../../../../../static/img/docs/core-concepts/yurthub-edge.png)
 
 架构图中清晰得表明了请求在 YurtHub 中的流向。
 
@@ -119,7 +114,7 @@ YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。
 ### 2）Cloud 模式
 对于 “cloud” 模式的 YurtHub，其组件架构如下图所示。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856712/1637824227460-a82ad001-9bfc-4109-a88c-4155c52e5ab2.png)
+![img](../../../../../static/img/docs/core-concepts/yurthub-cloud.png)
 
 与 edge 模式相比，由于云端网络稳定，不用检测节点与 Kube APIServer 的连接状况，YurtHub 将所有的请求转发至 Kube APIServer，YurtHub 也不需要本地缓存数据。所以 cloud 模式的 YurtHub 关闭了与本地处理请求相关的模块。
 
@@ -127,63 +122,40 @@ YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。
 
 ## 3. 启动参数
 
-
-
 ```plain
 --bind-address		默认值: "127.0.0.1"
 ```
-
 YurtHub server 的 IP 地址，与 --serve-port 搭配使用。
-
-
 
 ```plain
 --serve-port		默认值: "10267"
 ```
-
 YurtHub 处理 HTTP 请求的端口。
-
-
 
 ```plain
 --proxy-port		默认值: "10261"
 ```
-
 转发 HTTP 请求的端口，发往此端口的 HTTP 请求会转发至 kube-apiserver。
-
-
 
 ```plain
 --proxy-secure-port		默认值: "10268"
 ```
-
 转发 HTTPS 请求的端口，发往此端口的 HTTPS 请求会转发至 kube-apiserver。
-
-
 
 ```plain
 --server-addr
 ```
-
 kube-apiserver 的地址。值的格式为 "server1,server2,..."。
-
-
 
 ```plain
 --cert-mgr-mode		默认值: "hubself"
 ```
-
 配置 YurtHub 使用的证书。如果值为 “hubself”，则使用 YurtHub 申请的证书；如果值为 “kubelet”，则使用 kubelet 的证书。
-
-
 
 ```plain
 --kubelet-ca-file		默认值: "/etc/kubernetes/pki/ca.crt"
 ```
-
 Kubelet 使用的 CA 文件路径。
-
-
 
 ```plain
 --kubelet-client-certificate		默认值: "/var/lib/kubelet/pki/kubelet-client-current.pem"
@@ -342,10 +314,7 @@ Pod 是否通过 YurtHub 连接 kube-apiserver。
 ```plain
 --disabled-resource-filters
 ```
-
 关闭的过滤器列表。默认所有的过滤器都打开。
-
-
 
 ```plain
 --nodepool-name

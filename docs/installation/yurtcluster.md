@@ -2,7 +2,7 @@
 title: YurtCluster
 ---
 
-##1. 背景说明
+## 1. 背景说明
 
 当您准备在生产环境使用 OpenYurt 时，官方推荐使用 [YurtCluster Operator](https://github.com/openyurtio/yurtcluster-operator) 。
 YurtCluster Operator 提供了云原生声名式 Cluster API，能够根据声明的配置自动在标准 Kubernetes 集群上部署和配置 OpenYurt 相关组件，

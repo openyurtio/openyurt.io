@@ -64,7 +64,7 @@ export default function Home() {
                     <p className="hero__subtitle">{siteConfig.tagline}</p>
                     <div
                         className={clsx(styles.heroButtons, 'name', 'margin-vert--md')}>
-                        <Button href={useBaseUrl('docs/manually-setup')}><Translate>Get Started</Translate></Button>
+                        <Button href={useBaseUrl('docs/installation/openyurt-experience-center')}><Translate>Get Started</Translate></Button>
                         <Button href={useBaseUrl('docs/')}><Translate>Learn More</Translate></Button>
                     </div>
                 </div>
