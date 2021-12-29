@@ -1,0 +1,3 @@
+---
+title: Yurtctl init/join
+---

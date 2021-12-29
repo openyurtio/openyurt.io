@@ -1,0 +1,4 @@
+---
+title: Edge local storage
+---
+
