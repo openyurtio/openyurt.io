@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: OpenYurt是什么
 slug: /
 ---
 

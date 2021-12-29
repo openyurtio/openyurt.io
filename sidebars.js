@@ -9,9 +9,15 @@ module.exports = {
             items: [
                 'introduction',
                 {
-                    'Install': [
-                        'manually-setup',
-                        'openyurt-install/yurtctl-convert-revert',
+                    'Installation': [
+                        'installation/openyurt-experience-center',
+                        {
+                            'Conversion between OpenYurt and Kubernetes': [
+                                'installation/yurtcluster',
+                                'installation/yurtctl-init-join'
+                            ]
+                        },
+                        'installation/yurtctl-convert-revert',
                     ]
                 }
             ],
@@ -22,16 +28,19 @@ module.exports = {
             collapsed: false,
             items: [
                 'core-concepts/architecture',
-            ],
-        },
-        {
-            type: 'category',
-            label: 'Best Practices',
-            collapsed: false,
-            items: [
-                'best-practices/yurt-app-manager',
-                'best-practices/yurt-tunnel',
-                'best-practices/yurtctl',
+                {
+                    'Components': [
+                        'core-concepts/node-resource-manager',
+                        'core-concepts/yurt-app-manager',
+                        'core-concepts/yurttunnel',
+                        {
+                            "Edge Device": [
+                                'core-concepts/edge-device/edgex-foundry',
+                            ]
+                        }
+                    ]
+                }
+
             ],
         },
         {
@@ -40,27 +49,51 @@ module.exports = {
             collapsed: true,
             items: [
                 {
-                    'Yurt App Manager': [
-                        'user-manuals/yurt-app-manager/yurt-app-manager-dev',
+                    'Autonomy': [
+                        'user-manuals/autonomy/node-autonomy',
+                    ]
+                },
+                {
+                    'Network': [
+                        'user-manuals/network/edge-pod-network',
+                        'user-manuals/network/service-topology',
+                    ]
+                },
+                {
+                    'Storage': [
+                        'user-manuals/storage/edge-local-storage',
+                    ]
+                },
+                {
+                    'Workload': [
+                        'user-manuals/workload/in-pool-deployment',
+                        'user-manuals/workload/node-pool-management',
+                    ]
+                },
+                {
+                    'Monitoring': [
+                        'user-manuals/monitoring/prometheus',
+                    ]
+                },
+                {
+                    'IOT': [
+                        'user-manuals/iot/edgex-foundry',
                     ]
                 }
             ]
         },
         {
             type: 'category',
+            label: 'Best Practices',
+            collapsed: false,
+            items: [
+            ],
+        },
+        {
+            type: 'category',
             label: 'Developer Manuals',
             collapsed: true,
             items: [
-                'developer-manuals/developer-guide',
-                'developer-manuals/yurt-e2e-test',
-            ],
-        },
-
-        {
-            type: 'category',
-            label: 'Roadmap',
-            items: [
-                'roadmap/README',
             ],
         },
         {
