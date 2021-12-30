@@ -5,7 +5,7 @@ title: Architecture
 
 OpenYurt的整体架构如下:
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/97598/1640749374931-1d15ddd1-5247-4e57-a6b5-4edd8c4dc604.png)
+![img](../../static/img/docs/core-concepts/arch.png)
 
 其中蓝色框为原生Kubernets组件，橙色框中组件为OpenYurt组件。
 
@@ -32,7 +32,7 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组建访问云�
 
 ### OpenYurt组件介绍
 
-- **YurtHuba:**
+- **YurtHub:**
   - 节点维度的SideCar，节点上组件和kube-apiserver之间的流量代理，有边缘(edge)和云端(cloud)两种运行模式。其中边缘YurtHub会缓存云端返回的数据。
   - 部署形态：以Static Pod形态运行在每个节点上。
 

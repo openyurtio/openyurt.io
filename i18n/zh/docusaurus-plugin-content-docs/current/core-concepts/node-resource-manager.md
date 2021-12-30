@@ -29,7 +29,7 @@ node-resource-manager 是用于管理 OpenYurt 集群本地资源的组件，用
 
 每个 Node 节点上的 node-resource-manager 通过挂载 node-resource-topo ConfigMap 的方式生产并管理用户定义的本地资源。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/168171/1637740414277-51af8804-6b82-4daa-bfd6-7da977b406e3.png)
+![img](../../../../../static/img/docs/core-concepts/node-resource-manager.png)
 
 
 ### 
