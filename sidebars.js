@@ -11,13 +11,14 @@ module.exports = {
                 {
                     'Installation': [
                         'installation/openyurt-experience-center',
+                        'installation/yurtctl-init-join',
                         {
                             'Conversion between OpenYurt and Kubernetes': [
                                 'installation/yurtcluster',
-                                'installation/yurtctl-init-join'
+                                'installation/yurtctl-convert-revert',
+
                             ]
                         },
-                        'installation/yurtctl-convert-revert',
                     ]
                 }
             ],
@@ -30,9 +31,10 @@ module.exports = {
                 'core-concepts/architecture',
                 {
                     'Components': [
-                        'core-concepts/node-resource-manager',
-                        'core-concepts/yurt-app-manager',
+                        'core-concepts/yurthub',
                         'core-concepts/yurttunnel',
+                        'core-concepts/yurt-app-manager',
+                        'core-concepts/node-resource-manager',
                         {
                             "Edge Device": [
                                 'core-concepts/edge-device/edgex-foundry',
@@ -87,6 +89,7 @@ module.exports = {
             label: 'Best Practices',
             collapsed: false,
             items: [
+                'best-practices/practices-1'
             ],
         },
         {
@@ -94,6 +97,7 @@ module.exports = {
             label: 'Developer Manuals',
             collapsed: true,
             items: [
+                'developer-manuals/local-up-openyurt',
             ],
         },
         {
