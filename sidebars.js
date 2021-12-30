@@ -59,6 +59,7 @@ module.exports = {
                     'Network': [
                         'user-manuals/network/edge-pod-network',
                         'user-manuals/network/service-topology',
+                        'user-manuals/network/edge-ingress'
                     ]
                 },
                 {
