@@ -1,8 +1,9 @@
 ---
-title: 使用 YurtCluster Operator 部署边缘集群
+title: YurtCluster
 ---
 
 ## 1. 背景说明
+
 当您准备在生产环境使用 OpenYurt 时，官方推荐使用 [YurtCluster Operator](https://github.com/openyurtio/yurtcluster-operator) 。
 YurtCluster Operator 提供了云原生声名式 Cluster API，能够根据声明的配置自动在标准 Kubernetes 集群上部署和配置 OpenYurt 相关组件，
 使其具备提供边缘计算服务的能力（即将普通集群一键转换为 OpenYurt 边缘集群），同时负责动态追踪和管理 OpenYurt 集群的生命周期，包括集群扩容、升级等，
