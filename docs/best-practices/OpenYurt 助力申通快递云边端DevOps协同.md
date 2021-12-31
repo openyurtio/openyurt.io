@@ -6,10 +6,17 @@
 
 ## 云边协同能力  
 &emsp;&emsp;申通快递IoT云边端架构的云边协同能力具体体现在哪里呢，又有哪些优势？整体架构中云边协同有两层含义，一是负责边缘资源运维管控的边缘PaaS平台的云边协同能力，二是边缘网关服务的云边协同能力。重点介绍边缘PaaS平台的云边协同。它主要职责是利用 OpenYurt 提供容器化的隔离环境，将Master集群统一部署在公有云，将Node结点下沉到边缘端，也就是分布在全国各地的转运中心，重写Node结点的心跳检测机制和自治逻辑，通过反向代理设计让边缘容器在相对稳定的局域网络环境里可以自运行。核心集成了Devops、单元化发布、生产日常环境隔离、资源监控等模块。使申通快递的边缘开发，同云上研发体系完全一致，发布边缘应用时一键生成边缘容器，并由PaaS平台提供统一部署，日志监控等云管控能力。
-![image](https://user-images.githubusercontent.com/13324377/147810737-e146dbc4-80dd-40a8-9cd8-1762387fdb22.png)
+
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/13324377/147811982-c587b291-372e-4093-bf5b-4cedffb603a9.png" width=70% hight=70% title="flannel-architecture" alt="flannel-architecture">
+</div>
 
 &emsp;&emsp;在此之上，申通快递自研的边缘Paas平台来做边缘DevOps，底层使用gitlab-runner来做持续集成引擎。CI 层面拉取gitlab代码、Docker做maven打包、构建镜像并上传；CD 层面引入开发人员提前写好helm charts，使用helm同时操作多单元的、多可用区的多个 OpenYurt 集群来做容器化发布，使用OpenYurt本身的资源调度能力，完成最合理的资源调度与规划。在边缘资源管控层面，申通快递根据中心与网点的分布情况与实时的rt统计，划分了四大可用区进行部署，分别为华东，西南，华北，华南可用区，每个可用区一套OpenYurt 集群，每套集群用来管理本区域分散的物理资源。4套集群统一通过上层的边缘PAAS平台统一控制。对申通快递来说，边缘容器化将边缘物理资源充分利用，在此基础上基于基础镜像，产出了边缘sls日志服务、边缘sunfire业务监控等。开发人员可随意配置告警，搭配秒级业务监控，实现快速的故障发现与处理。
-![image](https://user-images.githubusercontent.com/13324377/147810808-7744e40a-1bc9-4d7f-8aa0-c1f3cb559d26.png)  
+
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/13324377/147811897-5e1eee33-cab9-429f-abc4-a25aeac0f7b7.png" width=70% hight=70% title="flannel-architecture" alt="flannel-architecture">
+</div>
+
 &emsp;&emsp;申通快递业务上，将快递实操的核心扫描校验业务，通过云边协同能力，将扫描校验整个核心流程在边缘完成，支撑快递业务拦截件、预售等业务，从容应对双十一等海量数据大促，使快递实操扫描用户体验上一层新台阶。
 
 ## 业务价值
