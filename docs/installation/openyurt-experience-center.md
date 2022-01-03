@@ -1,4 +1,0 @@
----
-title: OpenYurt Experience Center
----
-

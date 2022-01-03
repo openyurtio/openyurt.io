@@ -10,7 +10,14 @@ module.exports = {
                 'introduction',
                 {
                     'Installation': [
-                        'installation/openyurt-experience-center',
+                        {
+                            "OpenYurt Experience Center": [
+                                'installation/openyurt-experience-center/overview',
+                                'installation/openyurt-experience-center/user',
+                                'installation/openyurt-experience-center/web_console',
+                                'installation/openyurt-experience-center/kubeconfig',
+                            ]
+                        },
                         'installation/yurtctl-init-join',
                         {
                             'Conversion between OpenYurt and Kubernetes': [
