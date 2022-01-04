@@ -11,7 +11,7 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 - Attention to Version: 
   
     From OpenYurt v0.5.0, each version corresponds to a version of the docs. So you need to pay attention to the version 
-when adding or updating the doc.
+  when adding or updating the doc.
   
 - Attention to EN/ZH:
 
@@ -107,3 +107,11 @@ $ yarn build
 $ npm run serve
 ```
 After building, you can visit **http://localhost:3000/** to check.
+
+> Note: If hadoop is installed in your machine, the `yarn` command in yarn package manager may conflict with `yarn` in hadoop. The solution is to use `yarnpkg` instead of `yarn`, because the command  `yarnpkg` is the same as the command `yarn` .
+
+```
+$ yarnpkg install
+$ yarnpkg build
+$ npm run serve
+```
