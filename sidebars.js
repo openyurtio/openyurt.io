@@ -98,6 +98,7 @@ module.exports = {
             label: 'Developer Manuals',
             collapsed: true,
             items: [
+                'developer-manuals/how-to-build-and-test',
                 'developer-manuals/local-up-openyurt',
             ],
         },
