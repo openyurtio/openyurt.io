@@ -5,9 +5,7 @@ authors: [windydayc]
 tags:  [ openyurt ]
 ---
 
-# Service Topology
-
-*Service Topology* enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same availability NodePool. 
+*Service Topology* enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same available NodePool. 
 
 The following picture shows the general function of the *service topology*.
 
