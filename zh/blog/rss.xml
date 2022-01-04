@@ -103,17 +103,17 @@ kubectl delete job -n kube-system &lt; job-name&gt;
 </code></pre><h2>总结</h2><p>yurtctl convert/revert 命令是最快捷体验openYurt功能的方法之一。</p><p>在了解了这两个命令的实现原理，也就对openYurt的技术方案了解大半了。</p><p>执行命令也不担心了，so easy！</p>]]></content:encoded>
         </item>
         <item>
-            <title><![CDATA[Use service topology to realize topology-aware traffic routing]]></title>
+            <title><![CDATA[OpenYurt边缘流量闭环能力解析]]></title>
             <link>https://openyurt.io/zh/blog/How-to-use-service-topology</link>
             <guid>How-to-use-service-topology</guid>
             <pubDate>Wed, 24 Nov 2021 00:00:00 GMT</pubDate>
-            <description><![CDATA[Service Topology enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same availability NodePool.]]></description>
-            <content:encoded><![CDATA[<p><em>Service Topology</em> enables a service to route traffic based on the Node topology of the cluster. For example, a service can specify that traffic be preferentially routed to endpoints that are on the same Node as the client, or in the same availability NodePool. </p><p>The following picture shows the general function of the <em>service topology</em>.</p><p><img src="../static/img/blog/service-topology-example.png" alt="service-topology"/></p><p>To use <em>service topology</em>, the <code>EndpointSliceProxying</code> <a href="https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/">feature gate</a> must be enabled, and kube-proxy needs to be configured to connect to Yurthub instead of the API server.</p><p>You can set the <code>topologyKeys</code> values of a service to direct traffic as follows. If <code>topologyKeys</code> is not specified or empty, no topology constraints will be applied.</p><table><thead><tr><th align="center"><strong>annotation Key</strong></th><th align="center"><strong>annotation Value</strong></th><th align="center"><strong>explain</strong></th></tr></thead><tbody><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">kubernetes.io/hostname</td><td align="center">Only to endpoints on the same node.</td></tr><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">kubernetes.io/zone<br/> or <br/>openyurt.io/nodepool</td><td align="center">Only to endpoints on the same nodepool.</td></tr></tbody></table><h2>Prerequisites</h2><ol><li>Kubernetes v1.18 or above, since EndpointSlice resource needs to be supported.</li><li>Yurt-app-manager is deployed in the cluster.</li></ol><h2>How to use</h2><p>Ensure that kubernetes version is v1.18+.</p><pre><code class="language-bash">$ kubectl get node
+            <description><![CDATA[服务拓扑]]></description>
+            <content:encoded><![CDATA[<h2>服务拓扑</h2><p>服务拓扑（Service Topology）可以让一个服务根据集群的节点拓扑进行流量路由。 例如，一个服务可以指定流量被优先路由到和客户端 pod 相同的节点或者节点池上。</p><p>通过在原生的 Service 上添加 Annotation 实现流量的拓扑配置，相关参数如下所示：</p><table><thead><tr><th align="center"><strong>annotation Key</strong></th><th align="center"><strong>annotation Value</strong></th><th align="center">说明</th></tr></thead><tbody><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">kubernetes.io/hostname</td><td align="center">流量被路由到相同的节点</td></tr><tr><td align="center">openyurt.io/topologyKeys</td><td align="center">openyurt.io/nodepool <br/>或 <br/>kubernetes.io/zone<br/></td><td align="center">流量被路由到相同的节点池</td></tr></tbody></table><p>下图为服务拓扑功能的一个例子。<code>service-ud1</code> 添加了注解 <code>openyurt.io/topologyKeys: openyurt.io/nodepool </code>, 当 <code>pod6</code> 访问 <code>service-ud1</code> 的时候，由于 <code>pod6</code> 位于 <code>edge node2</code>，也就是位于杭州节点池，因此其流量只会发往杭州节点池的 <code>pod1</code> 或 <code>pod2</code>上，而不会跨节点池，所以 <code>pod3</code> 和 <code>pod4</code> 收不到。从而实现了同一个节点池中的流量闭环。</p><p><img src="../../../static/img/blog/service-topology-example.png" alt="service-topology"/></p><h2>前提条件</h2><ol><li>Kubernetes v1.18或以上版本，因为需要支持 EndpointSlice 资源。</li><li>集群中部署了 Yurt-app-manager。</li></ol><h2>使用方法演示</h2><p>确保 Kubernetes 版本大于1.18。</p><pre><code class="language-bash">$ kubectl get node
 NAME                 STATUS   ROLES    AGE     VERSION
 kind-control-plane   Ready    master   6m21s   v1.18.19
 kind-worker          Ready    &lt;none&gt;   5m42s   v1.18.19
 kind-worker2         Ready    &lt;none&gt;   5m42s   v1.18.19
-</code></pre><p>Ensure that yurt-app-manager is deployed in the cluster.</p><pre><code class="language-BASH">$ kubectl get pod -n kube-system 
+</code></pre><p>确保集群中部署了 Yurt-app-manager。</p><pre><code class="language-BASH">$ kubectl get pod -n kube-system 
 NAME                                         READY   STATUS    RESTARTS   AGE
 coredns-66bff467f8-jxvnw                     1/1     Running   0          7m28s
 coredns-66bff467f8-lk8v5                     1/1     Running   0          7m28s
@@ -133,7 +133,7 @@ yurt-controller-manager-6c95788bf-jrqts      1/1     Running   0          6m17s
 yurt-hub-kind-control-plane                  1/1     Running   0          3m36s
 yurt-hub-kind-worker                         1/1     Running   0          4m50s
 yurt-hub-kind-worker2                        1/1     Running   0          4m50s
-</code></pre><h3>Configure kube-proxy</h3><p>To use <em>service topology</em>, the <code>EndpointSliceProxying</code> <a href="https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/">feature gate</a> must be enabled, and kube-proxy needs to be configured to connect to Yurthub instead of the API server.</p><pre><code class="language-bash">$ kubectl edit cm -n kube-system kube-proxy
+</code></pre><h3>配置 kube-proxy</h3><p>开启 <code>kube-proxy</code> 的 <code>EndpointSliceProxying</code> <a href="https://kubernetes.io/zh/docs/reference/command-line-tools-reference/feature-gates/">特性门控</a>，并配置其连接 <code>Yurthub</code>。</p><pre><code class="language-bash">$ kubectl edit cm -n kube-system kube-proxy
 apiVersion: v1
 data:
   config.conf: |-
@@ -149,11 +149,11 @@ data:
       qps: 0
     clusterCIDR: 10.244.0.0/16
     configSyncPeriod: 0s
-</code></pre><p>Restart kube-proxy.</p><pre><code class="language-bash">$ kubectl delete pod --selector k8s-app=kube-proxy -n kube-system
+</code></pre><p>重启 <code>kube-proxy</code>。</p><pre><code class="language-bash">$ kubectl delete pod --selector k8s-app=kube-proxy -n kube-system
 pod &quot;kube-proxy-cbsmj&quot; deleted
 pod &quot;kube-proxy-cqwcs&quot; deleted
 pod &quot;kube-proxy-m9dgk&quot; deleted
-</code></pre><h3>Create NodePools</h3><ul><li>Create test nodepools.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+</code></pre><h3>创建节点池</h3><ul><li>创建用于测试的节点池。</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: NodePool
 metadata:
@@ -187,7 +187,7 @@ spec:
   labels:
     apps.openyurt.io/example: test-shanghai
 EOF
-</code></pre><ul><li>Add nodes to the nodepool.</li></ul><pre><code class="language-bash">$ kubectl label node kind-control-plane apps.openyurt.io/desired-nodepool=beijing
+</code></pre><ul><li>将主节点 <code>kind-control-plane</code> 加入到北京节点池，工作节点 <code>kind-worker</code> 加入到杭州节点池， <code>kind-worker2 </code> 加入到上海节点池。</li></ul><pre><code class="language-bash">$ kubectl label node kind-control-plane apps.openyurt.io/desired-nodepool=beijing
 node/kind-control-plane labeled
 
 $ kubectl label node kind-worker apps.openyurt.io/desired-nodepool=hangzhou
@@ -195,12 +195,12 @@ node/kind-worker labeled
 
 $ kubectl label node kind-worker2 apps.openyurt.io/desired-nodepool=shanghai
 node/kind-worker2 labeled
-</code></pre><ul><li>Get NodePool.</li></ul><pre><code class="language-bash">$ kubectl get np
+</code></pre><ul><li>查看节点池信息。</li></ul><pre><code class="language-bash">$ kubectl get np
 NAME       TYPE    READYNODES   NOTREADYNODES   AGE
 beijing    Cloud   1            0               63s
 hangzhou   Edge    1            0               63s
 shanghai   Edge    1            0               63s
-</code></pre><h3>Create UnitedDeployment</h3><ul><li>Create test united-deployment1. To facilitate testing, we use a <code>serve_hostname</code> image. Each time port 9376 is accessed, the hostname container returns its own hostname.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+</code></pre><h3>创建 UnitedDeployment</h3><ul><li>创建 <code>united-deployment1</code> 用于测试。为了便于测试，我们使用 <code>serve_hostname</code> 镜像，当访问 9376 端口时，容器会返回它自己的主机名。</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: UnitedDeployment
 metadata:
@@ -248,7 +248,7 @@ spec:
       replicas: 2
   revisionHistoryLimit: 5
 EOF
-</code></pre><ul><li>Create test united-deployment2. Here we use <code>nginx</code> image, in order to access the <code>hostname</code> pod that created by united-deployment1 above.</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+</code></pre><ul><li>创建 <code>united-deployment2</code> 用于测试。这里我们使用<code>nginx</code> 镜像，用来访问由 <code>united-deployment1</code> 创建的 <code>hostname</code> pod。</li></ul><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: UnitedDeployment
 metadata:
@@ -296,7 +296,7 @@ spec:
       replicas: 2
   revisionHistoryLimit: 5
 EOF
-</code></pre><ul><li>Get pods that created by the unitedDeployment.</li></ul><pre><code class="language-bash">$ kubectl get pod -l &quot;app in (united-deployment1,united-deployment2)&quot; -owide
+</code></pre><ul><li>查看由上述 unitedDeployment 创建出来的 pod 信息。</li></ul><pre><code class="language-bash">$ kubectl get pod -l &quot;app in (united-deployment1,united-deployment2)&quot; -o wide
 NAME                                                 READY   STATUS    RESTARTS   AGE   IP           NODE           NOMINATED NODE   READINESS GATES
 united-deployment1-hangzhou-fv6th-66ff6fd958-f2694   1/1     Running   0          18m   10.244.2.3   kind-worker    &lt;none&gt;           &lt;none&gt;
 united-deployment1-hangzhou-fv6th-66ff6fd958-twf95   1/1     Running   0          18m   10.244.2.2   kind-worker    &lt;none&gt;           &lt;none&gt;
@@ -306,7 +306,7 @@ united-deployment2-hangzhou-lpkzg-6d958b67b6-gf847   1/1     Running   0        
 united-deployment2-hangzhou-lpkzg-6d958b67b6-lbnwl   1/1     Running   0          15m   10.244.2.5   kind-worker    &lt;none&gt;           &lt;none&gt;
 united-deployment2-shanghai-tqgd4-57f7555494-9jvjb   1/1     Running   0          15m   10.244.1.5   kind-worker2   &lt;none&gt;           &lt;none&gt;
 united-deployment2-shanghai-tqgd4-57f7555494-rn8n8   1/1     Running   0          15m   10.244.1.4   kind-worker2   &lt;none&gt;           &lt;none&gt;
-</code></pre><h3>Create Service with TopologyKeys</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+</code></pre><h3>创建含有 openyurt.io/topologyKeys 注解的服务</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -321,7 +321,7 @@ spec:
   - port: 80
     targetPort: 9376
 EOF
-</code></pre><h3>Create Service without TopologyKeys</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
+</code></pre><h3>创建不含 openyurt.io/topologyKeys 注解的服务</h3><pre><code class="language-bash">$ cat &lt;&lt; EOF | kubectl apply -f -
 apiVersion: v1
 kind: Service
 metadata:
@@ -334,29 +334,22 @@ spec:
   - port: 80
     targetPort: 9376
 EOF
-</code></pre><h3>Test Service Topology</h3><p>We use the <code>nginx</code> pod in the shanghai nodepool to test <em>service topology</em>. Therefore, its traffic can only be routed to the nodes that in shanghai nodepool when it accesses a service with the <code>openyurt.io/topologyKeys: openyurt.io/nodepool</code> annotation.</p><p>For comparison, we first test the service without serviceTopology annotation. As we can see, its traffic can be routed to any nodes.</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
+</code></pre><h3>测试服务拓扑功能</h3><p>通过使用上海节点池中的 pod 访问上述创建的两个服务来测试服务拓扑功能。当访问含有 <code>openyurt.io/topologyKeys</code> 注解的服务时，流量会被路由到位于上海节点池中的节点上。</p><p>为了进行比较，我们首先测试没有<code>openyurt.io/topologyKeys</code>注解的服务。结果如下，可以看到它的流量既可以被杭州节点池接收，也能被上海节点池接收，并不受节点池的限制。</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
 united-deployment1-hangzhou-fv6th-66ff6fd958-twf95
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
 united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
 united-deployment1-hangzhou-fv6th-66ff6fd958-twf95
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1-without-topology:80
 united-deployment1-hangzhou-fv6th-66ff6fd958-f2694
-
-</code></pre><p>Then we test the service with serviceTopology annotation. As expected, its traffic can only be routed to the nodes in shanghai nodepool.</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
+</code></pre><p>然后我们测试含有<code>openyurt.io/topologyKeys</code>注解的服务。结果如下，可以看到其流量只能路由到上海节点池中的节点。</p><pre><code class="language-bash">$ kubectl exec -it united-deployment2-shanghai-tqgd4-57f7555494-9jvjb bash
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
 united-deployment1-shanghai-5p8zk-84bdd476b6-wjck2
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
 united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
 united-deployment1-shanghai-5p8zk-84bdd476b6-wjck2
-root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# 
 root@united-deployment2-shanghai-tqgd4-57f7555494-9jvjb:/# curl svc-ud1:80
 united-deployment1-shanghai-5p8zk-84bdd476b6-hr6xt
 </code></pre>]]></content:encoded>
