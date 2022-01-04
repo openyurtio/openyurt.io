@@ -1,7 +1,12 @@
 .idea
+.vocode/
+
 node_modules/
 .DS_Store
 npm-debug.log
-*.iml
+package-lock.json
+
 build/
 .docusaurus/
+
+*.iml

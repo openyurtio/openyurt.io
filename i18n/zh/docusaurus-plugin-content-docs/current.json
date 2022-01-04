@@ -13,6 +13,9 @@
   "sidebar.docs.category.Installation": {
     "message": "安装"
   },
+  "sidebar.docs.category.OpenYurt Experience Center": {
+    "message": "OpenYurt 体验中心"
+  },
   "sidebar.docs.category.Conversion between OpenYurt and Kubernetes": {
     "message": "Kubernetes与OpenYurt一键式转换"
   },
