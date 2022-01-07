@@ -15,9 +15,12 @@ Yurttunnel-Server、Yurttunnel-Agent 组件会自动部署。后续扩展集群�
 
 ### 2.2编译 Yurtctl 
 
-在进行初始化集群时，需要先获取 Yurtctl 可执行文件。可以通过编译 OpenYurt 获取：
+在进行初始化集群时，需要先获取 Yurtctl 可执行文件。
+要快速构建和安装设置 yurtctl ，在编译系统已安装了 golang 1.13+ 和 bash 的前提下你可以执行以下命令来完成安装：
 
 ```sh
+$ git clone https://github.com/openyurtio/openyurt.git
+$ cd openyurt
 $ make build WHAT="yurtctl" ARCH="amd64" REGION=cn
 ```
 

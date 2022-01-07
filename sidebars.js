@@ -10,6 +10,7 @@ module.exports = {
                 'introduction',
                 {
                     'Installation': [
+                        'installation/summary',
                         {
                             "OpenYurt Experience Center": [
                                 'installation/openyurt-experience-center/overview',
@@ -23,6 +24,7 @@ module.exports = {
                             'Conversion between OpenYurt and Kubernetes': [
                                 'installation/yurtcluster',
                                 'installation/yurtctl-convert-revert',
+                                'installation/manually-setup',
 
                             ]
                         },

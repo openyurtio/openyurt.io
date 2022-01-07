@@ -9,12 +9,13 @@
                 "version-v0.5.0/introduction",
                 {
                     "Installation": [
+                        "version-v0.5.0/installation/summary",
                         "version-v0.5.0/installation/yurtctl-init-join",
                         {
                             "Conversion between OpenYurt and Kubernetes": [
                                 "version-v0.5.0/installation/yurtcluster",
-                                "version-v0.5.0/installation/yurtctl-convert-revert"
-
+                                "version-v0.5.0/installation/yurtctl-convert-revert",
+                                "version-v0.5.0/installation/manually-setup"
                             ]
                         }
                     ]
