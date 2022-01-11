@@ -4,7 +4,25 @@ import Translate, { translate } from '@docusaurus/Translate';
 
 const features = [
     {
-        title: <><Translate>Edge Autonomy</Translate></>,
+        title: <><Translate>Elegant and simple cloud-edge architecture</Translate></>,
+        imgUrl: 'img/edge-architecture.png',
+        description: (
+            <>
+                <p>
+                    <Translate>
+                        As the industry's first non-intrusive edge computing cloud-native platform, OpenYurt components are deployed in the cloud and at the edge in the form of plug-ins, achieving zero modification to Kubernetes. This allows developers and users to quickly understand and use OpenYurt.
+                    </Translate>
+                    <br />
+                    <Translate>
+                        In addition, OpenYurt introduces data filtering and permission management modules at the edge, so that users can enjoy the same experience as the Kubernetes cluster on the cloud without being aware of it.
+                    </Translate>
+                </p>
+            </>
+        ),
+        reverse: true,
+    },
+    {
+        title: <><Translate>Stable offline autonomy</Translate></>,
         imgUrl: 'img/edge-autonomy.png',
         description: (
             <>
@@ -17,27 +35,17 @@ const features = [
         ),
     },
     {
-        title: <><Translate>Edge Network</Translate></>,
-        imgUrl: 'img/edge-network.png',
-        description: (
-            <>
-                <p>
-                    <Translate>
-                        OpenYurt provides edge network governance capabilities and solves the problem of establishing network connections between cloud management and edge nodes in private networks. OpenYurt can meet the operation and maintenance requirements of the edge in an imperceptible state, and will also support business access between cloud-edge and edge-to-edge across the public network.
-                    </Translate>
-                </p>
-            </>
-        ),
-        reverse: true,
-    },
-    {
-        title: <><Translate>Edge Applications</Translate></>,
+        title: <><Translate>Strong edge governance capabilities</Translate></>,
         imgUrl: 'img/edge-applications.png',
         description: (
             <>
                 <p>
                     <Translate>
-                        In edge scenarios, edge nodes usually have strong regional, regional, or other logical grouping characteristics. OpenYurt supports node unit management, and designs a series of unit resources to provide large-scale management of nodes and applications in edge scenarios.
+                        For edge scenarios, OpenYurt provides capabilities such as large-scale edge business management, cloud-edge traffic governance across network domains, and dynamic configuration of edge local storage. In addition, OpenYurt actively cooperates with other open source communities to expand the support for heterogeneous resources and the management capabilities of edge devices.
+                    </Translate>
+                    <br />
+                    <Translate>
+                        The strong edge governance capabilities of OpenYurt can effectively help users solve the problems of large-scale application delivery, operation and maintenance, and management and control on massive edge and terminal resources.
                     </Translate>
                 </p>
             </>
