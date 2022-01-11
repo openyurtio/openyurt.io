@@ -179,20 +179,20 @@
   "Edge Autonomy": {
     "message": "边缘自治"
   },
-  "When edge nodes are offline or the cloud-to-node networking is not stable, it is important to make sure the workloads are not being disrupted. When the connection resumes, the status of edge workloads will be synced with the cloud control plane and remain consistent.": {
-    "message": "当边缘节点离线或云边网络不稳定时，如何确保工作负载不被中断很重要。当连接恢复时，边缘工作负载的状态将与云控制平面进行同步，使其保持一致。"
+  "In native Kubernetes, edge-cloud-edge network anomalies often occur, such as edge nodes being offline or network instability between edge nodes and cloud. This may trigger eviction and re-establishment of services on edge nodes. Through the edge autonomy capability of OpenYurt, the impact of cloud-edge network exceptions on edge services can be easily resolved, ensuring that workloads are not interrupted. At the same time, when the cloud-edge network is restored, the status of edge workloads will be synchronized with cloud management and control and maintain data consistency.": {
+    "message": "在原生Kubernetes中，边云边网络异常经常发生，如缘节点离线或边缘节点与云端管控间的网络不稳定。这可能会触发对边缘节点上业务的驱逐与重建。通过OpenYurt的边缘自治能力，可以轻松的解决云边网络异常对边缘业务的影响，确保工作负载不被中断。同时当云边网络恢复后，边缘工作负载的状态将与云端管控同步并保持数据的一致性。"
   },
-  "Edge and Cloud Synchronization": {
-    "message": "云边通信通道"
+  "Edge Network": {
+    "message": "边缘网络"
   },
-  "OpenYurt provides mutually encrypted tunnel and reverse proxy between edge nodes and the cloud control plane. When ingress traffic is blocked due to networking policy, the cloud control plane can still retrieve heartbeat and monitor the workloads. And users will still be able to use Kubectl and other monitoring tools such as prometheus, metrics-server to manage and monitor the edge workloads.": {
-    "message": "OpenYurt 在边缘节点和云控制平面之间提供相互加密的隧道和反向代理。当 ingress 流量因网络策略而被阻塞时，云控制平面仍然可以检索心跳并监控工作负载。另外，用户仍然可以使用 Kubectl 和其他监控工具，例如 prometheus、metrics-server 来管理和监控边缘工作负载。"
+  "OpenYurt provides edge network governance capabilities and solves the problem of establishing network connections between cloud management and edge nodes in private networks. OpenYurt can meet the operation and maintenance requirements of the edge in an imperceptible state, and will also support business access between cloud-edge and edge-to-edge across the public network.": {
+    "message": "OpenYurt 提供了边缘网络治理能力，解决了边缘场景下云端管控与私网中的边缘节点建立网络连接的问题。OpenYurt 可以在无感知状态下满足边缘的运维需求，同时也将支持跨公网的云边，边边之间的业务访问。"
   },
-  "Edge Zoning Unit": {
-    "message": "边缘单元化"
+  "Edge Applications": {
+    "message": "边缘应用"
   },
-  "OpenYurt allows users to group workloads into different units distributed in different geo-locations. Out of box, OpenYurt is able to provide users individual lifecycle management and operational policies based on the unit zoning.": {
-    "message": "OpenYurt 允许用户将工作负载分组到分布在不同地理位置的不同单元中。开箱即用，OpenYurt 能够根据单元分区为用户提供个性化的生命周期管理和操作策略。"
+  "In edge scenarios, edge nodes usually have strong regional, regional, or other logical grouping characteristics. OpenYurt supports node unit management, and designs a series of unit resources to provide large-scale management of nodes and applications in edge scenarios.": {
+    "message": "在边缘场景下，边缘节点通常具备很强的区域性、地域性、或者其他逻辑上的分组特性。OpenYurt 支持节点单元化管理，设计了一系列单元化资源，提供边缘场景下节点和应用的大规模管理能力。"
   },
   "theme.SearchPage.documentsFound.plurals": {
     "message": "One document found|{count} documents found",
@@ -202,7 +202,7 @@
     "message": "Search results for \"{query}\"",
     "description": "The search page title for non-empty query"
   },
-  "theme.SearchPage.emptyResultsTitle": {
+  "theme.SearchPage.emptyResultsTitlne": {
     "message": "Search the documentation",
     "description": "The search page title for empty query"
   },
@@ -230,5 +230,4 @@
     "message": "Search",
     "description": "The ARIA label and placeholder for search button"
   }
-
 }
