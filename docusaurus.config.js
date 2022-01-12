@@ -72,7 +72,7 @@ module.exports = {
                     items: [
                         {
                             label: 'Getting Started',
-                            to: '/docs/installation/yurtcluster',
+                            to: '/docs/installation/summary',
                         },
                     ],
                 },
