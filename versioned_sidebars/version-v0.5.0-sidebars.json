@@ -33,6 +33,7 @@
                         "version-v0.5.0/core-concepts/yurthub",
                         "version-v0.5.0/core-concepts/yurttunnel",
                         "version-v0.5.0/core-concepts/yurt-app-manager",
+                        "version-v0.5.0/core-concepts/yurt-controller-manager",
                         "version-v0.5.0/core-concepts/node-resource-manager",
                         {
                             "Edge Device": [
@@ -68,8 +69,8 @@
                 },
                 {
                     "Workload": [
-                        "version-v0.5.0/user-manuals/workload/in-pool-deployment",
-                        "version-v0.5.0/user-manuals/workload/node-pool-management"
+                        "version-v0.5.0/user-manuals/workload/node-pool-management",
+                        "version-v0.5.0/user-manuals/workload/uniteddeployment"
                     ]
                 },
                 {

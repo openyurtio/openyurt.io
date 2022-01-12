@@ -43,6 +43,7 @@ module.exports = {
                         'core-concepts/yurthub',
                         'core-concepts/yurttunnel',
                         'core-concepts/yurt-app-manager',
+                        'core-concepts/yurt-controller-manager',
                         'core-concepts/node-resource-manager',
                         {
                             "Edge Device": [
@@ -78,8 +79,8 @@ module.exports = {
                 },
                 {
                     'Workload': [
-                        'user-manuals/workload/in-pool-deployment',
                         'user-manuals/workload/node-pool-management',
+                        'user-manuals/workload/uniteddeployment',
                     ]
                 },
                 {
