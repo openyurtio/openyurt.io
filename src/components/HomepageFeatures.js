@@ -19,7 +19,6 @@ const features = [
                 </p>
             </>
         ),
-        reverse: true,
     },
     {
         title: <><Translate>Stable offline autonomy</Translate></>,
@@ -33,6 +32,7 @@ const features = [
                 </p>
             </>
         ),
+        reverse: true,
     },
     {
         title: <><Translate>Strong edge governance capabilities</Translate></>,
