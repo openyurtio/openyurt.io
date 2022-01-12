@@ -2,6 +2,8 @@
 title: OpenYurt Experience Center Introduction
 ---
 
+> [体验平台 beta 版本](http://139.224.236.157/)已经开放，欢迎大家使用反馈。域名正在申请中，后续正式版本将使用`lab.openyurt.io`作为域名。
+
 ## 总体介绍
 
 OpenYurt 作为边缘云原生项目,涉及到边缘计算和云原生两个领域,许多边缘计算的开发者不熟悉云原生相关的知识。为了降低 OpenYurt 的使用门槛，帮助更多地开发者快速上手 OpenYurt，社区推出了 OpenYurt 体验中心这一平台。想要尝试 OpenYurt 能力的新用户无需从头搭建 OpenYurt 集群, 只需要在平台上申请一个测试账号，即可马上拥有一个可用的 OpenYurt 集群。
@@ -27,6 +29,7 @@ OpenYurt 作为边缘云原生项目,涉及到边缘计算和云原生两个领�
 ![](../../../static/img/docs/installation/openyurt-experience-center/arch.png)
 
 > 体验中的[dashboard](https://github.com/openyurtio/yurt-dashboard)部分已经开源，欢迎大家的建议反馈。
+> 另外，如果大家对体验中心的实现感兴趣，可以参考 OpenYurt 双周会的[视频分享](https://www.bilibili.com/video/BV1pf4y1K7M4)。
 
 体验中心主要由三部分组成：
 
