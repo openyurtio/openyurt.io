@@ -62,7 +62,7 @@ table td {
 }
 
 .markdown {
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .markdown h1:first-child {
@@ -82,4 +82,13 @@ table td {
 }
 .blogPostTitle_GeHD:first-child {
     font-size: 2rem;
+}
+
+.markdown img {
+    width: 80%;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    display :block;
+    margin: 0 auto;
 }

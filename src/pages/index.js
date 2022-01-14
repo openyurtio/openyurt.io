@@ -64,7 +64,7 @@ export default function Home() {
                     <p className="hero__subtitle">{siteConfig.tagline}</p>
                     <div
                         className={clsx(styles.heroButtons, 'name', 'margin-vert--md')}>
-                        <Button href={useBaseUrl('docs/installation/openyurt-experience-center')}><Translate>Get Started</Translate></Button>
+                        <Button href={useBaseUrl('docs/installation/summary')}><Translate>Get Started</Translate></Button>
                         <Button href={useBaseUrl('docs/')}><Translate>Learn More</Translate></Button>
                     </div>
                 </div>
@@ -104,16 +104,18 @@ const WhatIs = () => (
                     <p className="hero__subtitle">
                         <small>
                             <Translate>
-                                OpenYurt is an open platform that embraces the powerful orchestration capabilities of upstream Kubernetes. Users can
-                            </Translate><i><Translate> deliver, manage and monitor the edge workloads </Translate></i>
-                            <Translate>
-                                using the same upstream Kubernetes APIs.
+                                OpenYurt is the intelligent edge computing platform which aims to extend the Cloud Native ecosystem to edge computing and IoT scenarios. By making non-intrusive enhancements, it empowers customer to manage large scale edge computing workloads in different architecture (e.g., ARM and X86)  in a native Kubernetes manner.
                             </Translate>
                             <br />
                             <br />
                             <Translate>
-                                OpenYurt empowers users to manage large scale edge computing workloads with ease.
+                                OpenYurt has been widely used in typical edge computing scenarios such as the IoT, distributed cloud , logistics, transportation, manufacturing, retail, CDN etc.
                             </Translate>
+                            {/*<br />*/}
+                            {/*<br />*/}
+                            {/*<Translate>*/}
+                            {/*    OpenYurt committed to becoming the reference architecture  in edge computing infrastructure.*/}
+                            {/*</Translate>*/}
                         </small>
                     </p>
                 </div>

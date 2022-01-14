@@ -31,7 +31,7 @@ $ make build WHAT="yurtctl" ARCH="amd64" REGION=cn
 执行以下命令初始化集群：
 
 ```sh
-$ _output/bin/yurtctl init --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers --kubernetes-version=v1.18.8 --pod-network-cidr=10.244.0.0/16
+$ _output/bin/yurtctl init --kubernetes-version=v1.18.8 --pod-network-cidr=10.244.0.0/16
 ```
 
 此外，用户可以通过设置参数 `--yurt-version` 配置 OpenYurt 组件的版本。如果想要配置更多信息，可以通过 `-h`  来获取。

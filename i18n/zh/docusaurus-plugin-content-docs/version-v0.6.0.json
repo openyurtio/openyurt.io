@@ -1,0 +1,61 @@
+{
+  "version.label": {
+    "message": "v0.6.0",
+    "description": "The label for version v0.6.0"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "快速开始",
+    "description": "The label for category Getting Started in sidebar docs"
+  },
+  "sidebar.docs.category.introduction": {
+    "message": "openYurt是什么"
+  },
+  "sidebar.docs.category.Installation": {
+    "message": "安装"
+  },
+  "sidebar.docs.category.OpenYurt Experience Center": {
+    "message": "OpenYurt 体验中心"
+  },
+  "sidebar.docs.category.Conversion between OpenYurt and Kubernetes": {
+    "message": "Kubernetes与OpenYurt一键式转换"
+  },
+  "sidebar.docs.category.References": {
+    "message": "参考",
+    "description": "The label for category References in sidebar docs"
+  },
+  "sidebar.docs.category.Core Concepts": {
+    "message": "核心概念",
+    "description": "The label for Core Concepts in sidebar docs"
+  },
+  "sidebar.docs.category.Components": {
+    "message": "OpenYurt组件"
+  },
+  "sidebar.docs.category.Best Practices": {
+    "message": "最佳实践",
+    "description": "The label for category case studies in sidebar docs"
+  },
+  "sidebar.docs.category.User Manuals": {
+    "message": "用户手册"
+  },
+  "sidebar.docs.category.Autonomy": {
+    "message": "边缘自治"
+  },
+  "sidebar.docs.category.Network": {
+    "message": "边缘网络"
+  },
+  "sidebar.docs.category.Storage": {
+    "message": "边缘存储"
+  },
+  "sidebar.docs.category.Workload": {
+    "message": "工作负载"
+  },
+  "sidebar.docs.category.Monitoring": {
+    "message": "监控运维"
+  },
+  "sidebar.docs.category.IOT": {
+    "message": "端设备"
+  },
+  "sidebar.docs.category.Developer Manuals": {
+    "message": "开发者手册"
+  }
+}

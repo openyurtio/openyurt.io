@@ -45,11 +45,7 @@ module.exports = {
                         'core-concepts/yurt-app-manager',
                         'core-concepts/yurt-controller-manager',
                         'core-concepts/node-resource-manager',
-                        {
-                            "Edge Device": [
-                                'core-concepts/edge-device/edgex-foundry',
-                            ]
-                        }
+                        'core-concepts/yurt-device-controller',
                     ]
                 }
 
@@ -81,6 +77,7 @@ module.exports = {
                     'Workload': [
                         'user-manuals/workload/node-pool-management',
                         'user-manuals/workload/uniteddeployment',
+                        'user-manuals/workload/yurt-app-daemon',
                     ]
                 },
                 {

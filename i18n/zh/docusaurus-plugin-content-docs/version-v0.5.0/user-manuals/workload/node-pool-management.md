@@ -1,5 +1,5 @@
 ---
-title: Node Pool Management
+title: 节点池管理
 ---
 
 ### 

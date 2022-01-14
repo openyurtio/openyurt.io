@@ -164,41 +164,41 @@
   "What is OpenYurt?": {
     "message": "OpenYurt 是什么？"
   },
-  "OpenYurt is an open platform that embraces the powerful orchestration capabilities of upstream Kubernetes. Users can": {
-    "message": "OpenYurt 是一个开放平台，包含了上游 Kubernetes 强大的编排能力。用户可以"
+  "OpenYurt is the intelligent edge computing platform which aims to extend the Cloud Native ecosystem to edge computing and IoT scenarios. By making non-intrusive enhancements, it empowers customer to manage large scale edge computing workloads in different architecture (e.g., ARM and X86)  in a native Kubernetes manner.": {
+    "message": "OpenYurt 是业界首个依托云原生技术体系、“零”侵入实现的智能边缘计算平台。其全方位的 “云、边、端一体化” 能力，能够帮助您快速实现海量边缘计算业务和异构算力的高效交付、运维及管理。"
   },
-  " deliver, manage and monitor the edge workloads ": {
-    "message": "使用上游 Kubernetes API 交付、管理和监控边缘工作负载。"
+  "OpenYurt has been widely used in typical edge computing scenarios such as the IoT, distributed cloud , logistics, transportation, manufacturing, retail, CDN etc.": {
+    "message": "OpenYurt 现已广泛应用于物联网、边缘云、分布式云等典型边缘计算场景，并覆盖物流、能源、交通、制造、零售、医疗、CDN等诸多行业，致力于成为边缘计算云原生基础设施引领者。"
   },
-  "using the same upstream Kubernetes APIs.": {
-    "message": ""
+  "Out-of-the-box cloud-edge-device collaboration capability": {
+    "message": "开箱即用的云边端协同能力"
   },
-  "OpenYurt empowers users to manage large scale edge computing workloads with ease.": {
-    "message": "OpenYurt 使用户能够轻松管理大规模边缘计算工作负载。"
+  "OpenYurt adopts an integrated cloud-edge-device architecture, which enables the unified management of massive edge resources and services in the cloud.": {
+    "message": "OpenYurt 采用了云边端一体化架构，实现了在云端统一管理海量边缘资源及业务的能力。"
   },
-  "Elegant and simple cloud-edge architecture": {
-    "message": "优雅简洁的云边架构"
+  "On the one hand, it seamlessly integrates existing capabilities on the cloud such as elastic expansion, intelligent operation, logging, and DevOps, ensuring high availability of edge services.": {
+    "message": "一方面，OpenYurt 无缝融合云上已有的能力，包括与弹性、智能运维、日志、DevOps 等能力融合，保证了边缘资源和业务的少运维、高可用。"
   },
-  "As the industry's first non-intrusive edge computing cloud-native platform, OpenYurt components are deployed in the cloud and at the edge in the form of plug-ins, achieving zero modification to Kubernetes. This allows developers and users to quickly understand and use OpenYurt.": {
-    "message": "OpenYurt 是业界首个非侵入的边缘计算云原生平台，组件以插件形式部署在云端以及边缘端，实现了对 Kubernetes 零修改。使得开发者和使用者能够快速了解和使用 OpenYurt。"
+  "On the other hand, with the help of the cloud-edge-device integration channel, a large number of cloud-based capabilities, including middleware, security, AI, storage, and network management capabilities, are sunk to the edge, reducing the cost of self-construction of common cloud services on the edge side.": {
+    "message": "另一方面，借助云边端一体化的通道，将大量云上的能力，包括中间件、安全、AI、存储及网络管理等能力下沉到边缘，减少常见云服务在边缘侧的自建成本。"
   },
-  "In addition, OpenYurt introduces data filtering and permission management modules at the edge, so that users can enjoy the same experience as the Kubernetes cluster on the cloud without being aware of it.": {
-    "message": "此外，OpenYurt 通过在边缘引入数据过滤以及权限管控模块，使用户可以在无感知状态下享受到与云上 Kubernetes 集群的一致体验。"
+  "Powerful edge service self-healing capability": {
+    "message": "强大的边缘业务自愈能力"
   },
-  "Stable offline autonomy": {
-    "message": "稳定的离线自治能力"
+  "In Kubernetes, if the edge node restarts when offline, the service will be interrupted because it cannot be automatically restored. With the powerful edge service self-healing capability in OpenYurt, it can be easily resolved the impact of node offline and node restart on edge services and ensure the service runs reliably. When the edge node network is restored, the status of edge services will be synchronized with cloud management and data consistency will be maintained.": {
+    "message": "在原生 Kubernetes 中，边缘节点离线状态下边缘节点重启，节点上边缘业务无法自动恢复，从而导致边缘业务的服务中断。通过 OpenYurt强大的边缘业务自愈能力，可以轻松解决节点离线和节点重启对边缘业务的影响，确保边缘业务可靠并持续的运行。当边缘节点网络恢复后，边缘业务的状态将与云端管控同步并保持数据的一致性。"
   },
-  "In native Kubernetes, edge-cloud-edge network anomalies often occur, such as edge nodes being offline or network instability between edge nodes and cloud. This may trigger eviction and re-establishment of services on edge nodes. Through the edge autonomy capability of OpenYurt, the impact of cloud-edge network exceptions on edge services can be easily resolved, ensuring that workloads are not interrupted. At the same time, when the cloud-edge network is restored, the status of edge workloads will be synchronized with cloud management and control and maintain data consistency.": {
-    "message": "在原生 Kubernetes 中，云边网络异常经常发生，如边缘节点离线或边缘节点与云端管控间的网络不稳定。这可能会触发对边缘节点上业务的驱逐与重建。通过 OpenYurt 的边缘自治能力，可以轻松的解决云边网络异常对边缘业务的影响，确保工作负载不被中断。同时当云边网络恢复后，边缘工作负载的状态将与云端管控同步并保持数据的一致性。"
+  "Rich edge service orchestration capability": {
+    "message": "丰富的边缘业务编排能力"
   },
-  "Strong edge governance capabilities": {
-    "message": "强大的边缘治理能力"
+  "For edge scenarios, OpenYurt pioneers the concept of Unitization, which can close the loop of resources, applications, and service traffic in the unit. At the resource level, the ability of node pools is abstracted, and edge site resources can be classified and divided according to geographical distribution. At the application management level, a set of application deployment models, such as unitized   deployment(UnitedDeployment), united DaemonSet(YurtAppDaemon), and edge ingress(YurtIngress) models, are designed. At the traffic service level, traffic can be accessed in a closed loop within the node pool.": {
+    "message": "针对边缘场景，OpenYurt 开创性的提出了单元化的概念, 可以做到将资源，应用，服务流量在本单元内闭环。在资源层面，抽象出节点池的能力，边缘站点资源可以根据地域分布进行分类划分，在应用管理层面，设计了一整套应用部署模型，例如单元化部署、单元化DaemonSet、边缘 Ingress 等模型，在流量服务层面，可以做到流量在本节点池内闭环访问。"
   },
-  "For edge scenarios, OpenYurt provides capabilities such as large-scale edge business management, cloud-edge traffic governance across network domains, and dynamic configuration of edge local storage. In addition, OpenYurt actively cooperates with other open source communities to expand the support for heterogeneous resources and the management capabilities of edge devices.": {
-    "message": "针对边缘场景，OpenYurt 提供了大规模边缘业务管理、跨网络域的云边流量治理、边缘本地存储动态配置等能力。此外，OpenYurt 积极与其他开源社区合作，拓展了对异构资源支持以及边缘设备的管理能力。"
+  "Cloud-native device management capability": {
+    "message": "云原生的设备管理能力"
   },
-  "The strong edge governance capabilities of OpenYurt can effectively help users solve the problems of large-scale application delivery, operation and maintenance, and management and control on massive edge and terminal resources.": {
-    "message": "OpenYurt 完善的边缘治理能力有效地帮助用户解决在海量边、端资源上完成大规模应用交付、运维、管控的问题。"
+  "OpenYurt abstracts and defines a cloud native model of leaf devices in edge computing scenario from the following perspectives: basic properties, main capabilities and what information can be transmitted. In addition, with good compatibility, OpenYurt seamlessly integrates mainstream IoT device management solutions. Finally, through cloud native declarative API, OpenYurt provides developers the ability of data collection, processing and control over edge devices.": {
+    "message": "OpenYurt 从云原生视角对边缘终端设备的基本特征（是什么）、主要能力（能做什么）、产生的数据（能够传递什么信息）进行了抽象与定义。凭借良好的生态兼容性无缝集成了业界主流的IoT设备管理解决方案。最终通过云原生声明式API，向开发者提供设备数据采集处理与管理控制的能力。"
   },
   "theme.SearchPage.documentsFound.plurals": {
     "message": "One document found|{count} documents found",

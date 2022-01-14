@@ -1,5 +1,5 @@
 ---
-title: Edge local storage
+title: Edge Local Storage
 ---
 
 ### 1. 确认节点上的本地存储资源

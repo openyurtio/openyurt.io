@@ -1,5 +1,5 @@
 ---
-title: Edge pod network
+title: Edge Pod Network
 ---
 
 ## 背景说明
