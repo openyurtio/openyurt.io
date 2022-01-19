@@ -67,7 +67,7 @@ metadata:
   labels:
     controller-tools.k8s.io: "1.0"
   name: ud-test
-  namespace: "18321778185"  # 注意: 替换成你的namespace
+  namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
 spec:
   selector:
     matchLabels:
@@ -77,7 +77,7 @@ spec:
       metadata:
         labels:
           app: ud-test
-      namespace: "18321778185"  # 注意: 替换成你的namespace
+      namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
       spec:
         template:
           metadata:

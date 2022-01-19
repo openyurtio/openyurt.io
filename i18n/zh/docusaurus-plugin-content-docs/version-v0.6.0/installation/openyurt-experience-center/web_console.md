@@ -24,7 +24,7 @@ title: 如何使用体验中心的Web控制台
 
 ![](../../../../../../static/img/docs/installation/openyurt-experience-center/web_node_script.png)
 
-3. 用户在自己的节点上执行复制的脚本（注意：需要节点已经安装`yurtctl`工具）
+3. 用户在自己的节点上执行复制的脚本 （注意：如果 yurtctl 下载较慢，也可通过 [此方法](https://openyurt.io/docs/next/developer-manuals/how-to-build-and-test/#cross-compilation) 自己编译 v0.6.0+ 的`yurtctl`, 之后执行节点加入脚本的`./yurtctl join ...` 部分即可）
 
 ![](../../../../../../static/img/docs/installation/openyurt-experience-center/cmd_add_node.png)
 

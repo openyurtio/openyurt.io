@@ -10,7 +10,6 @@ title: How to use `kubeconfig` to experience OpenYurt capabilities
 
 1. 在“集群信息”页面下“连接信息”tab 里复制`kubeconfig`信息
 
-
 ![](../../../static/img/docs/installation/openyurt-experience-center/web_kubeconfig.png)
 
 2. 将复制的`kubeconfig`信息保存到本地`~/.kube/config`文件下
@@ -68,7 +67,7 @@ metadata:
   labels:
     controller-tools.k8s.io: "1.0"
   name: ud-test
-  namespace: "18321778185"  # 注意: 替换成你的namespace
+  namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
 spec:
   selector:
     matchLabels:
@@ -78,7 +77,7 @@ spec:
       metadata:
         labels:
           app: ud-test
-      namespace: "18321778185"  # 注意: 替换成你的namespace
+      namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
       spec:
         template:
           metadata:
