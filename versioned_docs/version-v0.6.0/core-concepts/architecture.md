@@ -42,7 +42,7 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组建访问云�
 
 - **YurtAppManager:**
 
-  - 跨地域的资源及业务负载管理器，目前包括NodePool(节点池管理)，YurtAppSet(之前叫UnitedDeployment)(节点池维度的业务负载管理)，YurtAppDaemon(节点池维度的Daemonset)
+  - 跨地域的资源及业务负载管理器，目前包括NodePool(节点池管理)，YurtAppSet(之前叫UnitedDeployment)(节点池维度的业务负载管理)，YurtAppDaemon(节点池维度的Daemonset), YurtIngress(节点池维度的Ingress Controller管理器)
   - 部署形态： Deployment形态部署在Cloud Node上
 
 - **YurtTunnel(Server/Agent):**
