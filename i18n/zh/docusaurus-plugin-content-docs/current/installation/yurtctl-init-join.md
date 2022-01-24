@@ -57,7 +57,10 @@ $ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-t
 ```sh
 $ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
 ```
-
+当边缘节点runtime为containerd时，需要配置`cri-socket`参数，如上面执行命令加入边缘节点改为：
+```sh
+$ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
+```
 
 ## 3.实现细节
 ### 3.1 Yurtctl init
