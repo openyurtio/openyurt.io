@@ -107,6 +107,8 @@ module.exports = {
             items: [
                 'developer-manuals/how-to-build-and-test',
                 'developer-manuals/local-up-openyurt',
+                'developer-manuals/ci-workflow',
+                'developer-manuals/how-to-contribute'
             ],
         },
         {

@@ -104,7 +104,9 @@
             "collapsed": true,
             "items": [
                 "version-v0.6.0/developer-manuals/how-to-build-and-test",
-                "version-v0.6.0/developer-manuals/local-up-openyurt"
+                "version-v0.6.0/developer-manuals/local-up-openyurt",
+                "version-v0.6.0/developer-manuals/ci-workflow",
+                "version-v0.6.0/developer-manuals/how-to-contribute"
             ]
         },
         {

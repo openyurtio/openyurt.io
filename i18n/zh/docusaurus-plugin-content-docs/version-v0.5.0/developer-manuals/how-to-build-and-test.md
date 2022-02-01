@@ -177,7 +177,7 @@ $ ./_output/bin/linux/amd64/yurt-e2e-test --kubeconfig=$HOME/.kube/config  --rep
 ```
 目前的自治测试需要自己重新启动节点，yurt-e2e-test会等待节点重启并检查pod的状态。
 
-3) 如果你想在阿里云ECS或ENS上运行包括自治测试在内的所有e2e测试，方法同上。
+3) 目前社区还未提供在阿里云ECS或ENS上运行自治测试的方法。
 
 测试结果可以在stdout或yurt-e2e-test-report_01.xml文件（所在目录由`--report-dir`参数指定）中查看。其中yurt-e2e-test可执行文件的位置会根据操作系统和架构的不同而不同，可能需要根据实际情况改变。
 
