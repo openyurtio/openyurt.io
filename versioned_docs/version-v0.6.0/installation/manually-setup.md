@@ -75,6 +75,10 @@ to the master node, then above operations can be done by revising the file
 `/etc/kubernetes/manifests/kube-controller-manager.yaml`. After revision, the kube-controller-manager will be
 restarted automatically.
 
+## Setup Yurt-app-manager
+
+Please refer to this [document](https://github.com/openyurtio/yurt-app-manager/blob/master/docs/yurt-app-manager-tutorial.md) to setup Yurt-app-manager manually.
+
 ## Setup Yurthub
 
 After the Yurt controller manager is up and running, we will setup Yurthub as the static pod.
