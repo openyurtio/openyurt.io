@@ -55,6 +55,11 @@ module.exports = {
                     position: 'left'
                 },
                 {
+                    label: 'Experience-Center',
+                    href: 'http://139.224.236.157/login',
+                    position: 'left'
+                },
+                {
                     type: 'localeDropdown',
                     position: 'right',
                 },
@@ -103,6 +108,10 @@ module.exports = {
                         {
                             label: 'Community Membership',
                             href: 'https://github.com/openyurtio/community/blob/main/community-membership.md',
+                        },
+                        {
+                            label: 'OpenYurt Experience Center',
+                            href: 'http://139.224.236.157/login',
                         },
                     ],
                 },
