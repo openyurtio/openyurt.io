@@ -55,6 +55,9 @@
   "sidebar.docs.category.IOT": {
     "message": "端设备"
   },
+  "sidebar.docs.category.Edge Runtime": {
+    "message": "边缘运行时"
+  },
   "sidebar.docs.category.Developer Manuals": {
     "message": "开发者手册"
   }

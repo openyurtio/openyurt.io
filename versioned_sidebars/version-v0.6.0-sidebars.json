@@ -87,6 +87,13 @@
                     "IOT": [
                         "version-v0.6.0/user-manuals/iot/edgex-foundry"
                     ]
+                },
+                {
+                    "Edge Runtime": [
+                        "version-v0.6.0/user-manuals/runtime/docker",
+                        "version-v0.6.0/user-manuals/runtime/containerd",
+                        "version-v0.6.0/user-manuals/runtime/WasmEdge"
+                    ]
                 }
             ]
         },
