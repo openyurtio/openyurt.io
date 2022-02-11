@@ -102,6 +102,10 @@ f). YurtIngress operator会创建一个"ingress-nginx"的namespace，编排nginx
               args:
                 - "-text=echo from nodepool pool01"
               imagePullPolicy: IfNotPresent
+            tolerations:
+              - operator: Equal
+                key: node-role.openyurt.io/edge
+                effect: NoSchedule  
             nodeSelector:
               apps.openyurt.io/nodepool: pool01
       ---
@@ -128,6 +132,10 @@ f). YurtIngress operator会创建一个"ingress-nginx"的namespace，编排nginx
               args:
                 - "-text=echo from nodepool pool03"
               imagePullPolicy: IfNotPresent
+            tolerations:
+              - operator: Equal
+                key: node-role.openyurt.io/edge
+                effect: NoSchedule                
             nodeSelector:
               apps.openyurt.io/nodepool: pool03
       ---
