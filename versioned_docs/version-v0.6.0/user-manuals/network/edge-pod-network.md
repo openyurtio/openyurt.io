@@ -38,7 +38,11 @@ git reset --hard e634dabe0af446b765db3b729085b32f97ff6fe6;
 wget https://raw.githubusercontent.com/openyurtio/openyurt/master/docs/tutorial/0001-flannel-keep-vtep-mac.patch;
 git am 0001-flannel-keep-vtep-mac.patch;
 ```
-
+flannel-edge镜像地址
+```
+Docker镜像仓库: docker.io/openyurt/flannel-edge:v0.14.0-1
+阿里云镜像仓库: registry.cn-hangzhou.aliyuncs.com/openyurt/flannel-edge:v0.14.0-1
+```
 ## IPAM: Pod IP地址保持
 ### 场景
 在大多数场景中，使用host-local为Pod分配IP地址。host-local从nodecidr中选择空闲的IP地址分配给新的Pod，并将已分配的IP地址信息记录在本地文件中。
@@ -63,6 +67,13 @@ cd plugins;
 git reset --hard 9ebe139e77e82afb122e335328007bca86905ae4;
 wget https://raw.githubusercontent.com/openyurtio/openyurt/master/docs/tutorial/0002-ipam-keep-pod-ip.patch;
 git am 0002-ipam-keep-pod-ip.patch;
+```
+host-local的cni rpm包部署
+```
+#卸载原生kubernetes-cni版本
+rpm -e  kubernetes-cni --nodeps
+#部署openyurt-cni版本
+rpm -ivh https://github.com/openyurtio/openyurt/releases/download/v0.6.0/openyurt-cni-0.8.7-0.x86_64.rpm --nodeps
 ```
 ## 为flannel增加"get node"权限
 flannel调整之后，需要在原有的RBAC之后，提供 "get node"的权限。参考：

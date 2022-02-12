@@ -38,7 +38,7 @@ git reset --hard e634dabe0af446b765db3b729085b32f97ff6fe6;
 wget https://raw.githubusercontent.com/openyurtio/openyurt/master/docs/tutorial/0001-flannel-keep-vtep-mac.patch;
 git am 0001-flannel-keep-vtep-mac.patch;
 ```
-flannell-edge镜像地址
+flannel-edge镜像地址
 ```
 Docker镜像仓库: docker.io/openyurt/flannel-edge:v0.14.0-1
 阿里云镜像仓库: registry.cn-hangzhou.aliyuncs.com/openyurt/flannel-edge:v0.14.0-1
