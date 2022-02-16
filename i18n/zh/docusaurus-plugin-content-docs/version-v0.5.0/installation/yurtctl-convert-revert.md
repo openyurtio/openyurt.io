@@ -26,7 +26,7 @@ $ make build WHAT="yurtctl" ARCH="amd64" REGION=cn
 
 ### 2.2 Kubernetes To OpenYurt
 
-在测试环境中，当用户已经拥有一个 Kubernetes 集群时，可以使用 Yurtctl convert 命令，快速地将集群转换为 OpenYurt 集群。目前，OpenYurt 支持 minkube、kind 以及手动搭建的 Kubernets 集群的转换。
+在测试环境中，当用户已经拥有一个 Kubernetes 集群时，可以使用 Yurtctl convert 命令，快速地将集群转换为 OpenYurt 集群。目前，OpenYurt 支持 minkube、kind 以及手动搭建的 Kubernetes 集群的转换。
 
 查看原生 Kubernetes 集群：
 

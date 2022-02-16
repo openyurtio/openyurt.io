@@ -7,7 +7,7 @@ OpenYurt的整体架构如下:
 
 ![img](../../static/img/docs/core-concepts/arch.png)
 
-其中蓝色框为原生Kubernets组件，橙色框中组件为OpenYurt组件。
+其中蓝色框为原生Kubernetes组件，橙色框中组件为OpenYurt组件。
 
 
 
@@ -20,7 +20,7 @@ OpenYurt的整体架构如下:
 
 ### 边缘访问云端Kube-apiserver的管控流量
 
-Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组建访问云端kube-apiserver的流量都会经过YurtHub组件，同时YurtHub组件会在本机磁盘上缓存云端返回的数据，当云边网络异常时YurtHub将使用本地缓存数据来恢复边缘业务。
+Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组件访问云端kube-apiserver的流量都会经过YurtHub组件，同时YurtHub组件会在本机磁盘上缓存云端返回的数据，当云边网络异常时YurtHub将使用本地缓存数据来恢复边缘业务。
 
 
 

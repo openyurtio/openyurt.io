@@ -52,7 +52,7 @@ Yurttunnel是OpenYurt近期开源的一个重要组件，用来解决云边通�
 
 - 如何将请求转发给正确的 agent -- 在运行过程中，proxy server 在收到请求后，需根据请求的 destination IP，将请求转发至位于对应 network region 内的 agent。然而，ANP目前的实现，假设所有的节点都位于一个网络空间内， server 会随机挑选一个 agent 转发请求。因此，我们需要解决的第三个问题是，如何将请求正确地转发给指定的 agent。 
 
-- 如何解除组件对节点证书的依赖 -- 在运行时，我们需要为 server 提供一套 TLS 证书，以实现 server 与 KAS，server 与 agent 间的安全通信。同时，我们也需要为 agent 准备一套 TLS client 证书，用以建立 agent 和 server 间的 gRPC 信道。ANP 目前的实现，要求 server 必须和 KAS 部署在同一个节点上，并且在启动时挂载节点 volume 共享 KAS tls 证书。同样，agent 也需要在启动时挂载 volume 共享 kubelet tls 证书。这无形中降低了部署的灵活性，造成了组建对节点证书的强依赖，在有些情况下，用户可能希望将 server 部署在非 KAS 所在节点上。因此，另一个需要关注的问题是，如何解除组件对节点证书的依赖。
+- 如何解除组件对节点证书的依赖 -- 在运行时，我们需要为 server 提供一套 TLS 证书，以实现 server 与 KAS，server 与 agent 间的安全通信。同时，我们也需要为 agent 准备一套 TLS client 证书，用以建立 agent 和 server 间的 gRPC 信道。ANP 目前的实现，要求 server 必须和 KAS 部署在同一个节点上，并且在启动时挂载节点 volume 共享 KAS tls 证书。同样，agent 也需要在启动时挂载 volume 共享 kubelet tls 证书。这无形中降低了部署的灵活性，造成了组件对节点证书的强依赖，在有些情况下，用户可能希望将 server 部署在非 KAS 所在节点上。因此，另一个需要关注的问题是，如何解除组件对节点证书的依赖。
 
 
 - 如何缩小 Tunnel 带宽 -- ANP 的一个核心设计思想，是使用 gRPC 封装 KAS 所有对外 HTTP 请求。这里选择 gRPC，主要是看重其对流（stream）的支持和清晰的接口规范，此外，强类型的客户端和服务器端可以有效减少运行时错误，提高系统稳定性。然而，我们也发现，相较于直接使用 TCP 协议，采用 ANP 也会带来额外的开销增加带宽。从产品层面考虑，Tunnel 流量走的是公网，带宽的增加也意味着用户成本的增加。因此，一个非常重要的问题是，在提高系统稳定性的同时，我们是否也能缩小带宽？ 
