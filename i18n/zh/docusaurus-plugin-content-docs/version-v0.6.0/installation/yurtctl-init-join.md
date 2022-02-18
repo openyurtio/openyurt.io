@@ -29,7 +29,7 @@ $ make build WHAT="yurtctl" ARCH="amd64" REGION=cn
 执行以下命令初始化集群：
 
 ```sh
-$ _output/bin/yurtctl init --apiserver-advertise-address 1.2.3.4 --openyurt-version v0.5.0 --passwd 1234
+$ _output/bin/yurtctl init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
 ```
 
 其中主要参数为：
