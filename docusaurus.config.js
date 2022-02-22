@@ -56,7 +56,7 @@ module.exports = {
                 },
                 {
                     label: 'Experience-Center',
-                    href: 'http://139.224.236.157/login',
+                    href: 'http://47.242.50.237/login',
                     position: 'left'
                 },
                 {
@@ -111,7 +111,7 @@ module.exports = {
                         },
                         {
                             label: 'OpenYurt Experience Center',
-                            href: 'http://139.224.236.157/login',
+                            href: 'http://47.242.50.237/login',
                         },
                     ],
                 },
@@ -133,9 +133,9 @@ module.exports = {
                     sidebarPath: require.resolve('./sidebars.js'),
                     editUrl: 'https://github.com/openyurtio/openyurt.io/tree/master',
                     editUrl: function ({
-                                           locale,
-                                           docPath,
-                                       }) {
+                        locale,
+                        docPath,
+                    }) {
                         return `https://github.com/openyurtio/openyurt.io/edit/master/docs/${docPath}`;
                     },
                     showLastUpdateAuthor: true,
