@@ -2,7 +2,7 @@
 title: OpenYurt Experience Center Introduction
 ---
 
-> [Experience Center-Beta](http://139.224.236.157/) has been ready, feel free to use and submit feedback. The domain name is under applying, and the subsequent release version will use `lab.openyurt.io` as the domain name.
+> For better user experience， [Experience Center](http://47.242.50.237/)has been relocated to [new address](http://47.242.50.237/)，and [the old one](http://139.224.236.157/) will no longer be maintained after 7 days 。
 
 ## Overview
 
