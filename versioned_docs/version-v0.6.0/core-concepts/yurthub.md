@@ -37,8 +37,8 @@ YurtHub supports multi-cloud addresses access to meet the situation that multipl
 
 There are two load balancing modes for cloud addresses in YurtHub:
 
-- rr(round-robin)：indicates the round robin mode. This mode is selected by default.  
-- priority: indicates the priority mode. The low priority address is used only after the high priority address fails.
+- **rr(round-robin):** indicates the round robin mode. This mode is selected by default.  
+- **priority:** indicates the priority mode. The low priority address is used only after the high priority address fails.
 
 ### 5）Node Certificate Management
 
@@ -68,39 +68,46 @@ According to data flow, modules in YurtHub can be simply divided into cloud serv
 
 The local service module mainly consists of the following sub-modules:
 
--  **Local Proxy**
--  Responsible for handling resource requests of Pod and Kubelet in the case of cloud-edge network disconnection, so that the requester can be unaware of network disconnection. When the Local Proxy processes requests, it constructs response information and returns corresponding resources for locally supported operations (Get, List, and Watch). For operations (Delete, Create, Update, etc.) that are not supported locally, failure information is displayed. The Cache Manager module is called in the above processes.  
--  **Cache Manager**
--  Responsible for local storage and retrieval of resources. This method is used by Load Balancer to store response messages locally and Local Proxy to obtain resources from the disk.  
--  **Storage Manager**
--  Defines basic methods for manipulating resources on disks, including Create, Update, Delete, Get, and List. The final resources are stored on local disk in serialized format.  
--  **Network Manager**
--  It mainly creates a dummy network interface (name: yurthub-dummy0, IP: 169.254.2.1) on nodes. Non-host network pods access Yurthub through this dummy network interface.  
+- **Local Proxy **
+
+  Responsible for handling resource requests of Pod and Kubelet in the case of cloud-edge network disconnection, so that the requester can be unaware of network disconnection. When the Local Proxy processes requests, it constructs response information and returns corresponding resources for locally supported operations (Get, List, and Watch). For operations (Delete, Create, Update, etc.) that are not supported locally, failure information is displayed. The Cache Manager module is called in the above processes.  
+
+- **Cache Manager** 
+
+  Responsible for local storage and retrieval of resources. This method is used by Load Balancer to store response messages locally and Local Proxy to obtain resources from the disk.  
+
+- **Storage Manager** 
+
+  Defines basic methods for manipulating resources on disks, including Create, Update, Delete, Get, and List. The final resources are stored on local disk in serialized format.  
+
+- **Network Manager**
+
+  It mainly creates a dummy network interface (name: yurthub-dummy0, IP: 169.254.2.1) on nodes. Non-host network pods access Yurthub through this dummy network interface.  
 
 The cloud service module mainly includes the following sub-modules:
 
 -  **Certificate Manager**
    
-- Responsible for managing the needed information when YurtHub connect to the Kube APIServer, including YurtHub client certificate and cluster CA certificate. 
-
+   Responsible for managing the needed information when YurtHub connect to the Kube APIServer, including YurtHub client certificate and cluster CA certificate. 
+   
 -  **Health Check**
    
-- Responsible for periodically checking whether Kube APIServer is accessible and setting the health status of Kube APIServer as the basis for forwarding requests to cloud or local processing. In addition, the heartbeat sent by Kubelet is intercepted by YurtHub, and Health Check is responsible for updating YurtHub's heartbeat information to the cloud.  
-
+   Responsible for periodically checking whether Kube APIServer is accessible and setting the health status of Kube APIServer as the basis for forwarding requests to cloud or local processing. In addition, the heartbeat sent by Kubelet is intercepted by YurtHub, and Health Check is responsible for updating YurtHub's heartbeat information to the cloud.  
+   
 -  **Load Balancer**
    
-- Responsible for establishing a connection with Kube APIServer and forwarding the requests of Pod and Kubelet to the cloud. LB module supports multi-cloud addresses access, and the load balancing mode of the cloud can be round-robin or priority mode.  
-
+   Responsible for establishing a connection with Kube APIServer and forwarding the requests of Pod and Kubelet to the cloud. LB module supports multi-cloud addresses access, and the load balancing mode of the cloud can be round-robin or priority mode.  
+   
    In addition, the LB module is responsible for processing response messages and local caching, which calls the Data Filtering Framework module for response processing and the Storage Manager module for local caching.  
-
+   
 -  **Data Filtering Framework**
    
    Data filtering is performed on response messages to extend YurtHub's capabilities. Three filters are currently included:  
    
-   - MasterService Filter：Provides the ability to the business pod which use InClusterConfig to run in the edge environment with zero modification.
-   - ServiceTopology Filter：Provides the ability of closed-loop traffic, limiting the back-end of service access to the nodepool where the node is located.
+   - **MasterService Filter:** Provides the ability to the business pod which use InClusterConfig to run in the edge environment with zero modification.
+   - **ServiceTopology Filter:** Provides the ability of closed-loop traffic, limiting the back-end of service access to the nodepool where the node is located.
    
-   - DiscardCloudService Filter：When the cloud and the edge are on the different network planes, the edge accesses the back-end service through the public network rather than PodIP to ensure that the edge can access the back-end service correctly.  
+   - **DiscardCloudService Filter:** When the cloud and the edge are on the different network planes, the edge accesses the back-end service through the public network rather than PodIP to ensure that the edge can access the back-end service correctly.  
    
 -  **GC Manager**
    
