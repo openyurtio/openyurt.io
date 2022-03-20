@@ -2,19 +2,18 @@
 title: Yurtctl init/join
 ---
 
-## 1.背景说明
+## 1.Background
 
-为了让用户快速拥有一个 OpenYurt 测试集群，OpenYurt 提供了命令 Yurtctl init 初始化集群，用户只需要选择 OpenYurt 集群的镜像版本，就可以创建对应版本的 OpenYurt，Yurt -APP-Manager、Yurt-Controller-Manager、Yurttunnel-Server、Yurttunnel-Agent 组件会自动部署。
+In order to allow users to quickly obtain an OpenYurt test cluster, OpenYurt provides the command Yurtctl init to initialize the cluster. Users only need to select the version of the OpenYurt cluster mirror to create the corresponding version of OpenYurt. Then Yurt-APP-Manager, Yurt-Controller-Manager, Yurttunnel -Server, Yurttunnel-Agent components will be automatically deployed.
 
-后续扩展集群，用户可以使用命令 Yurtctl join，将边缘节点或者云端节点加入集群。
+To expand the cluster later, users can use the Yurtctl join command to add edge nodes or cloud nodes to the cluster.
 
 
 
-## 2.使用流程
+## 2.Process
 
-### 2.1编译 Yurtctl
-在进行初始化集群时，需要先获取 Yurtctl 可执行文件。
-要快速构建和安装设置 yurtctl ，在编译系统已安装了 golang 1.13+ 和 bash 的前提下你可以执行以下命令来完成安装：
+### 2.1Compile Yurtctl
+When initializing the cluster, you need to obtain the Yurtctl executable first. To quickly build and install yurtctl , you can execute the following command to complete the installation if the build system has golang 1.13+ and bash installed:
 
 ```sh
 $ git clone https://github.com/openyurtio/openyurt.git
@@ -22,50 +21,48 @@ $ cd openyurt
 $ make build WHAT="yurtctl" ARCH="amd64" REGION=cn
 ```
 
-可执行文件将存放在 `_output/bin/` 目录下。
+The executable will be stored in the `_output/bin/` directory.
 
-### 2.2初始化集群
+### 2.2 Initialize the cluster
 
-执行以下命令初始化集群：
+Execute the following command to initialize the cluster:
 
 ```sh
 $ _output/bin/yurtctl init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
 ```
 
-其中主要参数为：
+The main parameters are:
 
 ```sh
- --apiserver-advertise-address    master节点的IP地址
- --passwd                         master节点的ssh登入密码
- --openyurt-version               OpenYurt集群的版本
+ --apiserver-advertise-address    IP address of the master node
+ --passwd                         ssh password of the master node
+ --openyurt-version               version of the OpenYurt cluster
 ```
 
-如果想要配置更多信息，可以通过 `-h`  来获取。
+Use `-h`  to configure more information.
 
-### 2.4节点加入
+### 2.4Joining nodes to cluster
 
-用户可以通过 Yurtctl join 将云端节点、边缘节点加入 OpenYurt 集群。注意，在加入节点时，需要在节点上安装运行时，并关闭交换分区。
+Users can join cloud nodes and edge nodes to the OpenYurt cluster using Yurtctl join. Note that when joining a node, the runtime needs to be installed on the node and the swap partition is turned off.
 
-执行以下命令加入边缘节点：
+Execute the following command to join the edge node to cluster:
 
 ```sh
 $ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 
-执行以下命令加入云端节点：
+Execute the following command to join the cloud node to cluster:
 
 ```sh
 $ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 
-当边缘节点runtime为containerd时，需要配置`cri-socket`参数，如上面执行命令加入边缘节点改为：
+When the runtime of the edge node is containerd, the `cri-socket` parameter needs to be configured. For example, change the command above of joining the edge node to:
 ```sh
 $ _output/bin/yurtctl join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
 ```
 
 
-## 3.实现细节
+## 3.Implement details
 ### 3.1 Yurtctl init
-为了降低 Yurtctl init 的使用难度，提高的集群安装成功概率，Yurtctl init 通过开源工具 [sealer](https://github.com/alibaba/sealer) 
-初始化 OpenYurt 集群。在实现上，Yurtctl init 会下载 sealer 二进制文件，sealer 会下载 OpenYurt 官方提供的集群镜像并安装集群。
-此外，Yurtctl init 也支持用户个性化配置 OpenYurt 集群镜像。
+In order to reduce the difficulty of using Yurtctl init and improve the success probability of cluster installation, Yurtctl init initializes the OpenYurt cluster through the open source tool [sealer](https://github.com/alibaba/sealer). In terms of implementation, Yurtctl init will download the sealer binary file, and sealer will download the cluster image officially provided by OpenYurt and install the cluster. In addition, Yurtctl init also supports user-specific configuration of OpenYurt cluster images.
