@@ -2,25 +2,22 @@
 title: YurtCluster
 ---
 
-## 1. 背景说明
+## 1. Background
 
-当您准备在生产环境使用 OpenYurt 时，官方推荐使用 [YurtCluster Operator](https://github.com/openyurtio/yurtcluster-operator) 。
-YurtCluster Operator 提供了云原生声名式 Cluster API，能够根据声明的配置自动在标准 Kubernetes 集群上部署和配置 OpenYurt 相关组件，
-使其具备提供边缘计算服务的能力（即将普通集群一键转换为 OpenYurt 边缘集群），同时负责动态追踪和管理 OpenYurt 集群的生命周期，包括集群扩容、升级等，
-保障边缘集群始终运行在最佳状态。
+When you are ready to use OpenYurt in production environment, it is officially recommended to use [YurtCluster Operator](https://github.com/openyurtio/yurtcluster-operator) . The YurtCluster Operator provides a cloud-native, declarative Cluster API that automatically deploys and configures OpenYurt-related components on standard Kubernetes clusters based on declared configurations.YurtCluster Operator provides a cloud-native cluster API, which can automatically deploy and configure OpenYurt-related components on a standard Kubernetes cluster according to the declared configuration, so that it has the ability to provide edge computing services (that is, one-click conversion of ordinary clusters to OpenYurt edge clusters) , and is also responsible for dynamically tracking and managing the lifecycle of OpenYurt clusters, including cluster expansion, upgrade, etc., to ensure that edge clusters are always running in the best status.
 
-## 2. 安装流程
+## 2. Installation Process
 
-### 2.1 前置准备
+### 2.1 Preparation
 
-在开始前，您需要先准备一个普通的 Kubernetes 集群。如果您还没有一个可用集群，可以参考使用 [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) 等工具搭建一个新的集群。
-当然，如果您只是想体验 YurtCluster Operator 的相关功能，也可以基于社区推荐的 [kind](https://kind.sigs.k8s.io/docs/) 、[minikube](https://minikube.sigs.k8s.io/) 等工具快速拉起一个用于本地开发测试使用的 Kubernetes 集群。
+Before starting, you need to prepare a normal Kubernetes cluster. If you don't have an available cluster yet, you can use tools such as [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) to build a new cluster.
+Of course, if you just want to experience the related functions of the YurtCluster Operator, you can also use the community-recommended [kind](https://kind.sigs.k8s.io/docs/), [minikube](https://minikube.sigs.k8s.io/) and other tools to quickly pull up a Kubernetes cluster for local development and testing.
 
-本文仅介绍通过 kind 工具拉起集群的一般方法，关于其它工具的使用请参照其对应的官方说明文档。
+This article only introduces the general method of pulling up a cluster through the kind tool. For the use of other tools, please refer to their corresponding official documentation.
 
-kind 依赖 Docker 软件，请确保您的机器上已经正确安装了 [Docker](https://docs.docker.com/get-docker/) 程序，关于 [kind 的安装请参照文档](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) 。
+kind depends on Docker software, please make sure that the [Docker](https://docs.docker.com/get-docker/) program has been correctly installed on your machine. For the installation of [kind, please refer to the documentation](https://docs.docker.com/get-docker/) kind.sigs.k8s.io/docs/user/quick-start/#installation).
 
-准备一个 `kind-cluster.yaml` 文件，定义一个 “1 control-plane + 3 worker” 的 Kubernetes 集群：
+Prepare a `kind-cluster.yaml` file that defines a "1 control-plane + 3 worker" Kubernetes cluster:
 
 
 
@@ -34,7 +31,7 @@ nodes:
 - role: worker
 ```
 
-执行如下命令，初始化集群：
+Execute the following command to initialize the cluster: 
 
 ```bash
 # kind create cluster --config kind-cluster.yaml
@@ -55,7 +52,7 @@ kubectl cluster-info --context kind-kind
 Have a nice day! 👋
 ```
 
-检查集群是否已经 Ready：
+Check if the cluster is Ready:
 
 
 
@@ -69,11 +66,11 @@ kind-worker2         Ready    <none>                 5m57s   v1.21.1
 kind-worker3         Ready    <none>                 5m57s   v1.21.1
 ```
 
-### 2.2 部署 YurtCluster Operator
+### 2.2 Deploy the YurtCluster Operator
 
-YurtCluster Operator 提供了 Helm Chart 部署包，可以通过 Helm 实现一键部署，
+YurtCluster Operator provides the Helm Chart deployment package, which can be deployed with one click through Helm.
 
-YurtCluster Operator 属于集群生命周期核心管控组件，需要部署在 `kube-system`命名空间：
+YurtCluster Operator is the core management and control component of the cluster life cycle and needs to be deployed in the `kube-system` namespace:
 
 ```bash
 # git clone https://github.com/openyurtio/yurtcluster-operator
@@ -88,11 +85,11 @@ REVISION: 1
 TEST SUITE: None
 ```
 
-YurtCluster Operator 采用了分布式架构，包含一个 manager 组件（支持多副本高可用部署），以及运行在各个节点上的 agent 组件。
-manager 组件负责统一管理集群组件的安装部署以及 YurtCluster 的状态更新等，agent 专注于处理本节点的节点配置（转换）任务。
-YurtCluster Operator 的 helm chart 中同时包含了 YurtAppManager 和 YurtControllerManager 子 chart，它们作为 OpenYurt 集群的核心组件，会被同步安装。
+YurtCluster Operator adopts a distributed architecture, including a manager component (supporting multi-copy high availability deployment) and an agent component running on each node.
+The manager component is responsible for the unified management of the installation and deployment of cluster components and the status update of YurtCluster. The agent focuses on the node configuration (transition) tasks of this node.
+The helm chart of YurtCluster Operator contains sub-charts of both YurtAppManager and YurtControllerManager, which are the core components of the OpenYurt cluster and will be installed synchronously.
 
-检查 YurtCluster 组件是否已经就绪（就绪状态会看到类似如下输出）：
+Check if the YurtCluster component is ready (you will see output similar to the following in the ready state):
 
 ```bash
 # kubectl get pod -n kube-system | grep yurt
@@ -110,8 +107,8 @@ yurt-operator-agent-x9rrs                    1/1     Running   0          4m45s
 yurt-operator-manager-7476dc9b4-v28tx        1/1     Running   0          4m45s
 ```
 
-### 2.3 标记节点类型
-为了验证 YurtCluster Operator 的节点转换能力，需要预先对节点进行分组。本文基于如下表格对节点分组：
+### 2.3 Tag node type
+In order to verify the node conversion capability of YurtCluster Operator, it is necessary to group nodes in advance. This article groups nodes based on the following table:
 
 | NodeName           | Role         | Label                       |
 | ------------------ | ------------ | --------------------------- |
@@ -126,15 +123,13 @@ yurt-operator-manager-7476dc9b4-v28tx        1/1     Running   0          4m45s
 # kubectl label node kind-worker3 openyurt.io/node-type=edge
 ```
 
-### 2.4 部署 YurtCluster CR 对象
+### 2.4 Deploy the YurtCluster CR object
 
-YurtCluster 是自定义的 Kubernetes CRD，定义了 OpenYurt 集群的期望状态，包括 OpenYurt 集群组件仓库地址、使用的 OpenYurt 版本号、
-云端节点集合、边缘节点集合以及关键系统组件 YurtHub、YurtTunnel 的相关配置，全量的 Scheme 定义请参照源码 
-[API 定义](https://github.com/openyurtio/yurtcluster-operator/blob/main/api/v1alpha1/yurtcluster_types.go) 。
+YurtCluster is a custom Kubernetes CRD that defines the desired state of the OpenYurt cluster, including the OpenYurt cluster component warehouse address, the OpenYurt version number used, the cloud node set, the edge node set, and the related configurations of key system components YurtHub and YurtTunnel, full Scheme definition Please refer to the source code [API definition](https://github.com/openyurtio/yurtcluster-operator/blob/main/api/v1alpha1/yurtcluster_types.go) .
 
 
 
-本文以部署 OpenYurt v0.5.0 版本为例，准备 CR 定义 `yurtcluster.yaml` 如下：
+This article takes the deployment of OpenYurt v0.5.0 as an example, and prepares the CR definition `yurtcluster.yaml` as follows:
 
 ```yaml
 apiVersion: operator.openyurt.io/v1alpha1
@@ -161,11 +156,11 @@ spec:
                 - "edge"
 ```
 
-注意：YurtCluster 在集群中是单例的，只有名字为 `cluster` 的 YurtCluster CR 会被系统接收和处理。
+Note: YurtCluster is a singleton in the cluster, only the YurtCluster CR named `cluster` will be received and processed by the system.
 
-在上述 YurtCluster CR 中，定义了 CloudNode 需要具备标签 `openyurt.io/node-type=cloud`，EdgeNode 需要具备标签 `openyurt.io/node-type=edge`。
+In the YurtCluster CR above, it is defined that CloudNode needs to have the label `openyurt.io/node-type=cloud`, and EdgeNode needs to have the label `openyurt.io/node-type=edge`.
 
-部署 YurtCluster CR 到集群：
+Deploy YurtCluster CR to the cluster:
 
 ```bash
 # kubectl apply -f yurtcluster.yaml
@@ -173,7 +168,7 @@ spec:
 yurtcluster.operator.openyurt.io/cluster created
 ```
 
-查看 YurtCluster 状态（yurtcluster 可简写为 yc）：
+Check YurtCluster status (yurtcluster can be abbreviated as yc):
 
 ```bash
 # kubectl get yc
@@ -182,7 +177,7 @@ NAME      PHASE
 cluster   Converting
 ```
 
-可以看到，集群正在转换配置中，等到 PHASE 转为 Succeed，即表明配置已完成。
+As can be seen, the cluster is in the process of converting the configuration, and when the PHASE turns to Succeed, the configuration is complete.
 
 ```bash
 # kubectl get yc
@@ -191,7 +186,7 @@ NAME      PHASE
 cluster   Succeed
 ```
 
-通过查看 YurtCluster 的 Status 字段，可以获取转换详情信息：
+Conversion details can be obtained by checking the Status field of YurtCluster:
 
 ```bash
 # kubectl get yc cluster -oyaml
@@ -221,11 +216,11 @@ status:
   phase: Succeed
 ```
 
-按照预期，kind-worker 被配置为 CloudNode， kind-worker2 和 kind-worker3 被配置为 EdgeNode。
+As expected, kind-worker is configured as CloudNode, kind-worker2 and kind-worker3 are configured as EdgeNode.
 
 
 
-检查 yurthub 是否已经全部启动完成：
+Check if yurthub has been fully started:
 
 ```bash
 # kubectl get pod -n kube-system | grep yurt-hub
@@ -237,7 +232,7 @@ yurt-hub-kind-worker3                        1/1     Running   0          8m
 
 
 
-检查 YurtTunnel 是否已经全部启动完成：
+Check if YurtTunnel has been fully started:
 
 ```bash
 # kubectl get pod -n kube-system | grep yurt-tunnel
@@ -247,9 +242,9 @@ yurt-tunnel-agent-vfkmd                      1/1     Running   0          8m
 yurt-tunnel-server-f7md8                     1/1     Running   0          8m
 ```
 
-## 3. 验证集群
+## 3. Verify the cluster
 
-### 3.1 拉取边缘节点 Pod 日志 (验证 Tunnel 正确工作）
+### 3.1 Pull edge node pod logs (verify that Tunnel is working correctly)
 
 ```bash
 # kubectl logs -f -n kube-system yurt-tunnel-agent-5fxz6
@@ -269,9 +264,9 @@ I1228 03:34:31.734146       1 client.go:326] "Start serving" serverID="6e11745a-
 I1228 06:37:06.772662       1 client.go:412] received dial request to tcp:172.18.0.3:10250 with random=7660323324116104765 and connID=1
 ```
 
-能够获取到日志，即表明 tunnel 组件已经正确工作。
+The logs can be obtained, which means that the tunnel component is working correctly.
 
-### 3.2 拉取 YurtHub 组件日志（验证 YurtHub 正确工作）
+### 3.2 Pull YurtHub component logs (verify that YurtHub is working correctly)
 
 ```bash
 # kubectl logs -f -n kube-system yurt-hub-kind-worker
@@ -286,11 +281,11 @@ I1228 03:34:34.216177       1 util.go:232] start proxying: get /api/v1/services?
 ...
 ```
 
-看到类似如上的日志，则表明 YurtHub 已经成功代理了 kubelet 的请求。
+If you see a log similar to the above, it means that YurtHub has successfully proxied the kubelet request.
 
-## 4. 清理
+## 4. Clean up
 
-执行以下命令清理 OpenYurt 集群：
+Execute the following command to clean up the OpenYurt cluster:
 
 ```bash
 # kubectl delete yc cluster
