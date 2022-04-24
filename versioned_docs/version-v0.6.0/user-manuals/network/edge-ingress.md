@@ -20,39 +20,64 @@ YurtIngress operator is responsible for orchestrating multi ingress controllers 
 Suppose you have created 4 NodePools in your OpenYurt cluster: pool01, pool02, pool03, pool04, and you want to
 enable edge ingress feature on pool01 and pool03, you can create the YurtIngress CR as below:
 
-1). Create the YurtIngress CR yaml file: (for example: yurtingress-test.yaml)
+1). Create the YurtIngress CR yaml file:  
+
+1.1). A simple CR definition with some default configurations:
 
       apiVersion: apps.openyurt.io/v1alpha1
       kind: YurtIngress
       metadata:
-        name: yurtingress-singleton
+        name: yurtingress-test
       spec:
-          ingress_controller_replicas_per_pool: 1
           pools:
             - name: pool01
             - name: pool03
 
+The default nginx ingress controller replicas per pool is 1.  
+The default nginx ingress controller image is controller:v0.48.1 from dockerhub.  
+The default nginx ingress webhook certgen image is kube-webhook-certgen:v0.48.1 from dockerhub.
+
+1.2). If users want to make personalized configurations about the default options, the YurtIngress CR can be defined as below:
+
+      apiVersion: apps.openyurt.io/v1alpha1
+      kind: YurtIngress
+      metadata:
+        name: yurtingress-test
+      spec:
+          ingress_controller_replicas_per_pool: 2
+          ingress_controller_image: k8s.gcr.io/ingress-nginx/controller:v0.49.0
+          ingress_webhook_certgen_image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.49.0
+          pools:
+            - name: pool01
+              ingress_ips:
+                - xxx.xxx.xxx.xxx
+            - name: pool03
+
+"ingress_ips" represents the IPs if users want to expose the nginx ingress controller service through externalIPs for a specified nodepool.
+
 Notes:
 
-a). YurtIngress CR is a singleton instance from the cluster level, and the CR name must be "yurtingress-singleton".
+a). User can define different YurtIngress CRs for personalized configurations, for example set different ingress controller replicas
+for different nodepools.
 
 b). In spec, the "ingress_controller_replicas_per_pool" represents the ingress controller replicas deployed on every pool,
 It is used for the HA usage scenarios.
 
 c). In spec, the "pools" represents the pools list on which you want to enable ingress feature.
-Currently it only supports the pool name, and it can be extended to support pool personalized configurations in future.
+Currently it supports the pool name and the nginx ingress controller service externalIPs.
 
 
-2). Apply the YurtIngress CR yaml file
+2). Apply the YurtIngress CR yaml file:  
+    Assume the file name is yurtingress-test.yaml:
 
     #kubectl apply -f yurtingress-test.yaml
-    yurtingress.apps.openyurt.io/yurtingress-singleton created
+    yurtingress.apps.openyurt.io/yurtingress-test created
 
 Then you can get the YurtIngress CR to check the status:
 
     #kubectl get ying
-    NAME                    NGINX-INGRESS-VERSION   REPLICAS-PER-POOL   READYNUM   NOTREADYNUM   AGE
-    yurtingress-singleton   0.48.1                  1                   2          0             3m13s
+    NAME                  REPLICAS-PER-POOL   READYNUM   NOTREADYNUM   AGE
+    yurtingress-test      1                   2          0             3m13s
 
 When the ingress controller is enabled successfully, a per-pool NodePort service is created to expose the ingress controller serivce:
 
@@ -64,17 +89,14 @@ Notes:
 
 a). "ying" is the shortName of YurtIngress resource.
 
-b). Currently YurtIngress only supports the fixed nginx ingress controller version, it can be enhanced to support user configurable
-nginx ingress controller images/versions in future.
+b). When the "READYNUM" equals the pools number you defined in the YurtIngress CR, it represents the ingress feature is ready on all your spec pools.
 
-c). When the "READYNUM" equals the pools number you defined in the YurtIngress CR, it represents the ingress feature is ready on all your spec pools.
-
-d). If the "NOTREADYNUM" is not 0 all the times, you can check the YurtIngress CR for the the status infomation.
+c). If the "NOTREADYNUM" is not 0 all the times, you can check the YurtIngress CR for the the status infomation.
 Also you can check the corresponding deployments and pods to figure out why the ingress is not ready yet.
 
-e). For every NodePool which ingress is enabled successfully, it exposes a NodePort type service for users to access the nginx ingress controller.
+d). For every NodePool which ingress is enabled successfully, it exposes a NodePort type service for users to access the nginx ingress controller.
 
-f). When the ingress controllers are orchestrated to the specified NodePools, an "ingress-nginx" namespace will be created, and all the namespace
+e). When the ingress controllers are orchestrated to the specified NodePools, an "ingress-nginx" namespace will be created, and all the namespace
 related resources will be created under it.
 
 ---
@@ -150,7 +172,7 @@ Suppose your app workload is deployed to several NodePools and it exposes a glob
 
 If you want to access the service provided by pool01:
 
-1). Create the ingress rule yaml file: (for example: ingress-myapp.yaml)
+1). Create the ingress rule yaml file:  
 
       apiVersion: extensions/v1beta1
       kind: Ingress
@@ -175,11 +197,11 @@ a). Ingress class decides which NodePool to provide the ingress capability, so y
 b). The ingress CR definition may be different for different K8S versions, so you need ensure the CR definition matches with your cluster K8S version.
 
 
-2). Apply the ingress rule yaml file:
+2). Apply the ingress rule yaml file:  
+    Assume the file name is ingress-myapp.yaml:
 
       #kubectl apply -f ingress-myapp.yaml
       ingress.extensions/ingress-myapp created
-
 
 
 After all the steps above are done successfully, you can verify the edge ingress feature through the ingress controller NodePort service:
