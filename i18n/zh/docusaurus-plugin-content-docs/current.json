@@ -10,6 +10,9 @@
   "sidebar.docs.category.introduction": {
     "message": "openYurt是什么"
   },
+  "sidebar.docs.category.Usage Conditions": {
+    "message": "使用条件"
+  },
   "sidebar.docs.category.Installation": {
     "message": "安装"
   },
