@@ -99,10 +99,6 @@ spec:
             - image: nginx:1.18.0
               imagePullPolicy: Always
               name: nginx
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule
   nodepoolSelector:
     matchLabels:
       yurtappdaemon.openyurt.io/type: "nginx"

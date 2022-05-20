@@ -188,10 +188,6 @@ spec:
                 ports:
                 - containerPort: 9376
                   protocol: TCP
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule
   topology:
     pools:
     - name: hangzhou
@@ -245,10 +241,6 @@ spec:
                 ports:
                 - containerPort: 80
                   protocol: TCP
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule
   topology:
     pools:
     - name: hangzhou

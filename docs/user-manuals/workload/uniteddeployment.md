@@ -41,10 +41,6 @@ spec:
             containers:
               - name: nginx
                 image: nginx:1.19.3
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule
   topology:
     pools:
     - name: beijing 

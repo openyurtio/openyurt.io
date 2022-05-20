@@ -124,10 +124,6 @@ spec:
         volumeMounts:
           - name: lvm-pvc
             mountPath: "/data"
-      tolerations:
-      - operator: Equal
-        key: node-role.openyurt.io/edge
-        effect: NoSchedule        
       volumes:
         - name: lvm-pvc
           persistentVolumeClaim:
