@@ -73,7 +73,7 @@ make test
 
 ## build-binaries
 
-This check will try to build binaries of all OpenYurt components on the `linux/amd64` platform, including `yurtctl`, `yurt-node-servant`, `yurt-hub`, `yurt-controller-manager`, `yurt-tunnel-server` and `yurt-tunnel-agent`. It will use the following command to build these binaries:
+This check will try to build binaries of all OpenYurt components on the `linux/amd64` platform, including `yurtadm`, `yurtctl`, `yurt-node-servant`, `yurt-hub`, `yurt-controller-manager`, `yurt-tunnel-server` and `yurt-tunnel-agent`. It will use the following command to build these binaries:
 
 ```bash
 make build

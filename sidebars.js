@@ -9,6 +9,11 @@ module.exports = {
             items: [
                 'introduction',
                 {
+                    'Usage Conditions': [
+                        'usage-conditions/resource-and-system-requirements'
+                    ]
+                },
+                {
                     'Installation': [
                         'installation/summary',
                         {
@@ -19,18 +24,17 @@ module.exports = {
                                 'installation/openyurt-experience-center/kubeconfig',
                             ]
                         },
-                        'installation/yurtctl-init-join',
+                        'installation/yurtadm-init-join',
                         {
                             'Conversion between OpenYurt and Kubernetes': [
                                 'installation/openyurt-prepare',
                                 'installation/yurtcluster',
-                                'installation/yurtctl-convert-revert',
                                 'installation/manually-setup',
 
                             ]
                         },
                     ]
-                }
+                } 
             ],
         },
         {
