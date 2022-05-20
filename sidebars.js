@@ -22,6 +22,7 @@ module.exports = {
                         'installation/yurtctl-init-join',
                         {
                             'Conversion between OpenYurt and Kubernetes': [
+                                'installation/openyurt-prepare',
                                 'installation/yurtcluster',
                                 'installation/yurtctl-convert-revert',
                                 'installation/manually-setup',
