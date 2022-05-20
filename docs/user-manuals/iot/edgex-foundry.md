@@ -165,10 +165,6 @@ spec:
               app: yurt-device-controller
               control-plane: controller-manager
           spec:
-            tolerations:
-            - operator: Equal
-              key: node-role.openyurt.io/edge
-              effect: NoSchedule    
             containers:
             - args:
               - --health-probe-bind-address=:8081

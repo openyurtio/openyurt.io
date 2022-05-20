@@ -129,10 +129,6 @@ Suppose your app workload is deployed to several NodePools and it exposes a glob
               args:
                 - "-text=echo from nodepool pool01"
               imagePullPolicy: IfNotPresent
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule                
             nodeSelector:
               apps.openyurt.io/nodepool: pool01
       ---
@@ -159,10 +155,6 @@ Suppose your app workload is deployed to several NodePools and it exposes a glob
               args:
                 - "-text=echo from nodepool pool03"
               imagePullPolicy: IfNotPresent
-            tolerations:
-              - operator: Equal
-                key: node-role.openyurt.io/edge
-                effect: NoSchedule                
             nodeSelector:
               apps.openyurt.io/nodepool: pool03
       ---
