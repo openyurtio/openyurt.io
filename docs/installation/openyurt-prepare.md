@@ -229,5 +229,92 @@ kubectl scale --replicas=0 deployment/coredns -n kube-system
 
 ## 3. KubeProxy调整
 
-TODO
+kubeadm部署的k8s集群会为KubeProxy生成kubeconfig配置，在不配置[`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) 和 [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/) 情况下，KubeProxy使用这个kubeconfig拿到的endpoints是全量的。
+
+云边端场景下，边缘节点间很有可能无法互通，因此需要endpoints基于nodepool进行拓扑。直接将kube-proxy的kubeconfig配置删除，将apiserver请求经过yurthub即可解决服务拓扑问题。
+
+### KubeProxy支持流量拓扑
+
+```shell
+kubectl edit cm -n kube-system kube-proxy
+```
+
+注释掉`config.conf`文件下的`clientConnection.kubeconfig`，修改完后效果如下：
+
+```yaml
+apiVersion: v1
+data:
+  config.conf: |-
+    apiVersion: kubeproxy.config.k8s.io/v1alpha1
+    bindAddress: 0.0.0.0
+    bindAddressHardFail: false
+    clientConnection:
+      acceptContentTypes: ""
+      burst: 0
+      contentType: ""
+      #kubeconfig: /var/lib/kube-proxy/kubeconfig.conf
+      qps: 0
+    clusterCIDR: 100.64.0.0/10
+    configSyncPeriod: 0s
+// 省略
+```
+
+### 重启KubeProxy Pod
+
+为使上述配置生效，需要重启kubeproxy的pod，**线上环境谨慎操作**。
+
+```shell
+kubectl delete pod -n kube-system -l k8s-app=kube-proxy
+```
+
+### KubeProxy功能验证
+
+可以通过KubeProxy的日志进行验证是否修改成功，**为防止日志过多，生产环境谨慎使用**。
+
+```shell
+kubectl edit ds -n kube-system kube-proxy
+```
+
+在command后面追加参数`--v=6`，修改后效果：
+
+```shell
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    deprecated.daemonset.template.generation: "3"
+  creationTimestamp: "2022-05-10T06:27:27Z"
+  generation: 3
+  labels:
+    k8s-app: kube-proxy
+  name: kube-proxy
+  namespace: kube-system
+  resourceVersion: "5377081"
+  uid: 0f8eccdd-d26f-48f0-8401-8d762a630dc8
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      k8s-app: kube-proxy
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: kube-proxy
+    spec:
+      containers:
+      - command:
+        - /usr/local/bin/kube-proxy
+        - --config=/var/lib/kube-proxy/config.conf
+        - --hostname-override=$(NODE_NAME)
+        - --v=6
+```
+
+检查KubeProxy的Pod输出日志，如果apiserver地址是：`169.254.2.1:10268`代表修改成功。日志输出样例：
+
+```text
+I0521 02:57:01.986790       1 round_trippers.go:454] GET https://169.254.2.1:10268/api/v1/nodes/jd-sh-qianyi-test-02 200 OK in 12 milliseconds
+I0521 02:57:02.021682       1 round_trippers.go:454] POST https://169.254.2.1:10268/api/v1/namespaces/default/events 201 Created in 4 milliseconds                                                       
+```
+
 
