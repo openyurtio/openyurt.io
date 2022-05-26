@@ -45,6 +45,7 @@ module.exports = {
                 'core-concepts/architecture',
                 {
                     'Components': [
+                        'core-concepts/raven',
                         'core-concepts/yurthub',
                         'core-concepts/yurttunnel',
                         'core-concepts/yurt-app-manager',
@@ -68,6 +69,7 @@ module.exports = {
                 },
                 {
                     'Network': [
+                        'user-manuals/network/raven',
                         'user-manuals/network/edge-pod-network',
                         'user-manuals/network/service-topology',
                         'user-manuals/network/edge-ingress'
