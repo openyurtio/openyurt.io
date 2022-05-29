@@ -41,7 +41,7 @@ The main parameters are:
 
 Use `-h`  to configure more information.
 
-### 2.4Joining nodes to cluster
+### 2.3Joining nodes to cluster
 
 Users can join cloud nodes and edge nodes to the OpenYurt cluster using Yurtadm join. Note that when joining a node, the runtime needs to be installed on the node and the swap partition is turned off.
 
