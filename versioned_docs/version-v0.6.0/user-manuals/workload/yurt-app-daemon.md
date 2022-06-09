@@ -160,3 +160,232 @@ kubectl label np test2 yurtappdaemon.openyurt.io/type-
 # Check the Pod
 ```
 
+
+## coredns单元化部署案例
+
+> 在openyurt里使用YurtAppDaemon+服务拓扑解决dns解析问题
+
+- 创建节点池
+```shell
+cat <<EOF | kubectl apply -f -
+
+
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: hangzhou
+spec:
+  selector:
+    matchLabels:
+      apps.openyurt.io/nodepool: hangzhou
+  taints:
+    - effect: NoSchedule
+      key: node-role.openyurt.io/edge
+  type: Edge
+
+
+EOF
+```
+
+- 节点池增加标签
+
+```shell
+kubectl label np hangzhou yurtappdaemon.openyurt.io/type=coredns
+```
+
+- 部署coredns
+
+```shell
+cat <<EOF | kubectl apply -f -
+
+
+apiVersion: apps.openyurt.io/v1alpha1
+kind: YurtAppDaemon
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+       k8s-app: kube-dns
+  workloadTemplate:
+    deploymentTemplate:
+      metadata:
+        labels:
+          k8s-app: kube-dns
+      spec:
+        replicas: 2
+        selector:
+          matchLabels:
+            k8s-app: kube-dns
+        template:
+          metadata:
+            labels:
+              k8s-app: kube-dns
+          spec:
+            volumes:
+            - name: config-volume
+              configMap:
+               name: coredns
+               items:
+               - key: Corefile
+                 path: Corefile
+                 name: coredns
+            dnsPolicy: Default
+            serviceAccount: coredns
+            serviceAccountName: coredns
+            containers:
+            - args:
+              - -conf
+              - /etc/coredns/Corefile
+              image: k8s.gcr.io/coredns:1.6.7
+              imagePullPolicy: IfNotPresent
+              name: coredns
+              resources:
+                limits:
+                  memory: 170Mi
+                requests:
+                  cpu: 100m
+                  memory: 70Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  add:
+                  - NET_BIND_SERVICE
+                  drop:
+                  - all
+                readOnlyRootFilesystem: true        
+              livenessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 60
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5  
+              volumeMounts:
+              - mountPath: /etc/coredns
+                name: config-volume
+                readOnly: true
+  nodepoolSelector:
+    matchLabels:
+      yurtappdaemon.openyurt.io/type: "coredns"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: kube-system
+  annotations:
+    prometheus.io/port: "9153"
+    prometheus.io/scrape: "true"
+    openyurt.io/topologyKeys: openyurt.io/nodepool
+  labels:
+    k8s-app: kube-dns
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: KubeDNS
+  name: kube-dns
+spec:
+  clusterIP: __kubernetes-coredns-ip__  ##修改为kubernetes dns service ip
+  ports:
+  - name: dns
+    port: 53
+    protocol: UDP
+    targetPort: 53
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+    targetPort: 53
+  - name: metrics
+    port: 9153
+    protocol: TCP
+    targetPort: 9153
+  selector:
+    k8s-app: kube-dns
+  sessionAffinity: None
+  type: ClusterIP   
+---
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health {
+           lameduck 5s
+        }
+        ready
+        kubernetes cluster.local in-addr.arpa ip6.arpa {
+           pods insecure
+           fallthrough in-addr.arpa ip6.arpa
+           ttl 30
+        }
+        prometheus :9153
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+kind: ConfigMap
+metadata:
+  name: coredns
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+      kubernetes.io/cluster-service: "true"
+      addonmanager.kubernetes.io/mode: Reconcile
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: Reconcile
+  name: system:coredns
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - endpoints
+  - services
+  - pods
+  - namespaces
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+    addonmanager.kubernetes.io/mode: EnsureExists
+  name: system:coredns
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:coredns
+subjects:
+- kind: ServiceAccount
+  name: coredns
+  namespace: kube-system
+
+
+EOF
+``` 
+
