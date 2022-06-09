@@ -2,56 +2,59 @@
 title: How to Build and Test
 ---
 
-In [OpenYurt repository](https://github.com/openyurtio/openyurt), currently(v0.5.0, `commit: ef26d5c6`) 5 components are contained, including:
+In [OpenYurt repository](https://github.com/openyurtio/openyurt), currently`(v0.7.0, commit: 68a18ee)` 7 components are contained, including:
 
 1. yurthub
 2. yurt-controller-manager
 3. yurt-tunnel-server
 4. yurt-tunnel-agent
 5. yurtctl
-6. yurt-node-servant
+6. yurtadm
+7. yurt-node-servant
 
-This artical will give you an introduction of how to build and test the code after development of above components.
+This article will give you an introduction of how to build and test the code after development of above components.
 
 ## How to build
 
-Many approaches of building OpenYurt have been provided in the [Makefile](https://github.com/openyurtio/openyurt/blob/master/Makefile). The most often used approach is `make release`, which will compile the code and build images for you. Here's the use case:
+### Build Binary
+
+OpenYurt [Makefile](https://github.com/openyurtio/openyurt/blob/master/Makefile) provides a ` make build ` command, can be completed by the command to the compilation of various components. The following uses yurtadm as an example to explain how to use 'make build', similar to other components.
 
 ```bash
-make release WHAT="${components[@]}" ARCH="${archs[@]}" REGION="${your_region}"
+make build WHAT=cmd/yurtadm
 ```
 
-`WHAT` represents components that you want to build, as mentioned at the beginning of the artical.  
-`ARCH` represents archtectures of target platforms, including `amd64`, `arm` and `arm64`.  
-`REGION` will affect the `GOPROXY` when compiling the code. Currently, `cn` and `us` are supported, representing using  `GOPROXY=https://goproxy.cn` and `GOPROXY=https://proxy.golang.org` respectively. Its default value is `us`. It's recommanded that developers in China should always set `REGION=cn` explicitly to ensure the successful build.
+This command compiles yurtadm based on the OS and architecture of the local host and places the compiled executable binary in the _output directory.
 
-eg.
+### Build Image
+
+`make docker-build` is the most convenient image building command, including the steps of compiling and packaging images, can cover most scenarios. Its use is as follows:
 
 ```bash
-make release WHAT="yurtctl yurthub" ARCH="arm64 amd64" REGION=cn
+make docker-build TARGET_PLATFORMS="${TARGET_PLATFORMS}" REGION="${your_region}"
 ```
 
-After the successful build, we can find images and binaries under `_output` folder, dockerfiles under `dockerbuild` folder. All of these images are built based on the Linux platform. Currently, we cannot change the target OS platform. If you actually want to do it, please refer to the following approach.
+`TARGET_PLATFORMS`: indicates the OS and architecture to which the component will run. Currently, Linux/amd64, Linux/arm, and Linux/arm64 are supported.
 
-Another build approach is provided in Makefile, using `make build` command. With this command, we can compile the code for any archtecture and any platform. We will take `yurtctl` as an example, and other components can be built in the same way.
+`REGION`: This parameter affects the GOPROXY used during compilation. Users in China are advised to set `REGION=cn` to ensure proper construction (cn indicates `GOPROXY=https://goproxy.cn`).
 
-### Build based on the loacl platform
+Use cases:
 
 ```bash
-make build WHAT=yurtctl
+make docker-build TARGET_PLATFORMS=linux/amd64 REGION=cn
 ```
 
-This command will build the yurtctl binary according to the archtecture and OS of your local host. The output binary can be found under the `_output` folder.
+After the command is executed, local images of each component of OpenYurt are generated, which can be viewed using `docker images`.
 
 ### Cross Compilation
 
 #### Mac
 
 ```bash
-GOOS=${target_os} GOARCH=${target_arch} CGO_ENABLED=0 make build WHAT=yurtctl
+GOOS=${target_os} GOARCH=${target_arch} CGO_ENABLED=0 make build WHAT=yurtadm
 ```
 
-This command will enable the built yurtctl binary to run on any platform as you want, through setting the `target_os` and `target_arch`. To avoid some problems of compatibility, we'd better set `CGO_ENABLED=0`.
+This command will enable the built yurtadm binary to run on any platform as you want, through setting the `target_os` and `target_arch`. To avoid some problems of compatibility, we'd better set `CGO_ENABLED=0`.
 
 #### Windows
 
@@ -76,43 +79,7 @@ $Env:GOLDFLAGS = "-s -w
    Run `go build` to compile the code, with the `-ldflags=$Env:GOLDFLAGS` option.
 
 ```powershell
-go build -ldflags=$Env:GOLDFLAGS cmd/yurtctl/yurtctl.go
-```
-
-### Build images manually
-
-In this section, we can find the dockerfile for each component. It will help you use `docker build` to build images. Here's the table giving base images `yurtctl` and `yurt-node-servant` will use.  
-
-| Arch  | Base Image         |
-| ----- | ------------------ |
-| amd64 | amd64/alpine:3.9   |
-| arm64 | arm64v8/alpine:3.9 |
-| arm   | arm32v7/alpine:3.9 |
-
-#### yurtctl(yurt-servant) dockerfile
-
-```dockerfile
-FROM ${baseimage}
-ADD yurtctl /usr/local/bin/yurtctl
-```
-
-#### yurt-node-servant dockerfile
-
-```dockerfile
-FROM ${baseimage}
-ADD entry.sh /usr/local/bin/entry.sh
-RUN chmod +x /usr/local/bin/entry.sh
-ADD yurt-node-servant /usr/local/bin/node-servant
-```
-
-#### dockerfiles of other components
-
-Other components use the different base image. We use `${arch}` to represent the target arch(including amd64, arm and arm64), `${component}` to represent the component to built(as mentioned at the beginning of this artical). Then the dockerfile is as follows:
-
-```dockerfile
-FROM k8s.gcr.io/debian-iptables-${arch}:v11.0.2
-COPY ${component} /usr/local/bin/${component}
-ENTRYPOINT ["/usr/local/bin/${component}"]
+go build -ldflags=$Env:GOLDFLAGS cmd/yurtadm/yurtadm.go
 ```
 
 ## How to test
@@ -148,39 +115,6 @@ PASS
 ```
 
 If you need further configuration for yurt-e2e-test to specify its behavior(such as running autonomy e2e test case), you can manually run the e2e test as we will introduce in the next section.
-
-### Run e2e test manually
-
-Let's build the e2e binary yurt-e2e-test as follows:
-
-1) entering the openyurt work path:
-```bash
-$ cd openyurt
-```
-
-2) building the binary:
-```bash
-$ make e2e
-```
-
-Then, you can use yurt-e2e-test binary to test OpenYurt.
-1) If you run yurt-e2e-test without node autonomy test, such as:
-```bash
-$ ./_output/bin/linux/amd64/yurt-e2e-test --kubeconfig=$HOME/.kube/config  --report-dir=./
-```
-This will run some basic tests after k8s is converted to openyurt. It refers to the operation of namespace and pod.
-
-2) If you run yurt-e2e-test, and want to test yurt node autonomy on local machine.In this way, it depends on yourself to restart node. And yurt-e2e-test will wait for restarting node and checking pod status to test yurt node autonomy.
-```bash
-$ ./_output/bin/linux/amd64/yurt-e2e-test --kubeconfig=$HOME/.kube/config  --report-dir=./  --enable-yurt-autonomy=true
-```
-
-3) If you want to test yurt node autonomy on aliyun ecs or aliyun ens with binary of yurt-e2e-test, TBD.
-
-Note:  
-The path of yurt-e2e-test binary depends on the platform of your local host.
-
-Finally, you can check test result in stdout or in file yurt-e2e-test-report_01.xml(specified by the `--report-dir` option).
 
 ## Troubleshooting
 
