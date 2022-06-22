@@ -125,6 +125,7 @@ module.exports = {
             theme: require('prism-react-renderer/themes/dracula'),
         },
     },
+    plugins: ['./src/plugins/faviconCustomPlugin'],
     presets: [
         [
             '@docusaurus/preset-classic',
