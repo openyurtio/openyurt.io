@@ -7,26 +7,8 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import GitHubButton from 'react-github-btn';
 import styles from './index.module.css';
-import HomepageFeatures from '../components/HomepageFeatures';
+import FeatureBlock from '../components/FeaturesList';
 
-
-function Feature({ imgUrl, title, description, reverse }) {
-    return (
-        <div className={clsx('row', styles.feature, reverse ? styles.featureReverse : '')}>
-            <div className="col col--3">
-                <div className="text--center">
-                    {imgUrl && <img className={styles.featureImage} src={useBaseUrl(imgUrl)} alt={title} />}
-                </div>
-            </div>
-            <div className={clsx('col col--9', styles.featureDesc)}>
-                <div>
-                    <h2>{title}</h2>
-                    <div>{description}</div>
-                </div>
-            </div>
-        </div>
-    )
-}
 
 const Button = ({ children, href }) => {
     return (
@@ -72,17 +54,8 @@ export default function Home() {
 
             <WhatIs />
 
-            <main className={clsx('hero', styles.hero)}>
-                <div className="container">
-                    <section className={styles.features}>
-                        <div className="container">
-                            {HomepageFeatures.map((f, idx) => (
-                                <Feature key={idx} {...f} />
-                            ))}
-                        </div>
-                    </section>
-                </div>
-            </main>
+            <FeatureBlock />
+
             <div className={clsx('hero', styles.hero)}>
                 <div className="container text--center">
                     <h3 className="hero__subtitle">
