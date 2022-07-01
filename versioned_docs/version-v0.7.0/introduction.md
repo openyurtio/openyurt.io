@@ -3,42 +3,43 @@ title: Introduction
 slug: /
 ---
 
-欢迎来到OpenYurt的世界!
+Welcome to the world of OpenYurt!
 
-**OpenYurt 是业界首个对云原生体系无侵入的边缘计算平台。主打 “云边一体化” 的概念，针对边缘计算场景中的网络环境复杂、大规模应用交付、运维困难等痛点，
-提供了边缘自治、云边运维通道、单元化部署等能力**。通过将边缘异构资源统一管理，帮助开发者轻松完成在海量边缘资源上的大规模应用交付、运维、管控。
+OpenYurt is the intelligent edge computing platform which aims to extend the Cloud Native ecosystem to edge computing and IoT scenarios.
+By making non-intrusive enhancements, it empowers customer to manage large scale edge computing workloads in different architecture (e.g., ARM and X86) in a native Kubernetes manner.
 
-此外，为了更好支持各种边缘设备，OpenYurt 还提供以云原生的方式管理端设备，高效地解决物联网边缘计算场景下端设备管理和运维难题。
-更天然支持对接上下游边缘云生态，支持边缘AI、CDN、IoT等典型边缘计算业务场景，将持续致力于打造云边一体云原生管控标准、软硬一体化交付标准，
-结合社区主流边缘存储、边缘计算容器网络、编排、边缘安全、边缘AI等项目或方案，实现OpenYurt上下游完整生态构建。
+OpenYurt has been widely used in typical edge computing scenarios such as the IoT, distributed cloud , logistics, transportation, manufacturing, retail, CDN etc.
 
-## 核心能力
-- **开箱即用的云边端协同能力**
 
-边缘计算具有典型的资源异构、大规模、多地域分布等特点。为了高效地管理边缘侧的资源及应用，OpenYurt借助云原生的能力，实现了云边端一体化协同架构。
+## Key Features
+- **Out-of-the-box cloud-edge-device collaboration capability**
 
-整个架构分三个部分：在云上，提供统一的管控界面；在边缘，将分散在各地的边缘资源接入云端做统一地管控、调度，并保持适度地自治能力；
-在端侧，端设备就近接入边缘节点，云端实现端设备的控制。借助云边端一体化架构，将海量边缘资源、业务及设备进行统一调度与管理，
-使得分布在边缘的资源和应用成为云原生体系的一部分，大幅度提升边缘侧应用的运维能力。同时，OpenYurt能够将云上已有的能力下沉到边缘，
-使得边缘侧的应用能够便捷地使用云上已有的PaaS能力。
+Edge computing has the characteristics of typical resource heterogeneity, large-scale, and multi-regional distribution.
+OpenYurt adopts an integrated cloud-edge-device architecture, which enables the unified management of massive edge resources and services in the cloud.
+On the one hand, it seamlessly integrates existing capabilities on the cloud such as elastic expansion, intelligent operation, logging, and DevOps,
+ensuring high availability of edge services.On the other hand, with the help of the cloud-edge-device integration channel, a large number of cloud-based capabilities,
+including middleware, security, AI, storage, and network management capabilities, are sunk to the edge, reducing the cost of self-construction of common cloud services on the edge side.
 
-- **强大的边缘业务自愈能力**
+- **Powerful edge service self-healing capability**
 
-边缘场景下，边缘节点和云端管控之间网络连接多样化(如5G, WIFI等)。由于网络抖动或者节点离线会导致节点心跳无法实时上报云端，从而触发边缘业务的驱逐和重建。
-同时云边网络连接异常状态下，边缘节点重启时由于无法从云端获取工作负载数据，节点上边缘业务将无法自动恢复，从而导致边缘业务的服务中断。
-OpenYurt通过在云端增强工作负载的驱逐管控能力，以及在边缘引入本地缓存和心跳探测机制，为边缘业务提供强大的自愈能力，确保边缘业务持续可靠的运行。
-同时当边缘节点网络恢复后，边缘业务的状态将与云端管控同步并保持数据的一致性。
+In Kubernetes, if the edge node restarts when offline, the service will be disrupted because it cannot be automatically restored.
+With the powerful edge service self-healing capability in OpenYurt, it can be easily resolved the impact of node offline and node restart
+on edge services and ensure the service runs reliably. When the edge node network is restored, the status of edge services will be synchronized
+with cloud management and data consistency will be maintained.
 
-- **丰富的边缘业务编排能力**
+- **Rich edge service orchestration capability**
 
-针对边缘场景，OpenYurt 开创性的提出了单元化的概念, 可以做到将资源，应用，服务流量在本单元内闭环。
-在资源层面，抽象出节点池的能力，边缘站点资源可以根据地域分布进行分类划分，在应用管理层面，设计了一整套应用部署模型，例如单元化部署、单元化DaemonSet、
-边缘Ingress 等模型，在流量服务层面，可以做到流量在本节点池内闭环访问。
+For edge scenarios, OpenYurt pioneers the concept of Pool, which can manage the node resources, applications, and service traffic in a pool.
+At the resource level, the ability of NodePool is abstracted, and edge site resources can be classified and divided according to geographical distribution.
+At the application management level, a set of application deployment models, such as YurtAppSet, YurtAppDaemon, and edge ingress(YurtIngress)
+models, are designed. At the traffic service level, traffic can be accessed in a closed loop within the node pool.
 
-- **云原生的设备管理能力**
+- **Cloud-native device management capability**
 
-OpenYurt从云原生视角对边缘终端设备的基本特征（是什么）、主要能力（能做什么）、产生的数据（能够传递什么信息）进行了抽象与定义。
-凭借良好的生态兼容性无缝集成了业界知名的IoT设备管理解决方案。最终通过云原生声明式API，向开发者提供设备数据采集处理与管理控制的能力。
+OpenYurt abstracts and defines a cloud native model of leaf devices in edge computing scenario from the following perspectives:
+basic properties, main capabilities and what information can be transmitted. In addition, with good compatibility, OpenYurt seamlessly
+integrates mainstream IoT device management solutions. Finally, through cloud native declarative API, OpenYurt provides developers
+the ability of data collection, processing and control over edge devices.
 
 
 ## What's Next
