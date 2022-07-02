@@ -162,6 +162,12 @@ YurtHub 虚拟接口的名字。
 是否开启本地 iptables 管理。
 
 ```plain
+--enable-node-pool  默认值: true
+```
+
+yurthub是否需要list/watch nodepool资源。
+
+```plain
 --enable-resource-filter  默认值: true
 ```  
 
@@ -184,12 +190,18 @@ YurtHub 心跳信息更新失败后重试的次数。
 ```
 
 Kube APIServer 重新被设置为健康状态前，连续被检测为健康状态的次数。
-  
+
 ```plain
 --heartbeat-timeout-seconds  默认值: 2
 ```
 
 YurtHub 更新心跳信息时，连接超时的时间（单位：秒）。
+  
+```plain
+--hub-cert-organizations
+```
+
+额外需要添加到yurthub证书中的organization名称，多个名称间用逗号隔开，例如“org1,org2”。
 
 ```plain
 --join-token

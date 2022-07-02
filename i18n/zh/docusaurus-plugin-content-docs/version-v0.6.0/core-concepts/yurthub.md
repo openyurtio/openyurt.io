@@ -190,6 +190,12 @@ Kube APIServer 重新被设置为健康状态前，连续被检测为健康状�
 ```
 
 YurtHub 更新心跳信息时，连接超时的时间（单位：秒）。
+  
+```plain
+--hub-cert-organizations
+```
+
+额外需要添加到yurthub证书中的organization名称，多个名称间用逗号隔开，例如“org1,org2”。
 
 ```plain
 --join-token
