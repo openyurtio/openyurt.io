@@ -4,14 +4,14 @@ title: Node Pool Management
 
 ### 
 
-### 1）安装Yurt-App-Manager组件
+### 1）Install Yurt-App-Manager Components
 
 ```shell
 $ cd  yurt-app-manager
 $ kubectl apply -f config/setup/all_in_one.yaml
 ```
 
-等待Yurt-App-Manager组件安装成功，验证
+Check whether all the Yurt-App-Manager components are installed successfully:
 
 ```shell
 $ kubectl get pod -n kube-system |grep yurt-app-manager
@@ -19,9 +19,9 @@ $ kubectl get pod -n kube-system |grep yurt-app-manager
 
 
 
-### 2）节点池使用Example
+### 2）Example of Nodepool usage
 
-- 创建一个节点池
+- Create a nodepool
 
 ```shell
 $ cat <<EOF | kubectl apply -f -
@@ -51,7 +51,7 @@ spec:
 EOF
 ```
 
-- 使用kubectl get节点池信息
+- Get the nodepool information
 
 ```shell
 $ kubectl get np 
@@ -61,9 +61,9 @@ beijing    Cloud                               35s
 hangzhou   Edge                                28s
 ```
 
-- 将节点加入到节点池
+- Add node to nodepool
 
-添加云端节点Cloud node到北京节点池，你只需将此节点按如下方式打上label即可
+Add a cloud node to nodepool "beijing", you only need to label the node as below:
 
 ```shell
 $ kubectl label node {Your_Node_Name} apps.openyurt.io/desired-nodepool=beijing
@@ -78,7 +78,7 @@ $ kubectl label node master apps.openyurt.io/desired-nodepool=beijing
 master labeled
 ```
 
-当然，你也可以将你的边缘节点Edge node添加到杭州节点池，方法和上面类似
+Similarly, you can add the edge nodes to nodepool "hangzhou":
 
 ```shell
 $ kubectl label node {Your_Node_Name} apps.openyurt.io/desired-nodepool=hangzhou
@@ -92,9 +92,9 @@ $ kubectl label node k8s-node2 apps.openyurt.io/desired-nodepool=hangzhou
 k8s-node2 labeled
 ```
 
-- 验证节点已经加入节点池
+- Verify whether a node is added to a nodepool:
 
-当Edge node成功加入到节点池，节点的配置信息除了节点池Spec中的所有内容，同时，节点添加了一个新的标签：apps.openyurt.io/nodepool。
+When an edge node is added to a nodepool, all the annotations/labels of the nodepool are added to the node, together with a new label: apps.openyurt.io/nodepool
 
 ```shell
 $ kubectl get node {Your_Node_Name} -o yaml 
