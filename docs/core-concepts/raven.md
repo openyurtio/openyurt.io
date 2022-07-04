@@ -56,8 +56,6 @@ Raven Agent版本：
 
 ## 5. 未来计划
 
-- 除IPsec之外，支持更多的VPN技术，例如：WireGuard 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
-- 支持IPVS后端的流量转发 【[issue #16](https://github.com/openyurtio/raven/issues/16)】 
 - 云端支持LB的公网暴露方式 【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
 - 支持NAT穿越 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
 - 支持分布式路由决策 【[issue #14](https://github.com/openyurtio/raven/issues/14)】
