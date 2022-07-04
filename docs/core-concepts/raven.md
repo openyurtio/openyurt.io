@@ -2,55 +2,54 @@
 title: Raven
 ---
 
-## 1. 背景介绍
+## 1. Background
 
-在边缘计算中，边-边和边-云通信是常见的网络通信场景，在OpenYurt中，我们已经引入了YurtTunnel来应对边云协作中的运维和监控的网络问题，提供对边缘节点执行 kubectl exec/logs 并从边缘节点获取监控指标的功能，但是YurtTunnel 解决的问题只是边云通信的一个子集，我们还需要提供边-边、边-云容器网络通信的解决方案。
+In edge computing, edge-edge and edge-cloud are common network communication scenarios. In OpenYurt, we have introduced `YurtTunnel` to deal with the network problems of maintenance and monitoring in edge-cloud collaboration, providing the capibility of `kubectl exec/logs` on edge nodes and collecting monitoring indicators from edge nodes. But the problems solved by `YurtTunnel` are only a part of edge-cloud communication. We also need to provide solutions for edge-edge and edge-cloud container network communication.
 
-即在OpenYurt集群中，位于不同物理区域的Pod可能需要使用Pod IP、Service IP 或Service name与其他Pod通信，虽然这些Pod位于单个K8s集群中，但它们处于不同物理区域（网络域）中，无法直接通信。因此，我们提出了Raven项目来解决这一问题。
+In OpenYurt cluster, pods in different physical regions may need to use Pod IP, Service IP or Service name to communicate with other Pods. Although these pods are in a single K8s cluster, they are in different physical regions (network domains) and cannot communicate directly. So we create `Raven` project to solve this problem.
 
+## 2. Architecture
 
-## 2. 整体架构
-
-如下图所示，目前Raven的架构主要包含以下两个组件：
+As following picture, the architecture of `Raven` have two components:
 
 ![img](../../static/img/docs/core-concepts/raven.png)
 
-- **Raven Controller Manager**：标准的Kubernetes控制器，以Deployment的方式部署在部分云上节点中，负责监控边缘节点状态，为每一个边缘节点池选取一个跨边流量的出口作为gateway node，并能够在当前gateway node失活的情况下完成gateway node的切换，所有的跨边流量都将由各个边缘节点池的gateway node完成转发；
-- **Raven Agent**：以DaemonSet的方式部署，运行在集群的每一个节点，它根据每个节点的角色（gateway or non-gateway）在节点上配置路由信息或VPN隧道信息；
+- **Raven Controller Manager**：The native Kubernetes controller is deployed in some nodes on the cloud as a `Deployment`, monitoring the status of edge nodes, selecting an egress for cross-edge traffic as a gateway node for each edge node pool. When the current gateway node is dead and other node will be switched. All cross-edge traffic will be forwarded by the gateway node of each edge node pool;
 
-上述两个组件通过一个[Gateway CRD](https://github.com/openyurtio/raven-controller-manager/blob/main/pkg/ravencontroller/apis/raven/v1alpha1/gateway_types.go) 来交换配置路由和建立VPN隧道的必要信息，如下图所示：
+- **Raven Agent**：It is deployed as a `DaemonSet` and runs on each node of the K8s cluster. It configures route or VPN tunnel on the node according to the role of each node (gateway or non-gateway);
+
+The above two components are connected by a [Gateway CRD](https://github.com/openyurtio/raven-controller-manager/blob/main/pkg/ravencontroller/apis/raven/v1alpha1/gateway_types.go) to exchange routes and VPN tunnels, as shown in the following picture:
 
 ![img](../../static/img/docs/core-concepts/raven-sequence-diag.png)
 
-更多实现细节可以参考Raven项目的代码仓库：
+For more details, please refer to the code repository of the Raven project:
 
 - [raven-controller-manager](https://github.com/openyurtio/raven-controller-manager)
 - [raven](https://github.com/openyurtio/raven)
 
+## 3. Features and Advantages
 
-## 3. 特性及优势
+Features:
 
-特性：
+- No intrusion: No intrusion into the native K8s CNI network, only cross-edge traffic is hijacked for forwarding
+- Security: Use stable `IPsec` to encrypt cross-edge traffic
 
-- 无侵入：对原生的K8s CNI网络无侵入，仅劫持跨边流量进行转发
-- 安全：使用成熟稳定的IPsec技术对跨边流量进行加密
+Advantages:
 
-优势：
+- `Raven` will try to use the network capabilities of the edge itself, create edge-to-edge VPN tunnels as possible, and will not forward all cross-edge traffic through the cloud center
+- `Raven` does not hijack the traffic in the same edge node pool, and keeps the CNI capabilities of the cluster itself
 
-- Raven在跨边流量的处理上会尽量利用边缘本身的网络能力，尽可能地创建边-边的VPN隧道，不会把所有的跨边流量都通过云上中心端转发
-- Raven对在同一边缘节点池的流量不进行劫持，复用集群本身的CNI能力
+## 4. Version
 
-## 4. 版本记录
+`Raven Controller Manager`:
 
-Raven Controller Manager版本：
-
-| 版本号 | 镜像地址                                     | 发布时间    | 发布内容 | 备注                  |
+| version | image                                     | release    | content | comment                  |
 | ------ |------------------------------------------|---------| -------- |---------------------|
-| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | 首次发布 | 支持  Gateway Node 选举 |
+| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | first | support Gateway Node election |
 
-Raven Agent版本：
+`Raven Agent`：
 
-| 版本号 | 镜像地址                        | 发布时间    | 发布内容 | 备注                |
+| version | image                        | release    | content | comment                |
 | ------ |-----------------------------|---------| -------- |-------------------|
 | v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端 |
 
