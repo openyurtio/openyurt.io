@@ -139,13 +139,13 @@ edgex-sample-hangzhou   true    9         9              9            9
 $ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
 ```
 
-使用UnitedDeployment在hanghzou节点池中部署一个yurt-device-controller实例
+使用YurtAppSet在hanghzou节点池中部署一个yurt-device-controller实例
 
 ```powershell
 $ export WORKER_NODEPOOL="hangzhou"
 $ cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
-kind: UnitedDeployment
+kind: YurtAppSet
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
@@ -263,7 +263,7 @@ $ kubectl delete deviceprofile --all
 $ kubectl delete deviceservice --all
 
 # 1.2 删除部署的yurt-device-controller
-$ kubectl delete uniteddeployment yurt-device-controller
+$ kubectl delete yurtappset yurt-device-controller
 $ kubectl delete clusterrolebinding default-cluster-admin
 
 # 1.3 删除device, deviceservice, deviceprofile资源相关的crd

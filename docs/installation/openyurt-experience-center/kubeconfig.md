@@ -62,27 +62,27 @@ kubectl get nodepool
 # 单元化部署pod
 cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
-kind: UnitedDeployment
+kind: YurtAppSet
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: ud-test
+  name: yas-test
   namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
 spec:
   selector:
     matchLabels:
-      app: ud-test
+      app: yas-test
   workloadTemplate:
     deploymentTemplate:
       metadata:
         labels:
-          app: ud-test
+          app: yas-test
       namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
       spec:
         template:
           metadata:
             labels:
-              app: ud-test
+              app: yas-test
           spec:
             containers:
               - name: nginx
