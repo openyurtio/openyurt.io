@@ -2,38 +2,38 @@
 title: How to use `kubeconfig` to experience OpenYurt capabilities
 ---
 
-> 这份文档将介绍如何使用体验中心中提供的 kubeconfig 体验 OpenYurt 的单元化部署能力。
+> This document will describe how to experience the multi-domain workload manage capability of OpenYurt through kubeconfig provided by Experience Center.
 
-## 本地配置 `kubeconfig`
+## Configure `kubeconfig` locally
 
-用户需要在本地配置 `kubeconfig` 后，才能通过`kubectl`管理集群。
+You need to configure `kubeconfig` locally before you can manage the cluster via `kubectl`.
 
-1. 在“集群信息”页面下“连接信息”tab 里复制`kubeconfig`信息
+1. Copy `kubeconfig` information in "Connection Information" tab under "Cluster Information" page
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/web_kubeconfig.png)
 
-2. 将复制的`kubeconfig`信息保存到本地`~/.kube/config`文件下
+2. Save the copied `kubeconfig` information to the local `~/.kube/config` file
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/cmd_kubeconfig.png)
 
-3. 如果配置无误，就可以使用`kubectl`来管理集群了
+3. If the configuration has been all set, you can use `kubectl` to manage the cluster
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/cmd_kubectl.png)
 
-## 体验 OpenYurt 的单元化部署功能
+## Experience OpenYurt's multi-domain workload manage capability
 
-OpenYurt 针对边缘计算场景，允许用户将工作负载分组到分布在不同地理位置的不同单元中。下面通过一个简单的场景来体验 OpenYurt 的单元化部署能力。
+OpenYurt is designed for edge computing scenarios, allowing users to group workloads into different units distributed in different geographical locations. Here is a simple scenario to experience the multi-domain workload manage capability of OpenYurt.
 
-现在有两个边缘端的节点 node1 与 node2 分布在不同的位置（比如 node1 在杭州，node2 在上海），我们希望部署应用到杭州的节点，而不要部署到上海的节点。OpenYurt 通过[NodePool](https://github.com/openyurtio/openyurt/blob/master/docs/enhancements/20201211-nodepool_uniteddeployment.md) 与 [YurtAppSet](https://github.com/openyurtio/openyurt/blob/master/docs/enhancements/20201211-nodepool_uniteddeployment.md) (previous UnitedDeployment)两种资源来实现这个能力。
+Now that we have two edge-side nodes, node1 and node2, in different locations (e.g. node1 in Hangzhou and node2 in Shanghai). We want to deploy applications to the Hangzhou node but not to the Shanghai node. OpenYurt does this with two resources, [NodePool](https://github.com/openyurtio/openyurt/blob/master/docs/enhancements/20201211-nodepool_uniteddeployment.md) and [YurtAppSet](https://github.com/openyurtio/openyurt/blob/master/docs/enhancements/20201211-nodepool_uniteddeployment.md) (previous UnitedDeployment) to achieve this capability.
 
-1. 假设我们已经在 OpenYurt 集群中接入了两个节点 node1 与 node2。（不知道如何接入节点？请参照[文档：如何使用 web_console](./web_console.md)）
+1. Suppose we have two nodes, node1 and node2, connected to OpenYurt cluster (Don't know how to join nodes? Please refer to the documentation: [How to use web_console](./web_console.md))
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/web_node.png)
 
-2. 在配置好`kubeconfig`的本地通过命令行工具`kubectl`中创建 NodePool 资源，并将 node1 加入其中该 NodePool。
+2. Create a NodePool resource by `kubectl` on the local node where `kubeconfig` is configured, and add node1 to that NodePool
 
 ```bash
-# 创建nodepool hangzhou
+# create nodepool hangzhou
 cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: NodePool
@@ -44,22 +44,21 @@ spec:
 EOF
 
 
-# 将node1节点加入nodepool
+# add node1 to nodepool
 kubectl label node node1 apps.openyurt.io/desired-nodepool=hangzhou
 
-# 获取nodepool
+# display nodepool
 kubectl get nodepool
 ```
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/cmd_np.png)
 
-此时在控制台界面中也可以看到对应的节点池 NodePool 信息。
+The corresponding NodePool information can be seen in browser page.
 ![](../../../static/img/docs/installation/openyurt-experience-center/web_np.png)
 
-3. 通过`kubectl`创建 Workload 资源，通过 YurtAppSet 只把应用部署到 hangzhou 的节点池中。
+3. Create workload resources via `kubectl` and only deploy the application to hangzhou's node pool via YurtAppSet
 
 ```bash
-# 单元化部署pod
 cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: UnitedDeployment
@@ -67,7 +66,7 @@ metadata:
   labels:
     controller-tools.k8s.io: "1.0"
   name: ud-test
-  namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
+  namespace: "183xxxxxxxx"  # Notice: change this with your own namespace
 spec:
   selector:
     matchLabels:
@@ -77,7 +76,7 @@ spec:
       metadata:
         labels:
           app: ud-test
-      namespace: "183xxxxxxxx"  # 注意: 替换成你的namespace
+      namespace: "183xxxxxxxx"  # Notice: change this with your own namespace
       spec:
         template:
           metadata:
@@ -100,7 +99,7 @@ spec:
   revisionHistoryLimit: 5
 EOF
 
-# 查看资源
+# display the resources
 kubectl get node
 kubectl get pod -A
 kubectl get nodepool
@@ -111,6 +110,6 @@ kubectl get nodepool
 ![](../../../static/img/docs/installation/openyurt-experience-center/cmd_ud_create.png)
 ![](../../../static/img/docs/installation/openyurt-experience-center/cmd_ud_get.png)
 
-创建成功后，在控制台界面上可以看到对应的 Pod 被分配到了 hangzhou 节点池中的 node1 上。
+After successful creation, you can see on the browser page that the corresponding Pod is assigned to node1 in hangzhou node pool.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/web_ud.png)

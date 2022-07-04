@@ -2,11 +2,9 @@
 title: 体验中心简介
 ---
 
-> 为了更好的用户体验， [体验平台 beta 版本](http://47.242.50.237/)已迁移到[新地址](http://47.242.50.237/)， [旧地址](http://139.224.236.157/)将在 7 日后停止维护。
-
 ## 总体介绍
 
-OpenYurt 作为边缘云原生项目,涉及到边缘计算和云原生两个领域,许多边缘计算的开发者不熟悉云原生相关的知识。为了降低 OpenYurt 的使用门槛，帮助更多地开发者快速上手 OpenYurt，社区推出了 OpenYurt 体验中心这一平台。想要尝试 OpenYurt 能力的新用户无需从头搭建 OpenYurt 集群, 只需要在平台上申请一个测试账号，即可马上拥有一个可用的 OpenYurt 集群。
+OpenYurt 作为边缘云原生项目,涉及到边缘计算和云原生两个领域,许多边缘计算的开发者不熟悉云原生相关的知识。为了降低 OpenYurt 的使用门槛，帮助更多地开发者快速上手 OpenYurt，社区推出了 [OpenYurt 体验中心](http://139.224.236.157/)这一平台。想要尝试 OpenYurt 能力的新用户无需从头搭建 OpenYurt 集群, 只需要在平台上申请一个测试账号，即可马上拥有一个可用的 OpenYurt 集群。
 
 ![](../../../../../../static/img/docs/installation/openyurt-experience-center/register_blank.png)
 
