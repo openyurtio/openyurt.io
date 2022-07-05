@@ -1,27 +1,13 @@
 import React from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
 import Translate, { translate } from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import GitHubButton from 'react-github-btn';
 import styles from './index.module.css';
 import FeatureBlock from '../components/FeaturesList';
-
-
-const Button = ({ children, href }) => {
-    return (
-        <div className="col col--2 margin-horiz--sm">
-            <Link
-                className="button button--outline button--primary button--lg"
-                to={href}>
-                {children}
-            </Link>
-        </div>
-    );
-};
-
+import Button from "../components/Button";
 
 export default function Home() {
     const context = useDocusaurusContext();
