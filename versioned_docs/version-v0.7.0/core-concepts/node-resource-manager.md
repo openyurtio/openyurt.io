@@ -2,45 +2,41 @@
 title: NodeResourceManager
 ---
 
-### 简介
+### abstract
 
-node-resource-manager 是用于管理 OpenYurt 集群本地资源的组件，用户可以通过修改集群内 ConfigMap 来动态配置集群内宿主机上的本地资源。
-
-
-
-该组件主要功能是将宿主机上已有的块设备或者持久化内存设备初始化成以下两种本地存储设备
-
-- 基于块设备或者是持久化内存设备创建的 LVM
-- 基于块设备或者是持久化内存设备创建的 QuotaPath
-
-后续任何对 ConfigMap 的修改都将视为对集群内的某些宿主机上的本地资源的修改，出于数据安全考虑，插件中不会有对任何本地资源做删除的操作。
+Node-resource-manager is a component used to manage local resources in an OpenYurt cluster, user can dynamically configure local resources on hosts in a cluster by modifying a ConfigMap resource.
 
 
 
-同时配合 [csi 组件](https://github.com/kubernetes-sigs/alibaba-cloud-csi-driver) 可以在 Openyurt 集群中快速便捷的使用本地存储设备。
+ Node-resource-manager can initialize an existing block device or persistent memory device on the host into the following two local storage devices:
+
+- An LVM created based on a block device or persistent memory device
+- QuotaPath created on a block device or persistent memory device
+
+Any changes to ConfigMap will be treated as changes to local resources on woker nodes in the cluster. For data security reasons, the plug-in will not delete any local resources
 
 
+At the same time, with [csi](https://github.com/kubernetes-sigs/alibaba-cloud-csi-driver) component, local storage devices can be used quickly and easily in Openyurt cluster.
 
-### 架构
 
-该组件主要包含两个部分， 一个是定义在集群中 kube-system namespace 的 node-resource-topo ConfigMap,
+### architecture
 
-一个是部署在集群中 kube-system namespace 下面的 node-resource-manager Daemonset,
-
-每个 Node 节点上的 node-resource-manager 通过挂载 node-resource-topo ConfigMap 的方式生产并管理用户定义的本地资源。
+ 
+ 
+ This component consists of two main parts, one is the Node-resource-Topo ConfigMap defined in the kube-system namespace in the cluster, One is the Node-Resource-manager Daemonset, which is deployed under the Kube-system namespace in the cluster. The Node-resource-manager on each Node produces and manages user-defined local resources by mounting node-resource-Topo ConfigMap.
 
 ![img](../../../static/img/docs/core-concepts/node-resource-manager.png)
 
 
 ### 
 
-### 使用例子
+### samples
 
 
 
-#### 创建Configmap
+#### Create Configmap
 
-在集群中创建ConfigMap, 这里展示一个相对通用的 Configmap 配置，详细说明请参见
+Create a ConfigMap in a cluster. This section shows a generic ConfigMap configuration. For details, see
 https://github.com/openyurtio/node-resource-manager/blob/main/docs/configmap.zh.md
 
 ```yaml
@@ -77,14 +73,14 @@ data:
 
 
 
-以上配置可以完成如下功能
+The previous configuration provides the following functions
 
-- 在集群中的 cn-zhangjiakou.192.168.3.114 节点上使用 /dev/vdb & /dev/vdc 这两个块设备创建一个 lvm volumegroup。这里的 devices 可以添加不存在的路径， 插件在节点上初始化的时候会自动忽略。
-- 在集群中的 cn-beijing.192.168.3.35 节点上使用 /dev/vdb 这个块设备格式化成 prjquota 格式，并挂载到/mnt/path1 这个路径上，后续再这个路径下面创建的子目录都可以设定每个目录的最大quota，同样， 这里的 devices 里面可以填写不存在路径，组件会自动选择第一个存在的块设备完成格式化和绑定的操作
+- In the test cluster,  we used two pieces of equipment : /dev/VDB & / dev/VDC  to create an LVM volumegroup on the worker node: "cn - zhangjiakou. 192.168.3.114 ".  Devices here can add paths that do not exist,  because the plug-in will automatically ignore this path during the node initialisation .
+- Meanwhile, we format the block device "/dev/vdb" to prjquota format on worker node "cn-beijing.192.168.3.35", and  mount it to path "/mnt/path1",  and then subdirectories created under this path can set the maximum quota for each directory. Devices here can also add paths that do not exist, the component will automatically select the first existing block device for formatting and binding. 
 
 
 
-#### 安装 node-resource-manager
+#### Installation of node-resource-manager
 
 
 
@@ -94,7 +90,7 @@ kubectl apply -f https://raw.githubusercontent.com/openyurtio/node-resource-mana
 
 
 
-### 边缘本地存储最佳实践
+### Best practices of Edge local storage 
 
 
 
