@@ -2,334 +2,288 @@
 title: YurtHub
 ---
 
-## 1. 功能简介
+## 1. Features
 
-YurtHub 作为 OpenYurt 中的一个重要组件，在云边场景下为边缘侧提供了许多扩展能力。
+As a important component of OpenYurt, `YurtHub` provides additional capabilities for the edge-side components in the scenario of cloud-edge computing.
 
-### 1）边缘自治
+### 1）Edge Autonomy
 
-目前 OpenYurt 提供边缘节点自治功能：即在云边网络断连时，边缘节点重启或者业务容器重启的情况下，业务容器能够在边缘节点自动恢复，而不会被云端驱逐、重新调度。
+OpenYurt supports edge autonomy, which means even under the circumstance of network disconnection between cloud and edge, the workload containers at edge can run as they are when they restart, instead of being evicted and rescheduled.
 
-YurtHub 通过本地缓存资源，使得在云边网络断连的情况下，Pod 以及 Kubelet 也能够通过 YurtHub 获取所需资源而保持其正常运行。
+`YurtHub` will cache resources at the edge side to ensure that `kubelet` and pods can get resources they need when the network between cloud and edge are disconnect.
 
 ![img](../../../static/img/docs/core-concepts/yurthub-autonomy.png)
 
-### 2）流量闭环
+### 2）Traffic Closure
 
-在原生的 k8s 集群中，服务 Service 资源的后端范围是整个集群。在 OpenYurt 中，可以通过 NodePool 划分节点，对节点进行分区管理。由此，资源的管理可以以节点池为基本单位，比如使用 UnitedDeployment 管理不同节点池中的 Pod 资源。
+In the native Kubernetes, the endpoints of a service are distributed among the whole cluster. But in OpenYurt we can divided nodes into nodepools, and manage them at the granularity of nodepool. On the base of it, we can also manage resources in each nodepool individually, such as using UnitedDeployment to manage pods in different nodepools.
 
-在这样的背景下，不同节点池中的资源具有一定的独立性，分区中的节点可能要求对 Service 访问流量只在同一区域内流通，而不会跨节点分区访问。因此，YurtHub 提供了流量闭环的功能：将 Service 对应的后端限制在同一节点池中，使得 Service 的访问流量只在同一节点池中流通。
-
+In the scenario of edge computing, resources in one nodepool are often independent on those in other nodepools, and nodes sometimes can only reach the nodes in the same nodepools. To meet this need, `YurtHub` provides the capability of traffic closure to ensure the client can only reach the endpoints in the same nodepool making the traffic closed in the granularity of nodepool.
 
 ![img](../../../static/img/docs/core-concepts/yurthub-service-topology.png)
 
-### 3）Pod 无缝迁移
+### 3）Seamlessly Migrate Pods to Edge
 
-在原生 k8s 集群中，默认情况下，Pod 通过 InClusterConfig 地址访问 Kube APIServer。在云边场景中，云端与边缘可能位于不同的网络平面，此时，Pod 就无法通过 InClusterConfig 地址访问到 Kube APIServer。同时，在云边断连的情况下，边缘 Pod 需要重启时，由于无法连接 Kube APIServer 获取资源配置而重启失败。
+In the native Kubernetes, Pods uses InClusterConfig to visit the `Kube-APIServer` by default. But in the scenario of cloud-edge computing, the cloud side and the edge side are often separated in different networks, thus pods cannot reach the `Kube-APIServer` through InClusterConfig. In addition, under the circumstance of disconnection between cloud and edge, the restart of pod will end in failure because it cannot get the resource from `Kube-APIServer`.
 
-为了解决以上两个问题，YurtHub 提供了 Pod 零修改迁移到边缘环境中的能力。对于使用 InClusterConfig 访问 Kube APIServer 的 Pod，YurtHub 在不修改 Pod 本身的配置的前提下，自动调整节点上 Pod 的访问地址，将 Pod 的请求转发至 YurtHub，使得 Pod 在云边断网时也能够正常运行，实现了 Pod 在云场景下到云边场景的无缝迁移。
+To solve the above two problems, `YurtHub` provides users a way to seamlessly migrate their pods to the edge side with no modification. For these pods which using InClusterConfig to visit the `Kube-APIServer`, `YurtHub` will automatically revise the Kubernetes addresses they use to redirect the traffic from `Kube-APIServer` to the `YurtHub`, without any modification of pod yaml configurations.
 
 ![img](../../../static/img/docs/core-concepts/yurthub-pod.png)
 
-### 4）多云端地址支持
+### 4）Support of Multiple Cloud APIServers
 
-YurtHub 支持多云端地址访问，以满足专有云场景中多个 Kube APIServer 同时工作、边缘计算场景中专线和公网通信同时工作的情况。YurtHub 中云端地址的负载均衡模式有两种方式：
+`YurtHub` can work well with multiple cloud apiservers to adapt different scenarios, such as the dedicated cloud scenario which often runs `Kube-APIServer` in HA mode, and the edge computing scenario which communicates through dedicated network and public network at the same time.
 
-- rr(round-robin)：轮转模式，默认选择该模式；
-- priority: 优先级模式，高优先级地址故障后才使用低优先级地址。
+- rr(round-robin)：select the address in turn, default.
+- priority: select the address according to its priority, only when it is unreachable, other addresses with lower priority will be use.
 
-### 5）节点证书管理
+### 5）Management of Node Certificate
 
-目前，YurtHub 作为客户端将请求转发至 Kube APIServer。同时，YurtHub 提供了 HTTP、HTTPS 服务端口，节点 Pod 以及 Kubelet 可以通过 HTTP 或者 HTTPS 与 YurtHub 进行连接，此时 YurtHub 又作为服务端接收节点上的 Pod 以及 Kubelet 的请求。由于集群组件之间为安全通信，所以 YurtHub 需要拥有客户端证书以及服务端证书，并对其进行管理。
+`YurtHub` serves as a client to redirect the requests to the APIServer and meanwhile it serves as a HTTP/HTTPS server to receive requests from `kubelet` and pods running on the node. In the aim of security, `YurtHub` manages the client certificate and the server certificate it needs.
 
-YurtHub 的客户端证书以及服务端证书使用了 Kubernetes 中的节点证书自动轮换功能，当节点证书过期前，自动向云端申请新的节点证书。同时，也解决了因云边网络断连，造成证书轮换失败，当网络恢复时证书已经过期而轮换再次失败的问题。
+`YurtHub` uses the capability of automatic certificate rotation of Kubernetes. Before certificates on the node expiring, it will automatically ask the cloud for new certificates. This mechanism, meanwhile, solves the following problem which will result in the failure when `YurtHub` restarts: `YurtHub` fails to rotate its certificates for the cloud-edge network breakdown, and fails again after the network recovering because of the expiration of certificates.
 
+## 2. Architecture
 
+`YurtHub` can run on the cloud node and the edge node. Thus, it has two work mode: "edge" and "cloud".
 
-## 2. 组件架构
+### 1）Edge Mode
 
-YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。所以，其支持两种工作模式：“edge”，“cloud”。
-
-### 1）Edge 模式
-
-
-对于 “edge” 模式的 YurtHub，其组件架构如下图所示。
+The following figure shows the architecture of `YurtHub` working in "edge" mode.
 
 ![img](../../../static/img/docs/core-concepts/yurthub-edge.png)
 
-架构图中清晰得表明了请求在 YurtHub 中的流向。
+In this figure, the processing of requests is clearly shown.
 
-- 在云边网络状况良好的情况下，节点上的 Pod 以及 Kubelet 的请求通过 Load Balancer 发送给 Kube APIServer，Load Balancer 接收到响应消息后，对响应消息进行数据过滤处理，并根据请求类型对响应体中的资源进行本地缓存，之后再将响应返回给请求方。
-- 在云边网络状况断开的情况下，节点上的 Pod 以及 Kubelet 的请求由 Local Proxy 进行处理，Local Proxy 通过对本地缓存数据进行操作，返回响应信息。
+- When the network between cloud and edge is healthy, requests coming from pods and `kubelet` will be sent to the `Kube-APIServer` through `Load Balancer`. And responses returned back from `Kube-APIServer` will first be filtered by `Load Balancer`. Load Balancer then will cache resources contained in responses and finally send them back to the client.
+- When the network between cloud and edge breaks, requests coming from pods and `kubelet` will be processed by `Local Proxy`.
 
+According the above data flows, we can divided components of `YurtHub` into two kinds: Cloud Request Processing Module and Edge Request Processing Module. The Edge Request Processing Module is made of the following components:
 
+- **Local Proxy**
+   takes the responsibility of handling resource requests from Pods and `Kubelet` when the cloud-edge network breaks, and makes the client unconscious of the disconnection. `Local Proxy` supports Get/List/Watch requests and will construct responses with cached resources. For those it does not support, such as Delete/Create/Update, it will return error messages. `Cache Manager` is used in this process.
 
+- **Cache Manager**
+   takes the responsibility of caching and retrieving resources. It provides caching interface to cache resources contained in the response and retrieving interface to get resources from cache. The former is used by `Load Balancer`, and the later is used by `Local Proxy`.
 
+- **Storage Manager**
+   defines functions to manipulate resources in cache, including Create, Update, Delete, Get, List and so on. Finally, resources will be serialized and stored in the cache.
 
-根据数据流，可以简单的将 YurtHub 中的模块分为云端服务模块以及本地服务模块。
-本地服务模块主要包含以下子模块：
+- **Network Manager**
+   takes the responsibility of setting iptables of host. Through these iptables rules, requests that originally sent to the `Kube-APIServer` will be redirected to the `YurtHub`.
 
--  **Local Proxy**
-   负责在云边断网的情况下，处理节点 Pod 以及 Kubelet 的资源请求，使得请求方能够对网络断连无感知。Local Proxy 处理请求时，对于本地支持的操作（Get、List、Watch），构建响应信息并返回对应的资源；对于本地不支持的操作（Delete、Create、Update等），返回操作失败信息。过程中调用了 Cache Manager 模块。
+The Cloud Request Processing Module is made of the following components:
 
--  **Cache Manager**
-   负责资源的本地存储以及获取。主要提供了对请求响应消息进行本地存储的方法，该方法被 Load Balancer 使用；提供了根据请求从磁盘获取对应资源的方法，该方法被 Local Proxy 使用。
+- **Certificate Manager**
+   takes the responsibility of managing necessary certificates that are needed when communicating with `Kube-APIServer`, including client cert of `YurtHub` and CA cert of the cluster. It will apply for certificates first and continuously update them before expiration.
 
--  **Storage Manager**
-   定义了在磁盘上操作资源的基本方法，包括 Create、Update、Delete、Get、List 等。最终资源以序列化格式存储在本地磁盘上。
+- **Health Check**
+   will periodically check if the `YurtHub` can reach the `Kube-APIServer` and set the healthy status according to the result. The healthy status will help the `YurtHub` determine whether to send received requests to the cloud or handle them at the edge side. In addition, `Health Check` also takes the responsibility of sending the heartbeat to the cloud.
 
--  **Network Manager**
-   主要在节点上创建dummy类型网卡(网卡名: yurthub-dummy0, IP: 169.254.2.1)，非主机网络Pod将通过此dummy网卡访问到YurtHub。
+- **Load Balancer**
+   takes the responsibility of establishing the connection between `YurtHub` and `Kube-APIServer`. It will send requests from pods and `Kubelet` to the cloud. `Load Balancer` supports multiple Kube-APIServer addresses, and use Round-Robin or Priority mode to do the load balance. It uses `Data Filtering Framework` to process responses and `Storage Manager` to cache resources in responses.
 
-云端服务模块主要包含以下子模块：
+- **Data Filtering Framework**
+   takes the responsibility of filtering data to extend the capability of `YurtHub`. Currently, three filters are included.
 
--  **Certificate Manager**
-   负责管理 YurtHub 作为客户端与 Kube APIServer 连接所需的信息，包括 YurtHub 客户端证书、集群 ca 证书。
+  - MasterService Filter：
+  enable users to seamlessly migrate pods which uses InClusterConfig to the edge side without modification.
+  
+  - ServiceTopology Filter：
+  provide the capability of traffic closure, limiting the endpoints in the same nodepool as the node.
 
--  **Health Check**
-   负责定期检测 Kube APIServer 是否可以访问，设置 Kube APIServer 的健康状态，作为请求转发给云端或者本地处理的依据。
-   此外，另外，kubelet 发送的心跳被 YurtHub 拦截，Health Check 还负责将 YurtHub 的心跳信息更新到云端。
+  - DiscardCloudService Filter：
+  ensure that client at the edge side uses public network to reach the endpoints of cloud service instead of the PodIP when the cloud and edge are in the separated network.
 
--  **Load Balancer**
-   负责与 Kube APIServer 建立连接，将节点上的 Pod 以及 Kubelet 的请求转发至云端，LB 模块支持多云端地址访问，云端的负载均衡模式可以选择轮转模式（round-robin）或者优先级模式（priority）。
-   同时，LB 模块还负责对请求的响应消息进行处理以及本地缓存，其中对响应消息的处理调用了 Data Filtering Framework 模块，本地缓存调用了 Storage Manager 模块。
+- **GC Manager**
+   Each time when `YurtHub` restarts, it will recycle pod resources in the cache which does not exist any more at the cloud. During the runtime, it will periodically recycle cached event resources of `kubelet` and `kube-proxy` .
 
--  **Data Filtering Framework**
-   对请求响应消息进行数据过滤处理，以扩展 YurtHub 的能力。目前包含了三个过滤器：
+### 2）Cloud Mode
 
-   - MasterService Filter：提供了使用 InClusterConfig 的业务 Pod 零修改就可以运行在边缘环境的能力。
-   - ServiceTopology Filter：提供了流量闭环的能力，将服务访问的后端限制在节点所在的 NodePool 中。
-
-   - DiscardCloudService Filter：当云端与边缘位于不同网络平面时，边缘通过公网访问而不是 PodIP 访问后端服务，以确保边缘能够正确访问。
-
--  **GC Manager**
-   在 YurtHub 每次重启时，将节点上存储的并且云端已经不存在的 Pod 资源进行回收。之后每隔一定时间对节点上缓存的 kubelet、kube-proxy event 资源进行回收删除操作。
-
-
-
-### 2）Cloud 模式
-对于 “cloud” 模式的 YurtHub，其组件架构如下图所示。
+The following figure shows the architecture of `YurtHub` working in "cloud" mode.
 
 ![img](../../../static/img/docs/core-concepts/yurthub-cloud.png)
 
-与 edge 模式相比，由于云端网络稳定，不用检测节点与 Kube APIServer 的连接状况，YurtHub 将所有的请求转发至 Kube APIServer，YurtHub 也不需要本地缓存数据。所以 cloud 模式的 YurtHub 关闭了与本地处理请求相关的模块。
+Compared with the "edge" mode, `YurtHub` runs in "cloud" mode will not check the healthy status of connection to `Kube-APIServer` because the network at the cloud side is stable enough. `YurtHub` will send all requests it received to `Kube-APIServer` and do not need to cache resources. Thus, it also disable modules relative to handling request locally.
 
-
-
-## 3. 启动参数
+## 3. Reference
 
 ```plain
---bind-address		默认值: "127.0.0.1"
+--access-server-through-hub  Default: true
 ```
-YurtHub server 的 IP 地址，与 --serve-port 搭配使用。
+
+Determine whether pods connect to kube-apiserver through `YurtHub`
 
 ```plain
---serve-port		默认值: "10267"
+--bind-address  Default: "127.0.0.1"
 ```
-YurtHub 处理 HTTP 请求的端口。
+
+The address of `YurtHub Server`. `YurtHub Server` listens on this address serving for requests of pprof, token, healthz and metrics. It works with the option `--serve-port`.
 
 ```plain
---proxy-port		默认值: "10261"
+--cert-mgr-mode  Default: "hubself"
 ```
-转发 HTTP 请求的端口，发往此端口的 HTTP 请求会转发至 kube-apiserver。
+
+Set the mode of `CertManager`. Its value can only be "hubself", which means `YurtHub` will apply for certificates.
 
 ```plain
---proxy-secure-port		默认值: "10268"
+--disabled-resource-filters
 ```
-转发 HTTPS 请求的端口，发往此端口的 HTTPS 请求会转发至 kube-apiserver。
+
+Its value is a list of disabled filters. All filters are enabled by default.
 
 ```plain
---server-addr
-```
-kube-apiserver 的地址。值的格式为 "server1,server2,..."。
+--disk-cache-path   Default: "/etc/kubernetes/cache/"
+```  
+
+The path where to store cached resources.
 
 ```plain
---cert-mgr-mode		默认值: "hubself"
+--dummy-if-ip  Default: "169.254.2.1"
 ```
-配置 YurtHub 使用的证书。如果值为 “hubself”，则使用 YurtHub 申请的证书。其余模式暂时还未支持。
+
+The IP address of the virtual network interface which is used by containers to connect to `YurtHub`. It's should not be in the range of 169.254.31.0/24 and 169.254.1.1/32.
+
+```plain  
+--dummy-if-name  Default: "YurtHub-dummy0"
+```
+
+The name of the virtual network interface.
+  
+```plain
+--enable-dummy-if  Default: true
+```
+
+If enable the virtual network interface.
 
 ```plain
---kubelet-ca-file		默认值: "/etc/kubernetes/pki/ca.crt"
+--enable-iptables  Default: true
 ```
-Kubelet 使用的 CA 文件路径。
+
+If enable the management of iptables.
 
 ```plain
---kubelet-client-certificate		默认值: "/var/lib/kubelet/pki/kubelet-client-current.pem"
-```
+--enable-resource-filter  Default: true
+```  
 
-Kubelet 的客户端证书路径。
-
-
+If enable the filter functions which will filter data in responses returned from the cloud.
 
 ```plain
---gc-frequency		默认值: 120
+--gc-frequency  Default: 120min
 ```
 
-回收缓存的频率（单位：分钟）。
+The frequency of recycling cached resources.
 
+```plain  
+--heartbeat-failed-retry  Default: 3
+```
 
+The max times `YurtHub` will retry to update the heartbeat.
 
 ```plain
---node-name
+--heartbeat-healthy-threshold  Default: 2
 ```
 
-YurtHub 所在节点的节点名。
-
-
+The number of consecutive times the Kube APIServer is detected as healthy before it is marked as healthy.
 
 ```plain
---lb-mode		默认值: "rr"
+--heartbeat-timeout-seconds  Default: 2s
 ```
 
-云端地址的负载均衡模式。如果值为 "rr"，表示轮转模式；如果值为 "priority"，表示优先级模式，高优先级地址故障后才使用低优先级地址。
-
-
-
-```plain
---heartbeat-failed-retry		默认值: 3
-```
-
-YurtHub 心跳信息更新失败后重试的次数。
-
-
-
-```plain
---heartbeat-healthy-threshold		默认值: 2
-```
-
-Kube APIServer 重新被设置为健康状态前，连续被检测为健康状态的次数。
-
-
-
-```plain
---heartbeat-timeout-seconds		默认值: 2
-```
-
-YurtHub 更新心跳信息时，连接超时的时间（单位：秒）。
-
-
-
-```plain
---max-requests-in-flight		默认值: 250
-```
-
-YurtHub 请求转发的总并发数量限制。
-
-
+Timeout when `YurtHub` updates heartbeat.
 
 ```plain
 --join-token
 ```
 
-
-
-启动引导令牌，当 --cert-mgr-mode 为 "hubself" 时，YurtHub 通过 join-token 申请证书。
-
-
+The token `YurtHub` will use to apply for certificates.
 
 ```plain
---root-dir		默认值: "/var/lib/yurthub"
-```
+--kubelet-ca-file  Default: "/etc/kubernetes/pki/ca.crt"
+```  
 
-存放 YurtHub 文件的目录。
-
-
+The path of CA cert that kubelet will use.
 
 ```plain
---version
+--kubelet-client-certificate  Default: "/var/lib/kubelet/pki/kubelet-client-current.pem"
 ```
 
-是否输出 YurtHub 的版本信息。
+The path of client cert that kubelet will use.
 
+```plain  
+--kubelet-health-grace-period  Default: 40s
+```
 
+The time `YurtHub` can tolerate the no response of `Kubelet`. After it, `YurtHub` will not update the heartbeat.
+  
+```plain
+--lb-mode  Default: "rr"
+```
+
+The mode `Load Balancer` will use. Its value can be "rr" which means Round-Robin, or "priority" which means it prefers to use address with high priority.
 
 ```plain
---profiling		默认值: true
+--max-requests-in-flight  Default: 250
 ```
 
-是否打开 profile。
-
-
+The max pending number of coming requests. If exceed this number, the request will be rejected.
 
 ```plain
---enable-dummy-if		默认值: true
+--node-name
 ```
 
-是否创建 dummy 类型网卡(网卡名称: yurthub-dummy0)。
-
-
-
-```plain
---enable-iptables		默认值: true
-```
-
-是否开启本地 iptables 管理。
-
-
-
-```plain
---dummy-if-ip		默认值: "169.254.2.1"
-```
-
-YurtHub 虚拟接口的 IP 地址，用于容器内部连接 YurtHub。取值范围不为 169.254.31.0/24 以及 169.254.1.1/32。
-
-
-
-```plain
---dummy-if-name		默认值: "yurthub-dummy0"
-```
-
-YurtHub 虚拟接口的名字。
-
-
-
-```plain
---disk-cache-path		 默认值: "/etc/kubernetes/cache/"
-```
-
-YurtHub 缓存云数据的目录。
-
-
-
-```plain
---access-server-through-hub		默认值: true
-```
-
-Pod 是否通过 YurtHub 连接 kube-apiserver。
-
-
-
-```plain
---enable-resource-filter		默认值: true
-```
-
-是否开启 YurtHub 对请求响应的过滤功能。
-
-
-
-```plain
---disabled-resource-filters
-```
-关闭的过滤器列表。默认所有的过滤器都打开。
+The name of the node where the `YurtHub` is running.
 
 ```plain
 --nodepool-name
 ```
 
-YurtHub 所在的节点池
+The name of the nodepool where the `YurtHub` is running.
 
-
-
-```plain
---working-mode		默认值: "edge"
+```plain  
+--profiling  Default: true
 ```
 
-YurtHub 的工作模式。如果值为 "edge"，表示边缘节点；如果值为 "cloud"，表示云端节点。
-
-
-
+If enable profile.
+  
 ```plain
---kubelet-health-grace-period		默认值: 40s
+--proxy-port  Default: "10261"
 ```
 
-允许 kubelet 没有响应的时间，超过这个时间后，YurtHub 不再发送心跳信息。
+The HTTP port serves for proxy. HTTP requests sent to this port will be sent to `Kube-APIServer`.
+
+```plain
+--proxy-secure-port  Default: "10268"
+```
+
+The HTTPS port serves for proxy. HTTPS requests sent to this port will be sent to `Kube-APIServer`.
+
+```plain
+--root-dir  Default: "/var/lib/YurtHub"
+```
+
+Path of files `YurtHub` will use.
+
+```plain
+--serve-port  Default: "10267"
+```
+
+The port `YurtHub Server` will listen on for HTTP requests. It should be used with option --bind-address.
+
+```plain  
+--server-addr
+```
+
+Addresses of `Kube-APIServer`. Multiple addresses should be separated by comma.
+
+```plain
+--version
+```
+
+Output the version of `YurtHub`.
+
+```plain
+--working-mode  Default: "edge"
+```
+
+Working mode of `YurtHub`. It can be "edge" which means `YurtHub` is running on an edge node, or "cloud" which means `YurtHub` is running on a cloud node.

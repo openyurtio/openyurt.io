@@ -20,7 +20,6 @@ YurtHub 通过本地缓存资源，使得在云边网络断连的情况下，Pod
 
 在这样的背景下，不同节点池中的资源具有一定的独立性，分区中的节点可能要求对 Service 访问流量只在同一区域内流通，而不会跨节点分区访问。因此，YurtHub 提供了流量闭环的功能：将 Service 对应的后端限制在同一节点池中，使得 Service 的访问流量只在同一节点池中流通。
 
-
 ![img](../../../../../static/img/docs/core-concepts/yurthub-service-topology.png)
 
 ### 3）Pod 无缝迁移
@@ -44,14 +43,11 @@ YurtHub 支持多云端地址访问，以满足专有云场景中多个 Kube API
 
 YurtHub 的客户端证书以及服务端证书使用了 Kubernetes 中的节点证书自动轮换功能，当节点证书过期前，自动向云端申请新的节点证书。同时，也解决了因云边网络断连，造成证书轮换失败，当网络恢复时证书已经过期而轮换再次失败的问题。
 
-
-
 ## 2. 组件架构
 
 YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。所以，其支持两种工作模式：“edge”，“cloud”。
 
 ### 1）Edge 模式
-
 
 对于 “edge” 模式的 YurtHub，其组件架构如下图所示。
 
@@ -62,116 +58,174 @@ YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。
 - 在云边网络状况良好的情况下，节点上的 Pod 以及 Kubelet 的请求通过 Load Balancer 发送给 Kube APIServer，Load Balancer 接收到响应消息后，对响应消息进行数据过滤处理，并根据请求类型对响应体中的资源进行本地缓存，之后再将响应返回给请求方。
 - 在云边网络状况断开的情况下，节点上的 Pod 以及 Kubelet 的请求由 Local Proxy 进行处理，Local Proxy 通过对本地缓存数据进行操作，返回响应信息。
 
-
-
-
-
 根据数据流，可以简单的将 YurtHub 中的模块分为云端服务模块以及本地服务模块。
 本地服务模块主要包含以下子模块：
 
--  **Local Proxy**
+- **Local Proxy**
    负责在云边断网的情况下，处理节点 Pod 以及 Kubelet 的资源请求，使得请求方能够对网络断连无感知。Local Proxy 处理请求时，对于本地支持的操作（Get、List、Watch），构建响应信息并返回对应的资源；对于本地不支持的操作（Delete、Create、Update等），返回操作失败信息。过程中调用了 Cache Manager 模块。
 
--  **Cache Manager**
+- **Cache Manager**
    负责资源的本地存储以及获取。主要提供了对请求响应消息进行本地存储的方法，该方法被 Load Balancer 使用；提供了根据请求从磁盘获取对应资源的方法，该方法被 Local Proxy 使用。
 
--  **Storage Manager**
+- **Storage Manager**
      定义了在磁盘上操作资源的基本方法，包括 Create、Update、Delete、Get、List 等。最终资源以序列化格式存储在本地磁盘上。
 
--  **Network Manager**
+- **Network Manager**
    负责设置主机 iptables 中的规则，将本地 Pod 以及 Kubelet 发往 Kube APIServer 的请求转发至 YurtHub 中。
-
-
-
-
 
 云端服务模块主要包含以下子模块：
 
--  **Certificate Manager**
+- **Certificate Manager**
    负责管理 YurtHub 作为客户端与 Kube APIServer 连接所需的信息，包括 YurtHub 客户端证书、集群 ca 证书。
    当证书管理模式为 “kubelet” ，即 YurtHub 使用 Kubelet 客户端证书时，Certificate Manager 保证 YurtHub 使用最新的 Kubelet 客户端证书；当证书管理模式为 “hubself” 时，Certificate Manager 负责客户端证书的申请以及更新。
 
--  **Health Check**
+- **Health Check**
    负责定期检测 Kube APIServer 是否可以访问，设置 Kube APIServer 的健康状态，作为请求转发给云端或者本地处理的依据。此外，Health Check 还负责将 YurtHub 的心跳信息更新到云端。
 
--  **Load Balancer**
+- **Load Balancer**
    负责与 Kube APIServer 建立连接，将节点上的 Pod 以及 Kubelet 的请求转发至云端，LB 模块支持多云端地址访问，云端的负载均衡模式可以选择轮转模式（round-robin）或者优先级模式（priority）。
    同时，LB 模块还负责对请求的响应消息进行处理以及本地缓存，其中对响应消息的处理调用了 Data Filtering Framework 模块，本地缓存调用了 Storage Manager 模块。
 
--  **Data Filtering Framework**
-   对请求响应消息进行数据过滤处理，以扩展 YurtHub 的能力。目前包含了三个过滤器：
+- **Data Filtering Framework**
+    对请求响应消息进行数据过滤处理，以扩展 YurtHub 的能力。目前包含了三个过滤器：
 
-   - MasterService Filter：提供了使用 InClusterConfig 的业务 Pod 零修改就可以运行在边缘环境的能力。
-   - ServiceTopology Filter：提供了流量闭环的能力，将服务访问的后端限制在节点所在的 NodePool 中。
+  - MasterService Filter：提供了使用 InClusterConfig 的业务 Pod 零修改就可以运行在边缘环境的能力。
+  - ServiceTopology Filter：提供了流量闭环的能力，将服务访问的后端限制在节点所在的 NodePool 中。
 
-   - DiscardCloudService Filter：当云端与边缘位于不同网络平面时，边缘通过公网访问而不是 PodIP 访问后端服务，以确保边缘能够正确访问。
+  - DiscardCloudService Filter：当云端与边缘位于不同网络平面时，边缘通过公网访问而不是 PodIP 访问后端服务，以确保边缘能够正确访问。
 
--  **GC Manager**
+- **GC Manager**
    在 YurtHub 每次重启时，将节点上存储的并且云端已经不存在的 Pod 资源进行回收。之后每隔一定时间对节点上缓存的 kubelet、kube-proxy event 资源进行回收删除操作。
 
-
-
 ### 2）Cloud 模式
-对于 “cloud” 模式的 YurtHub，其组件架构如下图所示。
+
+ 对于 “cloud” 模式的 YurtHub，其组件架构如下图所示。
 
 ![img](../../../../../static/img/docs/core-concepts/yurthub-cloud.png)
 
 与 edge 模式相比，由于云端网络稳定，不用检测节点与 Kube APIServer 的连接状况，YurtHub 将所有的请求转发至 Kube APIServer，YurtHub 也不需要本地缓存数据。所以 cloud 模式的 YurtHub 关闭了与本地处理请求相关的模块。
 
-
-
 ## 3. 启动参数
 
 ```plain
---bind-address		默认值: "127.0.0.1"
+--access-server-through-hub  默认值: true
 ```
-YurtHub server 的 IP 地址，与 --serve-port 搭配使用。
+
+Pod 是否通过 YurtHub 连接 kube-apiserver。
 
 ```plain
---serve-port		默认值: "10267"
+--bind-address  默认值: "127.0.0.1"
 ```
-YurtHub 处理 HTTP 请求的端口。
+
+YurtHub server 的 IP 地址，Yurthub server监听该地址上的pprof，token更新，healthz以及metrics请求，与 --serve-port 搭配使用。
 
 ```plain
---proxy-port		默认值: "10261"
+--cert-mgr-mode  默认值: "hubself"
 ```
-转发 HTTP 请求的端口，发往此端口的 HTTP 请求会转发至 kube-apiserver。
 
-```plain
---proxy-secure-port		默认值: "10268"
-```
-转发 HTTPS 请求的端口，发往此端口的 HTTPS 请求会转发至 kube-apiserver。
-
-```plain
---server-addr
-```
-kube-apiserver 的地址。值的格式为 "server1,server2,..."。
-
-```plain
---cert-mgr-mode		默认值: "hubself"
-```
 配置 YurtHub 使用的证书。如果值为 “hubself”，则使用 YurtHub 申请的证书；如果值为 “kubelet”，则使用 kubelet 的证书。
 
 ```plain
---kubelet-ca-file		默认值: "/etc/kubernetes/pki/ca.crt"
-```
-Kubelet 使用的 CA 文件路径。
-
-```plain
---kubelet-client-certificate		默认值: "/var/lib/kubelet/pki/kubelet-client-current.pem"
+--disabled-resource-filters
 ```
 
-Kubelet 的客户端证书路径。
-
-
+关闭的过滤器列表。默认所有的过滤器都打开。
 
 ```plain
---gc-frequency		默认值: 120
+--disk-cache-path   默认值: "/etc/kubernetes/cache/"
+```  
+
+Kubernetes 存储元数据的路径。
+
+```plain
+--dummy-if-ip  默认值: "169.254.2.1"
+```
+
+YurtHub 虚拟接口的 IP 地址，用于容器内部连接 YurtHub。取值范围不为 169.254.31.0/24 以及 169.254.1.1/32。
+
+```plain  
+--dummy-if-name  默认值: "YurtHub-dummy0"
+```
+
+YurtHub 虚拟接口的名字。
+  
+```plain
+--enable-dummy-if  默认值: true
+```
+
+是否启用 YurtHub 的虚拟接口。
+
+```plain
+--enable-iptables  默认值: true
+```
+
+是否开启本地 iptables 管理。
+
+```plain
+--enable-resource-filter  默认值: true
+```  
+
+是否开启 YurtHub 对请求响应的过滤功能。
+
+```plain
+--gc-frequency  默认值: 120min
 ```
 
 回收缓存的频率（单位：分钟）。
 
+```plain  
+--heartbeat-failed-retry  默认值: 3
+```
 
+YurtHub 心跳信息更新失败后重试的次数。
+
+```plain
+--heartbeat-healthy-threshold  默认值: 2
+```
+
+Kube APIServer 重新被设置为健康状态前，连续被检测为健康状态的次数。
+  
+```plain
+--heartbeat-timeout-seconds  默认值: 2
+```
+
+YurtHub 更新心跳信息时，连接超时的时间（单位：秒）。
+
+```plain
+--join-token
+```
+
+启动引导令牌，当 --cert-mgr-mode 为 "hubself" 时，YurtHub 通过 join-token 申请证书。
+
+```plain
+--kubelet-ca-file  默认值: "/etc/kubernetes/pki/ca.crt"
+```  
+
+Kubelet 使用的 CA 文件路径。
+
+```plain
+--kubelet-client-certificate  默认值: "/var/lib/kubelet/pki/kubelet-client-current.pem"
+```
+
+Kubelet 的客户端证书路径。
+
+```plain  
+--kubelet-health-grace-period  默认值: 40s
+```
+
+允许 kubelet 没有响应的时间，超过这个时间后，YurtHub 不再发送心跳信息。
+  
+```plain
+--lb-mode  默认值: "rr"
+```
+
+云端地址的负载均衡模式。如果值为 "rr"，表示轮转模式；如果值为 "priority"，表示优先级模式，高优先级地址故障后才使用低优先级地址。
+
+```plain
+--max-requests-in-flight  默认值: 250
+```
+
+YurtHub 和确定服务器的总并发限制。
 
 ```plain
 --node-name
@@ -179,65 +233,47 @@ Kubelet 的客户端证书路径。
 
 YurtHub 所在节点的节点名。
 
-
-
 ```plain
---lb-mode		默认值: "rr"
+--nodepool-name
 ```
 
-云端地址的负载均衡模式。如果值为 "rr"，表示轮转模式；如果值为 "priority"，表示优先级模式，高优先级地址故障后才使用低优先级地址。
+YurtHub 所在的节点池
 
-
-
-```plain
---heartbeat-failed-retry		默认值: 3
+```plain  
+--profiling  默认值: true
 ```
 
-YurtHub 心跳信息更新失败后重试的次数。
-
-
-
+是否打开 profile。
+  
 ```plain
---heartbeat-healthy-threshold		默认值: 2
+--proxy-port  默认值: "10261"
 ```
 
-Kube APIServer 重新被设置为健康状态前，连续被检测为健康状态的次数。
-
-
+转发 HTTP 请求的端口，发往此端口的 HTTP 请求会转发至 kube-apiserver。
 
 ```plain
---heartbeat-timeout-seconds		默认值: 2
+--proxy-secure-port  默认值: "10268"
 ```
 
-YurtHub 更新心跳信息时，连接超时的时间（单位：秒）。
-
-
+转发 HTTPS 请求的端口，发往此端口的 HTTPS 请求会转发至 kube-apiserver。
 
 ```plain
---max-requests-in-flight		默认值: 250
-```
-
-YurtHub 和确定服务器的总并发限制。
-
-
-
-```plain
---join-token
-```
-
-
-
-启动引导令牌，当 --cert-mgr-mode 为 "hubself" 时，YurtHub 通过 join-token 申请证书。
-
-
-
-```plain
---root-dir		默认值: "/var/lib/YurtHub"
+--root-dir  默认值: "/var/lib/YurtHub"
 ```
 
 存放 YurtHub 文件的目录。
 
+```plain
+--serve-port  默认值: "10267"
+```
 
+YurtHub server处理 HTTP 请求的端口，与--bind-address搭配使用。
+
+```plain  
+--server-addr
+```
+
+kube-apiserver 的地址。值的格式为 "server1,server2,..."。
 
 ```plain
 --version
@@ -245,95 +281,8 @@ YurtHub 和确定服务器的总并发限制。
 
 是否输出 YurtHub 的版本信息。
 
-
-
 ```plain
---profiling		默认值: true
-```
-
-是否打开 profile。
-
-
-
-```plain
---enable-dummy-if		默认值: true
-```
-
-是否启用 YurtHub 的虚拟接口。
-
-
-
-```plain
---enable-iptables		默认值: true
-```
-
-是否开启本地 iptables 管理。
-
-
-
-```plain
---dummy-if-ip		默认值: "169.254.2.1"
-```
-
-YurtHub 虚拟接口的 IP 地址，用于容器内部连接 YurtHub。取值范围不为 169.254.31.0/24 以及 169.254.1.1/32。
-
-
-
-```plain
---dummy-if-name		默认值: "YurtHub-dummy0"
-```
-
-YurtHub 虚拟接口的名字。
-
-
-
-```plain
---disk-cache-path		 默认值: "/etc/kubernetes/cache/"
-```
-
-Kubernetes 存储元数据的路径。
-
-
-
-```plain
---access-server-through-hub		默认值: true
-```
-
-Pod 是否通过 YurtHub 连接 kube-apiserver。
-
-
-
-```plain
---enable-resource-filter		默认值: true
-```
-
-是否开启 YurtHub 对请求响应的过滤功能。
-
-
-
-```plain
---disabled-resource-filters
-```
-关闭的过滤器列表。默认所有的过滤器都打开。
-
-```plain
---nodepool-name
-```
-
-YurtHub 所在的节点池
-
-
-
-```plain
---working-mode		默认值: "edge"
+--working-mode  默认值: "edge"
 ```
 
 YurtHub 的工作模式。如果值为 "edge"，表示边缘节点；如果值为 "cloud"，表示云端节点。
-
-
-
-```plain
---kubelet-health-grace-period		默认值: 40s
-```
-
-允许 kubelet 没有响应的时间，超过这个时间后，YurtHub 不再发送心跳信息。
