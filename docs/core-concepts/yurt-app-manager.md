@@ -28,7 +28,7 @@ Yurt-App-Manager是OpenYurt集群提供边缘单元化管理的功能组件，�
 
 - 流量的单元化： Service 拓扑，通过简单配置来限制Service后端Endpoint的访问范围，例如只能由相同节点池的节点访问，或者只能本节点访问。
 
-而Yurt-App-Manager是 Kubernetes 的一个标准扩展，它可以配合 Kubernetes 使用，提供 NodePool 和 UnitedDeployment 两种控制器，从主机维度和应用维度来提供边缘场景下节点和应用的运维能力。
+而Yurt-App-Manager是 Kubernetes 的一个标准扩展，它可以配合 Kubernetes 使用，提供 NodePool 和 YurtAppSet(之前名为UnitedDeployment) 两种控制器，从主机维度和应用维度来提供边缘场景下节点和应用的运维能力。
 
 ## 边缘节点池概述
 
@@ -57,13 +57,13 @@ NodePool 以节点组的维度对节点划分做了更高维度的抽象，可�
 
 - 相同应用的多个Deployment，除了name，nodeselectors, replicas 这些特性外，其他的差异化配置比较小。
 
-单元化部署（UnitedDeployment）是OpenYurt默认提供Yurt-App-Manager组件所提供的能力，是kubernetes CRD 资源，通过更上层次的抽象，对这些子的Deployment 进行统一管理：create/update/delete。
+单元化部署（YurtAppSet）是OpenYurt默认提供Yurt-App-Manager组件所提供的能力，是kubernetes CRD 资源，通过更上层次的抽象，对这些子的Deployment 进行统一管理：create/update/delete。
 
 
 
 ![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/31456432/1641823282158-8e00965d-e17e-4a79-912c-01589f98217e.png)
 
-UnitedDeployment 控制器可以提供一个模板来定义应用，并通过管理多个 workload 来匹配下面不同的区域。 每个 UnitedDeployment 下每个区域的 workload 被称为 pool， 目前 pool 支持使用两种workload： `StatefulSet` 和 `Deployment`。控制器会根据 UnitedDeployment 中pool的配置创建子的workload 资源对象，每个资源对象都有一个期望的 `replicas` Pod 数量。通过一个UnitedDeployment 实例就可以自动维护多个 Deployment 或者 Statefulset 资源，同时还能具备replicas 等的差异化配置。
+YurtAppSet 控制器可以提供一个模板来定义应用，并通过管理多个 workload 来匹配下面不同的区域。 每个 YurtAppSet 下每个区域的 workload 被称为 pool， 目前 pool 支持使用两种workload： `StatefulSet` 和 `Deployment`。控制器会根据 YurtAppSet 中pool的配置创建子的workload 资源对象，每个资源对象都有一个期望的 `replicas` Pod 数量。通过一个 YurtAppSet 实例就可以自动维护多个 Deployment 或者 Statefulset 资源，同时还能具备replicas 等的差异化配置。
 
 
 
@@ -77,8 +77,8 @@ UnitedDeployment 控制器可以提供一个模板来定义应用，并通过管
 
 更多关于 Yurt-App-Manager 的讨论请参考社区 issue 和 pull request：
 
-- issue124：[UnitedDeployment usages]( https://github.com/openyurtio/openyurt/issues/124)
-- issue171：[ [feature request\] the definition of NodePool and UnitedDeployment](https://github.com/openyurtio/openyurt/issues/171)
+- issue124：[YurtAppSet usages]( https://github.com/openyurtio/openyurt/issues/124)
+- issue171：[ [feature request\] the definition of NodePool and YurtAppSet](https://github.com/openyurtio/openyurt/issues/171)
 
 - pull request 173： [[proposal\] add nodepool and uniteddployment crd proposal](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/pull/173)
 

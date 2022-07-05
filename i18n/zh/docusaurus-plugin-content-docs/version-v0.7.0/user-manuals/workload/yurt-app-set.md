@@ -1,5 +1,5 @@
 ---
-title: UnitedDeployment
+title: YurtAppSet
 ---
 
 
@@ -9,34 +9,33 @@ title: UnitedDeployment
 
 在这篇文章中，我们将展示yurt-app-manager如何帮助用户管理工作负载。假设我们已经拥有一个基于原生kubernetes搭建起来的OpenYurt集群，且至少有两个节点。
 
-## UnitedDeployment用户手册
+## YurtAppSet用户手册
 
-### 创建UnitedDeployment
+### 创建YurtAppSet
 
-- 利用deployment template创建一个UnitedDeployment
+- 通过`yurtappset_test.yaml`创建一个YurtAppSet
 
-```shell
-$ cat <<EOF | kubectl apply -f -
+```yaml
 apiVersion: apps.openyurt.io/v1alpha1
-kind: UnitedDeployment
+kind: YurtAppSet
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: ud-test
+  name: yas-test
 spec:
   selector:
     matchLabels:
-      app: ud-test
+      app: yas-test
   workloadTemplate:
     deploymentTemplate:
       metadata:
         labels:
-          app: ud-test
+          app: yas-test
       spec:
         template:
           metadata:
             labels:
-              app: ud-test
+              app: yas-test
           spec:
             containers:
               - name: nginx
@@ -64,16 +63,15 @@ spec:
         key: apps.openyurt.io/example
         operator: Exists
   revisionHistoryLimit: 5 
-EOF
 ```
 
-- 查看UnitedDeployment
+- 查看YurtAppSet
 
 ```shell
-$ kubectl get ud
+$ kubectl get yas
 
-NAME      READY   WORKLOADTEMPLATE   AGE
-ud-test   3       Deployment         120m
+NAME       READY   WORKLOADTEMPLATE   AGE
+yas-test   3       Deployment         43s
 ```
 
 ### 检查由yurt-app-manager组件创建的deployment
@@ -81,25 +79,25 @@ ud-test   3       Deployment         120m
 ```shell
 $ kubectl get deploy
 
-NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
-ud-test-beijing-fp58z    1/1     1            1           122m
-ud-test-hangzhou-xv454   2/2     2            2           122m
-$ kubectl get pod -l app=ud-test
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+yas-test-beijing-k5st4    1/1     1            1           54s
+yas-test-hangzhou-2jkj5   2/2     2            2           54s
+$ kubectl get pod -l app=yas-test
 
-  NAME                                      READY   STATUS    RESTARTS   AGE
-ud-test-beijing-fp58z-787d5b6b54-g4jk6    1/1     Running   0          100m
-ud-test-hangzhou-xv454-5cd9c4f6b5-b5tsr   1/1     Running   0          124m
-ud-test-hangzhou-xv454-5cd9c4f6b5-gmbgp   1/1     Running   0          124m
+NAME                                       READY   STATUS    RESTARTS   AGE
+yas-test-beijing-k5st4-56bc98cc7d-h7h86    1/1     Running   0          72s
+yas-test-hangzhou-2jkj5-64588c484b-8mvn8   1/1     Running   0          72s
+yas-test-hangzhou-2jkj5-64588c484b-vx85t   1/1     Running   0          72s
 ```
 
 
 
-### 为UnitedDeployment添加patch功能
+### 为YurtAppSet添加patch功能
 
-- 在文件uniteddeployment_deployment_test.yaml中添加patch字段，如下所示，文件36到41行
+- 在文件yurtappset_test.yaml中添加patch字段，如下所示，文件36到41行
 
 ```shell
-$ kubectl get ud ud-test -o yaml
+$ kubectl get yas yas-test -o yaml
    
   topology:
     pools:
@@ -130,27 +128,27 @@ $ kubectl get ud ud-test -o yaml
   *** 
 ```
 
-- patch能够使得由UnitedDeployment创建的位于北京节点池的deployment和pod中nginx镜像版本为1.19.0，而其他地区的nginx镜像版本为1.19.3。
+- patch能够使得由YurtAppSet创建的位于北京节点池的deployment和pod中nginx镜像版本为1.19.0，而其他地区的nginx镜像版本为1.19.3。
 
 ```shell
-$ kubectl get deploy ud-test-beijing-fp58z -o yaml
+$ kubectl get deploy yas-test-beijing-k5st4 -o yaml
 
 containers:
   - image: nginx:1.19.0
-$ kubectl get deploy ud-test-hangzhou-xv454 -o yaml
+$ kubectl get deploy yas-test-hangzhou-2jkj5 -o yaml
 
 containers:
   - image: nginx:1.19.3
 ```
 
-- 删除后，所有由UnitedDeployment创建的pod又恢复使用相同的镜像nginx1.19.3
+- 删除后，所有由YurtAppSet创建的pod又恢复使用相同的镜像nginx1.19.3
 
 ```shell
-$ kubectl get pod ud-test-beijing-fp58z-787d5b6b54-g4jk6 -o yaml
+$ kubectl get pod yas-test-beijing-k5st4-974b6958c-t2kfn -o yaml
 
 containers:
   - image: nginx:1.19.3
-$ kubectl get pod ud-test-hangzhou-xv454-5cd9c4f6b5-b5tsr -o yaml
+$ kubectl get pod yas-test-hangzhou-2jkj5-64588c484b-8mvn8 -o yaml
 containers:
   - image: nginx:1.19.3
 ```

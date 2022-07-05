@@ -62,7 +62,7 @@ kubectl get nodepool
 # 单元化部署pod
 cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
-kind: UnitedDeployment
+kind: YurtAppSet
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"

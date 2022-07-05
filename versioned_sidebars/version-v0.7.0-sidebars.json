@@ -82,7 +82,7 @@
                 {
                     "Workload": [
                         "version-v0.7.0/user-manuals/workload/node-pool-management",
-                        "version-v0.7.0/user-manuals/workload/uniteddeployment",
+                        "version-v0.7.0/user-manuals/workload/yurt-app-set",
                         "version-v0.7.0/user-manuals/workload/yurt-app-daemon"
                     ]
                 },

@@ -16,7 +16,8 @@ OpenYurt supports edge autonomy, which means even under the circumstance of netw
 
 ### 2）Traffic Closure
 
-In the native Kubernetes, the endpoints of a service are distributed among the whole cluster. But in OpenYurt we can divided nodes into nodepools, and manage them at the granularity of nodepool. On the base of it, we can also manage resources in each nodepool individually, such as using UnitedDeployment to manage pods in different nodepools.
+
+In the native Kubernetes, the endpoints of a service are distributed among the whole cluster. But in OpenYurt we can divided nodes into nodepools, and manage them at the granularity of nodepool. On the base of it, we can also manage resources in each nodepool individually, such as using YurtAppSet to manage pods in different nodepools.
 
 In the scenario of edge computing, resources in one nodepool are often independent on those in other nodepools, and nodes sometimes can only reach the nodes in the same nodepools. To meet this need, `YurtHub` provides the capability of traffic closure to ensure the client can only reach the endpoints in the same nodepool making the traffic closed in the granularity of nodepool.
 
@@ -299,3 +300,4 @@ Output the version of `YurtHub`.
 ```
 
 Working mode of `YurtHub`. It can be "edge" which means `YurtHub` is running on an edge node, or "cloud" which means `YurtHub` is running on a cloud node.
+

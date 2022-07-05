@@ -40,7 +40,7 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组件访问云�
 
 - **YurtAppManager:**
 
-  - 跨地域的资源及业务负载管理器，目前包括NodePool(节点池管理)，YurtAppSet(之前叫UnitedDeployment)(节点池维度的业务负载管理)，YurtAppDaemon(节点池维度的Daemonset), YurtIngress(节点池维度的Ingress Controller管理器)
+  - 跨地域的资源及业务负载管理器，目前包括NodePool(节点池管理)，YurtAppSet(之前名为UnitedDeployment)(节点池维度的业务负载管理)，YurtAppDaemon(节点池维度的Daemonset), YurtIngress(节点池维度的Ingress Controller管理器)
   - 部署形态： Deployment形态部署在Cloud Node上
 
 - **YurtTunnel(Server/Agent):**
@@ -49,7 +49,7 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组件访问云�
 
 - **YurtDeviceController/YurtEdgeXManager:**
   - 用于边缘IOT解决方案的非侵入融合，通过云原生模式管控边缘设备。目前EdgeX Foundry已经无缝集成到OpenYurt架构中。
-  - YurtEdgeXManager以Deployment形态部署在Cloud Node上，YurtDeviceController以YurtAppSet(之前叫UnitedDeployment)形态部署在Edge Node上，每个NodePool上部署一套YurtDeviceController。
+  - YurtEdgeXManager以Deployment形态部署在Cloud Node上，YurtDeviceController以YurtAppSet(之前名为UnitedDeployment)形态部署在Edge Node上，每个NodePool上部署一套YurtDeviceController。
 
 - **NodeResourceManager:**
   - 管理 OpenYurt 集群本地资源的组件，用户可以通过修改集群内 ConfigMap 的定义来动态配置集群内宿主机上的本地资源。

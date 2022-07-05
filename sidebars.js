@@ -83,7 +83,7 @@ module.exports = {
                 {
                     'Workload': [
                         'user-manuals/workload/node-pool-management',
-                        'user-manuals/workload/uniteddeployment',
+                        'user-manuals/workload/yurt-app-set',
                         'user-manuals/workload/yurt-app-daemon',
                     ]
                 },
