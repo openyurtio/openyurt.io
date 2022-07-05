@@ -2,112 +2,113 @@
 title: YurtTunnel
 ---
 
-## 1. 背景简介
+## 1. Background
 
-在应用的部署和运维过程中，用户常常需要获取应用的日志，或直接登录到应用的运行环境中进行调试。在 Kubernetes 环境中，我们通常使用 kubectl log，kubectl exec 等指令来实现这些需求。如下图所示，在 kubectl 请求链路上， kubelet 将扮演服务器端，负责处理由 kube-apiserver(KAS) 转发来的请求，这就要求 KAS 和 kubelet 之间需要存在一条网络通路，允许 KAS 主动访问 kubelet。
+During application deployment and maintenance, users often need to obtain application logs, or directly log in to the running environment of the application for debugging. In Kubernetes cluster, we usually use `kubectl log`, `kubectl exec` and other command to debug. As following picture, on `kubelet` will act as a server, responsible for processing requests forwarded by `kube-apiserver` (KAS), which requires a network path between `KAS` and `kubelet` to allow `KAS` to actively access `kubelet`.
 
 ![img](../../../static/img/docs/core-concepts/kubectl.jpg)
 
-云与边一般位于不同网络平面，同时边缘节点普遍位于防火墙内部，采用云(中心)边协同架构，将导致原生 K8s 系统的运维监控能力面临如下挑战:
+Cloud and edge are in different network domains, and edge nodes are inside the firewall. The cloud (center) edge collaborative architecture will lead to the following challenges in the maintenance monitoring capabilities of the native K8s system:
 
-* K8s 原生运维能力缺失(如 kubectl logs/exec 等无法执行)
-* 社区主流监控运维组件无法工作(如 Prometheus/metrics-server )
+* K8s native maintenance capabilities are lacking (such as `kubectl logs/exec` cannot be executed)
+* Community monitoring maintenance components cannot work (such as Prometheus/metrics-server)
 
-为了支持通过云端节点对边缘端应用进行运维操作，我们必须在云、边之间建立反向运维通道。
+In order to support the maintenance of edge applications through cloud nodes, we must establish a reverse maintenance tunnel between the cloud and the edge.
 
-## 2. 反向通道
+## 2. Reverse Tunnel
 
-在 OpenYurt 中，我们引入了专门的组件 YurtTunnel 负责解决云边通信问题。反向通道是解决跨网络通信的一种常见方式，而 YurtTunnel 的本质也是一个反向通道。 它是一个典型的C/S结构的组件，由部署于云端的 Yurt—Tunnel-Server 和部署于边缘节点上的 Yurt-Tunnel—Agent组成。YurtTunnel的部署结构如下图所示， 反向通道整体的工作流程包括以下几个步骤：
+In `OpenYurt`, we introduced a special component `YurtTunnel` to deal with the cloud-side communication. `Reverse tunnel` is a common way to solve cross-network communication, and `YurtTunnel` is also a `reverse tunnel`. It is a typical C/S structure component, consisting of `Yurt-Tunnel-Server` deployed in the cloud and `Yurt-Tunnel-Agent` deployed on edge nodes. The deployment structure of YurtTunnel is following picture. The whole workflow of the `reverse tunnel` has the following steps:
 
-* 在管控组件所在网络平面内，部署 Yurt-Tunnel-Server。
-* Yurt-Tunnel-Server 对外开放一个公网可以访问的 IP。
-* 在每个边缘节点部署一个 Yurt-Tunnel-Agent，并且通过 Server 的公网 IP 与 Server 建立长连接。
-* 管控组件对边缘节点的访问请求都将转发到 Yurt-Tunnel-Server。
-* Yurt-Tunnel-Server 再将请求通过对应的长连接发往目标节点。
+* Deploy `Yurt-Tunnel-Server` on the management and control network plane.
+* `Yurt-Tunnel-Server` opens an IP accessible from the public network.
+* Deploy a `Yurt-Tunnel-Agent` on each edge node, and establish a long connection with the Server through the Server's public IP.
+* Access requests from the management and control components to edge nodes will be forwarded to `Yurt-Tunnel-Server`.
+* `Yurt-Tunnel-Server` sends the request to the target node through the long connection.
 
 ![img](../../../static/img/docs/core-concepts/tunnel_arch.jpg)
 
-## 3. 实现方式
+## 3. Implementation
 
-在 K8s 云边一体化架构中构建一个安全、非侵入、可扩展的反向通道解决方案，方案中至少需要包括以下三部分能力。
+To create a secure, non-intrusive, and scalable reverse tunnel in the K8s cloud-edge architecture, it needs to include at least the following three capabilities.
 
-* 隧道构建
-* 隧道两端证书的自管理
-* 云端组件请求被无缝导流到隧道
+* Tunnel
+* Self-management of certificates at both ends of the tunnel
+* Cloud component requests are diverted to the tunnel
 
-YurtTunnel 的架构模块如下图：
+Architecture of `YurtTunnel` is as follows:
 
 ![img](../../../static/img/docs/core-concepts/tunnel_components.jpg)
 
-1) 隧道构建
+1) Tunnel
 
-* 当边缘的 Yurt-Tunnel-Agent 启动时，会根据访问地址与 Yurt-Tunnel-Server 建立连接并注册，并周期性检测连接的健康状态以及重建连接等。
+When the `Yurt-Tunnel-Agent` on the edge starts up, it will establish a connection and register with the `Yurt-Tunnel-Server` according to the access address, and periodically check the health status of the connection and rebuild the connection.
 
-Yurt-Tunnel-Agent注册的身份信息如下：
+`Yurt-Tunnel-Agent` registered is as follows：
 ```Plain
 "agentID": {NodeName}
 "agentIdentifiers": ipv4={nodeIP}&host={NodeName}"
 ```
 
-* 当 Yurt-Tunnel-Server 收到云端组件的请求时，需要把请求转发给对应的 Yurt-Tunnel-Agent 。因为除了转发初始请求之外，该请求 session 后续还有数据返回或者数据的持续转发(如 kubectl exec )。因此需要双向转发数据。同时需要支持并发转发云端组件的请求，意味需要为每个请求生命周期建立一个独立的标识。所以设计上一般会有两种方案。
+* When `Yurt-Tunnel-Server` receives a request from a cloud component, it needs to forward the request to the `Yurt-Tunnel-Agent`. Because in addition to forwarding the request, the `session` is followed by data return or continuous data forwarding (such as `kubectl exec` ). So it is necessary to forward data in both directions. At the same time, it is necessary to support concurrent forwarding of requests from cloud components, which means that an unique ID needs to be established for each request life cycle. So there are two designs.
 
-方案 1: 初始云边连接仅通知转发请求，Yurt-Tunnel-Agent 会和云端建立新连接来处理这个请求。通过新连接可以很好的解决请求独立标识的问题，同时并发也可以很好的解决。但是为每个请求都需要建立一个连接，将消耗大量的资源。
+Option 1: The initial cloud-side connection only informs the forwarding request, and `Yurt-Tunnel-Agent` will establish a new connection with the cloud to process the request. Through the new connection, the problem of requesting unique ID can be resolved, and concurrency can also be resolved. But a connection needs to be established for each request, which will consume a lot of resources.
 
-方案 2: 仅利用初始云边连接来转发请求，大量请求为了复用同一条连接，所以需要为每个请求进行封装，并增加独立标识，从而解决并发转发的诉求。同时由于需要复用一条连接，所以需要解耦连接管理和请求生命周期管理，即需要对请求转发的状态迁移进行独立管理。该方案涉及到封包解包，请求处理状态机等，方案会复杂一些。 
+Option 2: Only the initial cloud-edge connection is used to forward requests. In order to reuse the same connection for a large number of requests, it is necessary to encapsulate each request and add an unique ID to solve the concurrent forwarding. At the same time, since a connection needs to be reused, it is necessary to decouple connection management and request lifecycle management. That is to manage the transition of request forwarding. This option involves packet and unpacket, request processing state machine, etc. The option will be a little more complicated.
 
-* OpenYurt 选择的 ANP 组件，采用的是上述方案2，这个和我们的设计初衷也是一致的。 
-* 请求转发链路构建封装在 Packet_DialRequest 和 Packet_DialResponse 中，其中 Packet_DialResponse.ConnectID 用于标识 request ，相当于 tunnel 中的 requestID。请求以及关联数据封装在 Packet_Data 中。Packet_CloseRequest 和 Packet_CloseResponse 用于转发链路资源回收。具体可以参照下列时序图：
+* The `ANP` component selected by OpenYurt adapts the above option 2, which also satisfies our original design intention.
+* Request forwarding is encapsulated in `Packet_DialRequest` and `Packet_DialResponse`, where `Packet_DialResponse.ConnectID` is used to identify `request`, which is like `requestID` in `tunnel`. The request and data are encapsulated in `Packet_Data`. `Packet_CloseRequest` and `Packet_CloseResponse` are used to forward and recycle resource. For details, please refer to the following sequence diagram:
 
 ![img](../../../static/img/docs/core-concepts/tunnel_sequence_diag.jpg)
 
-* RequestInterceptor 模块的作用
-  从上述分析可以看出，Yurt-Tunnel-Server 转发请求之前，需要请求端先发起一个 Http Connect 请求来构建转发链路。但是为 Prometheus、metrics-server 等开源组件增加相应处理会比较困难，因此在 Yurt-Tunnel-Server 中增加请求劫持模块 Interceptor ，用来发起 Http Connect 请求。
+* `RequestInterceptor` module
 
-2) 证书管理
+   It can be seen from the above analysis that before `Yurt-Tunnel-Server` forwards the request, the client needs to make an `Http Connect` request to create a forwarding path. However, it is difficult to do some work for open source components such as `Prometheus` and `metrics-server`. Therefore, a request hijacking module `Interceptor` is added to `Yurt-Tunnel-Server` to make `Http Connect` requests.
 
-为了保证云边通道的长期安全通信，同时也为了支持 https 请求转发，YurtTunnel 需要自行生成证书并且保持证书的自动轮替。具体细节如下:
+2) Certificate management
+
+In order to keep long and secure communication of cloud-edge, and also to support https request forwarding, `YurtTunnel` needs to generate its own certificate and maintain the automatic rotation of the certificate. The details are as follows:
 
 ```Plain
-# 1. Yurt-Tunnel-Server证书:
+# 1. Yurt-Tunnel-Server certificate:
 # https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L45-90
-- 证书存储位置: /var/lib/yurt-tunnel-server/pki
-- CommonName: "kube-apiserver-kubelet-client"  // 用于kubelet server的webhook校验
-- Organization: {"system:masters", "openyurt:yurttunnel"} // 用于kubelet server的webhook校验和Yurt-Tunnel-Server证书的auto approve
-- Subject Alternate Name values: {x-tunnel-server-svc, x-tunnel-server-internal-svc的ips和dns names}
+- certificate path: /var/lib/yurt-tunnel-server/pki
+- CommonName: "kube-apiserver-kubelet-client"  // webhook validation for kubelet server
+- Organization: {"system:masters", "openyurt:yurttunnel"} // webhook validation for kubelet server and auto approve for Yurt-Tunnel-Server certificate
+- Subject Alternate Name values: {x-tunnel-server-svc, x-tunnel-server-internal-svc's ips and dns names}
 - KeyUsage: "any"
 
-# 2. Yurt-Tunnel-Agent证书：
+# 2. Yurt-Tunnel-Agent certificate：
 # https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L94-112
-- 证书存储位置: /var/lib/yurt-tunnel-agent/pki
+- certificate path: /var/lib/yurt-tunnel-agent/pki
 - CommonName: "yurttunnel-agent"
-- Organization: {"openyurt:yurttunnel"} // 用于Yurt-Tunnel-Agent证书的auto approve
+- Organization: {"openyurt:yurttunnel"} // auto approve for Yurt-Tunnel-Server certificate
 - Subject Alternate Name values: {NodeName, nodeIP}
 - KeyUsage: "any"
 
-# 3. yurt-tunnel证书申请(CSR)均由Yurt-Tunnel-Server来approve
+# 3. Yurt-tunnel Certificate Signing Request (CSR) is approved by Yurt-Tunnel-Server
 # https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/csrapprover.go#L115
-- 监听csr资源
-- 过滤非yurt-tunnel的csr(Organization中没有"openyurt:yurttunnel")
-- approve还未Approved的csr
+- watch csr resource
+- filter non yurt-tunnel csr (there is no "openyurt:yurttunnel" in Organization)
+- approve unapproved csr
 
-# 4. 证书自动轮替处理
+# 4. certificate automatic rotation
 # https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/client-go/util/certificate/certificate_manager.go#L224
 ```
 
-3) 无缝导流云端组件请求到隧道
+3) transfer cloud component requests to the tunnel
 
-因为需要无缝把云端组件的请求转发到 Yurt-Tunnel-Server ，也意味不需要对云端组件进行任何修改。因此需要对云端组件的请求进行分析，目前组件的运维请求主要有以下两种类型:
+Because the request of the cloud component needs to be forwarded to the `Yurt-Tunnel-Server`, it also means that no modification to the cloud component is required. So it is necessary to analyze the requests of cloud components. Currently the maintenance requests of components have the following two types:
 
-* 类型1: 直接使用 IP 地址访问，如: http://{nodeIP}:{port}/{path}
-* 类型2: 使用域名访问, 如: http://{NodeName}:{port}/{path}
+* type 1: access using IP address, such as: http://{nodeIP}:{port}/{path}
+* type 2: access using domain name, such as: http://{NodeName}:{port}/{path}
 
-针对不同类型请求的导流，需要采用不同方案。
+Different solutions need to be adopted for different types of requests.
 
-方案1: 使用 iptables dnat rules 来保证类型1的请求无缝转发到 Yurt-Tunnel-Server
+Solution 1: Use iptables dnat rules to ensure that type 1 requests are forwarded to `Yurt-Tunnel-Server`
 
 ```Shell
-# 相关iptables rules维护代码: https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/iptables/iptables.go
-# Yurt-Tunnel-Server维护的iptables dnat rules如下:
+# iptables rules code: https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/iptables/iptables.go
+# The iptables dnat rules maintained by Yurt-Tunnel-Server are as follows:
 [root@xxx /]# iptables -nv -t nat -L OUTPUT
 TUNNEL-PORT  tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            /* edge tunnel server port */
 
@@ -121,25 +122,25 @@ RETURN     tcp  --  *      *       0.0.0.0/0            172.16.6.156         /* 
 DNAT       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            /* dnat to tunnel for access node */ tcp dpt:10255 to:172.16.6.156:10264
 ```
 
-方案2: 使用 dns 域名解析 NodeName 为 Yurt-Tunnel-Server 的访问地址，从而使类型 2 请求无缝转发到 yurt-tunnel。其工作原理如图所示：
+Solution 2: Use dns domain name to resolve NodeName as the access address of Yurt-Tunnel-Server, so that type 2 requests can be forwarded to yurt-tunnel. Its working principle is as follows:
 
 ![img](../../../static/img/docs/core-concepts/tunnel_dns.jpg)
-* Yurt-Tunnel-Server会维护两个Service地址： 
-  * x-tunnel-server-svc: 主要expose 10262/10263端口，用于从公网访问Yurt-Tunnel-Server。如Yurt-Tunnel-Agent 
-  * x-tunnel-server-internal-svc: 主要用于云端组件从内部网络访问，如prometheus,metrics-server等
-* Yurt-Tunnel-Server 内置一个 DNS Controller，动态配置 Core DNS Host 记录，维持 NodeName 与 IP 的映射关系(Cloud Node 根据 IP 直接可达，即直接映射为 Node IP;Edge Node 需要通过 Tunnel 隧道代理通信，即映射到 Yurt-Tunnel-Server Internal Service 的 cluster ip)
-* 当云端组件通过 NodeName 访问 Edge 节点时，默认会通过 CoreDNS 做域名解析， 对 Edge Node 的请求会被定向到 Yurt-Tunnel-Server 的 internal service 的 ClusterIP，进而借助 kube-proxy 的转发能力，将请求负载均衡到健康的 Yurt-Tunnel-Server Pod 内
-* Yurt-Tunnel-Server 会检查请求 Host 格式，当 Host 格式 NodeName 时，则通过节点名找到正确的 Agent 后端，转发数据
+* `Yurt-Tunnel-Server` maintains two Service addresses： 
+  * x-tunnel-server-svc: expose port 10262/10263 used to access from the public networkYurt-Tunnel-Server. Such as Yurt-Tunnel-Agent 
+  * x-tunnel-server-internal-svc: cloud components is accessed from the internal network, such as prometheus, metrics-server
+* `Yurt-Tunnel-Server` has a DNS Controller, dynamically configures Core DNS Host records, and maintains the mapping relationship between NodeName and IP (Cloud Node is directly reachable according to IP, directly mapped to Node IP; Edge Node needs to communicate through the Tunnel tunnel agent, mapping to the cluster ip of `Yurt-Tunnel-Server` Internal Service)
+* When the cloud component accesses the Edge node through NodeName, it will do domain name resolution through CoreDNS by default, and the request for the Edge Node will be directed to the ClusterIP of the internal service of `Yurt-Tunnel-Server`, and then use the forwarding ability of kube-proxy to forward the request Load balancing to healthy Yurt-Tunnel-Server Pods
+* `Yurt-Tunnel-Server` will check the requested Host. When the Host is NodeName, it will find the correct Agent backend through the node name and forward the data
 
 
-4) 端口扩展
+4) port extension
 
-如果用户需要访问边缘的其他端口(10250 和 10255 之外)，那么需要在 iptables 中增加相应的 dnat rules 或者 x-tunnel-server-internal-svc 中增加相应的端口映射，如下所示:
+If users need to access other ports on the edge (other than 10250 and 10255), they need to add dnat rules in iptables or add port mapping in x-tunnel-server-internal-svc, as shown following:
 
 ```Shell
 
-# 例如需要访问边缘的9051端口
-# 新增iptables dnat rule:
+# For example, access port 9051 of the edge
+# add iptables dnat rule:
 [root@xxx /]# iptables -nv -t nat -L TUNNEL-PORT
 TUNNEL-PORT-9051  tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            tcp dpt:9051 /* jump to port 9051 */
 
@@ -148,7 +149,7 @@ RETURN     tcp  --  *      *       0.0.0.0/0            127.0.0.1            /* 
 RETURN     tcp  --  *      *       0.0.0.0/0            172.16.6.156         /* return request to access node directly */ tcp dpt:9051
 DNAT       tcp  --  *      *       0.0.0.0/0            0.0.0.0/0            /* dnat to tunnel for access node */ tcp dpt:9051 to:172.16.6.156:10264
 
-# x-tunnel-server-internal-svc中新增端口映射
+# add port mapping in x-tunnel-server-internal-svc
 spec:
   ports:
   - name: https
@@ -159,18 +160,19 @@ spec:
     port: 10255
     protocol: TCP
     targetPort: 10264
-  - name: dnat-9051 # 新增映射
+  - name: dnat-9051 # add port mapping
     port: 9051
     protocol: TCP
     targetPort: 10264
 ```
-当然上述的 iptables dnat rules 和 service 端口映射，都是由 Yurt-Tunnel-Server 自动更新。用户只需要在 `kube-system` 下的 `yurt-tunnel-server-cfg` configmap 中增加端口配置即可。具体如下:
+
+The above iptables dnat rules and service port mapping are automatically updated by `Yurt-Tunnel-Server`. Users only need to add port configuration in `yurt-tunnel-server-cfg` configmap in `kube-system`. details as follows:
 
 ```Yaml
-# 注意：由于证书不可控因素，目前新增端口只支持从Yurt-Tunnel-Server的10264转发
+# Notice: Due to uncontrollable factors of the certificate, the new port currently only supports forwarding from 10264 of Yurt-Tunnel-Server
 apiVersion: v1
 data:
-  dnat-ports-pair: 9051=10264 # 新增端口=10264(非10264转发不支持)
+  dnat-ports-pair: 9051=10264 # new port = 10264 (non 10264 forwarding is not supported)
 kind: ConfigMap
 metadata:
   name: yurt-tunnel-server-cfg
