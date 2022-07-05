@@ -1,26 +1,26 @@
 ---
-title: OpenYurt 安装前置条件
+title: OpenYurt Precondition
 ---
-## 1.背景说明
+## 1.Background
 
-OpenYurt为适应边端环境，需要用户对K8S做一些调整，如：CoreDNS，KubeProxy等。
+OpenYurt should change kubernetes component configurations to adapt to edge environment. The components include: CoreDNS,KubeProxy etc。
 
-## 2. CoreDNS调整
+## 2. CoreDNS Adjustment
 
-一般场景下，CoreDNS是以Deployment形式部署，在边端场景下，域名解析请求无法跨`NodePool`，所以CoreDNS需要以`Daemonset`或者`YurtAppDaemon`形式部署，以实现将hostname解析为tunnelserver地址。
+In general, CoreDNS uses deployment as workload. But in cloud-edge scenario, domain name resolution could not cross `NodePool`, so CoreDNS need to use `Daemonset` or `YurtAppDaemon` to deploy. Its main function is to resolve hostname to tunnelserver address.
 
-### 2.1 CoreDNS 配置修改
+### 2.1 CoreDNS Modification
 
-修改`kube-system` `namespace`下的`ConfigMap` `coredns`，增加如下内容：
+Add hosts for `coredns` `ConfigMap` of `kube-system` `namespace`：
 
 ```yaml
-        hosts /etc/edge/tunnel-nodes { # 增加hosts插件
+        hosts /etc/edge/tunnel-nodes {
             reload 300ms
             fallthrough
         }
 ```
 
-修改后效果如下：
+The results of modifications:
 
 ```yaml
 apiVersion: v1
@@ -60,18 +60,15 @@ metadata:
   namespace: kube-system
 ```
 
+### 2.2 CoreDNS Service Topology
 
-
-### 2.2 CoreDNS 支持服务拓扑
-
-增加annotation，利用openyurt的机制实现边缘服务选择。
+Add annotation to coredns service, which could use openyurt’s ability to choose local endpoint.
 
 ```shell
-# 利用openyurt实现endpoint过滤
 kubectl annotate svc kube-dns -n kube-system openyurt.io/topologyKeys='openyurt.io/nodepool'
 ```
 
-修改后效果：
+The results of modifications:
 
 ```yaml
 apiVersion: v1
@@ -112,13 +109,11 @@ spec:
   type: ClusterIP
 ```
 
-### 2.2 CoreDNS DaemonSet部署
+### 2.2 CoreDNS DaemonSet Deploy
 
-如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整：
-
-1）可以调整CoreDNS的镜像为自己的版本；
-
-2）需要挂载Volume ConfigMap `yurt-tunnel-nodes`；
+The original CoreDNS is deployed by `DaemonSet`, please follow below steps to modify.
+1) change the coredns to your version;
+2) mount ConfigMap `yurt-tunnel-nodes` to pod；
 
 ```yaml
 apiVersion: apps/v1
@@ -219,27 +214,27 @@ spec:
         name: hosts
 ```
 
-### 2.4 减少CoreDNS Deployment 副本数
+### 2.4 Scale Down CoreDNS Deployment Replicate
 
-如果k8s不是用Deployment部署，可以不进行操作。
+Only support when CoreDNS is deployed by deployment workload.
 
 ```shell
 kubectl scale --replicas=0 deployment/coredns -n kube-system
 ```
 
-## 3. KubeProxy调整
+## 3. KubeProxy Adjusment
 
-kubeadm部署的k8s集群会为KubeProxy生成kubeconfig配置，在不配置[`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) 和 [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/) 情况下，KubeProxy使用这个kubeconfig拿到的endpoints是全量的。
+The k8s cluster created by kubeadm will generate a kubeconfig for kubeproxy. If we do not modify default configuration like [`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) and [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/), KubeProxy will use the kubeconfig to get all endpoints.
 
-云边端场景下，边缘节点间很有可能无法互通，因此需要endpoints基于nodepool进行拓扑。直接将kube-proxy的kubeconfig配置删除，将apiserver请求经过yurthub即可解决服务拓扑问题。
+In cloud-edge scenario, edge node could not communicate with each other, so endpoints need implement nodepool topology.
 
-### KubeProxy支持流量拓扑
+### KubeProxy Service Topology
 
 ```shell
 kubectl edit cm -n kube-system kube-proxy
 ```
 
-注释掉`config.conf`文件下的`clientConnection.kubeconfig`，修改完后效果如下：
+Comment `config.conf` file's property `clientConnection.kubeconfig`，the modification result：
 
 ```yaml
 apiVersion: v1
@@ -256,26 +251,26 @@ data:
       qps: 0
     clusterCIDR: 100.64.0.0/10
     configSyncPeriod: 0s
-// 省略
+// ...
 ```
 
-### 重启KubeProxy Pod
+### Restart KubeProxy Pod
 
-为使上述配置生效，需要重启kubeproxy的pod，**线上环境谨慎操作**。
+To put the new configuration into effect, we should restart `kubeproxy`, be cautiously used in a production environment.
 
 ```shell
 kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 ```
 
-### KubeProxy功能验证
+### KubeProxy Functional Verification
 
-可以通过KubeProxy的日志进行验证是否修改成功，**为防止日志过多，生产环境谨慎使用**。
+We could verify modify result by view `KubeProxy` log. **We don't recommend you to change the flage as the logs maybe outbreak.**
 
 ```shell
 kubectl edit ds -n kube-system kube-proxy
 ```
 
-在command后面追加参数`--v=6`，修改后效果：
+Append parameter `--v=6` to container's command, and the change result is:
 
 ```shell
 apiVersion: apps/v1
@@ -310,7 +305,7 @@ spec:
         - --v=6
 ```
 
-检查KubeProxy的Pod输出日志，如果apiserver地址是：`169.254.2.1:10268`代表修改成功。日志输出样例：
+Check `KubeProxy`'s stdout, if `ApiServer`'s address is `169.254.2.1:10268` which means modify success. The sample logs like:
 
 ```text
 I0521 02:57:01.986790       1 round_trippers.go:454] GET https://169.254.2.1:10268/api/v1/nodes/jd-sh-qianyi-test-02 200 OK in 12 milliseconds
