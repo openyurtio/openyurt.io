@@ -2,63 +2,61 @@
 title: How to create an account in the experience center
 ---
 
-> 这份文档将介绍如何使用体验中心的用户管理功能，注册、登录、退出账户。
+> This document will describe how to use the user management features of the Experience Center to register, log in, and log out of your account.
 
-## 如何注册一个体验平台账号
+## Registration
 
-用户第一次使用体验平台，需要注册一个平台账号。
-
+If you are using the Experience Center for the first time, you need to register an account.
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_entrance.png)
 
-注册账号需要您提供三项信息
+Three types of information are required
 
-- 邮箱
-- 电话
-- 公司
+- E-mail
+- Phone number
+- Organization
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_blank.png)
 
-> 注意：
+> Note：
 >
-> 1. 邮箱与电话信息需要符合对应的格式。
-> 2. 填写的电话信息将作为您之后登录的用户名，所以同一个电话不能注册两个账户。
+> 1. The email and phone number need to match the corresponding format requirements.
+> 2. The phone number will be used as your login username, so you cannot register two accounts with the same phone number.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_input_err.png)
 
-三项信息填写完毕后，点击注册按钮。
+Once the information are filled in, click the Register button.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_click.png)
 
-注册过程中，系统除了需要创建新用户账户外，还需要为您创建相应的集群资源，所以可能需要稍微等待 3-5s.
+During the registration process, in addition to creating new user accounts, the system will also create the appropriate cluster resources for you, so there may be a slight wait of 3-5s.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_loading.png)
 
-创建成功后，用户的账户信息将会展示到界面上。
+After successful creation, the user's account information will be displayed in the browser.
 
-> 注意：
+> Note：
 >
-> 1. 请您妥善保管界面上展示的 token 信息，该 token 之后将作为您账户的密码使用。
-> 2. 申请的账号有效期默认有 7 天，超出时间限制后，分配的集群资源将被收回
+> 1. Please take care of the token, which will then be used as a password for your account.
+> 2. The default expiration date of the account is 7 days, after which time the allocated cluster resources will be withdrawn.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_success.png)
 
-注册失败时，请注意界面上显示的错误信息。如果可以排除网络问题和重复注册问题，请向[OpenYurt 社区](https://github.com/openyurtio/openyurt#contact)反馈该问题（也可以直接在 yurt-dashboard 的仓库[提交 issue](https://github.com/openyurtio/yurt-dashboard/issues)）。
+If registration fails, please note the error message displayed by your browser. If you can rule out network problems and duplicate registrations, please report the issue to [OpenYurt community](https://github.com/openyurtio/openyurt#contact) (you can also [submit an issue](https://github.com/openyurtio/yurt-dashboard/issues) directly to the yurt-dashboard repository).
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_error.png)
 
-## 如何登录体验平台账号查看分配的 OpenYurt 集群
+## Login
 
-当注册成功后，点击 Go to Login 按钮即可回到登录页面
-。新账户的用户名和密码已经为您自动填充进去了，您可以使用浏览器提供的“记住密码”功能，将密码信息保存在浏览器中。另外，Remember me 按钮会自动勾选 ✔，当其处于 check 的状态，您下次访问体验平台将自动登录。
+Once you have successfully registered, click the Go button to Login button to return to the login page. The username and password for your new account will be automatically filled for you, and you can use the "Remember Password" feature provided by your browser to save the password information in your browser. In addition, the Remember me button will be checked and you will be automatically logged in the next time you visit the Experience Platform when it is in the check state.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/register_login.png)
 
-点击登录按钮后，不出意外的话，您将得到一个属于自己的 OpenYurt 集群。可以看到集群现在还没有应用和节点（或者只有一个不可见的 Master 节点），您将在接下来的文档中看到如何[使用 web console](./web_console.md)以及[kubeconfig](./kubeconfig.md)来体验 OpenYurt 的能力。
+After clicking the login button, you will, not surprisingly, get an OpenYurt cluster of your own. As you can see the cluster has no applications and no nodes yet (or only one invisible Master node), you will find how to [use the web console](./web_console.md) and [kubeconfig](./kubeconfig.md) to experience the power of OpenYurt in the following documentation.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/login_success.png)
 
-## 如何退出体验平台账号
+## Logout
 
-另外，您还可以在右上角的用户信息栏中看到账户的有效期信息，并退出当前账户。
+You can see the account expiration information in the user information bar in the upper right corner and log out your current account.
 
 ![](../../../static/img/docs/installation/openyurt-experience-center/logout.png)
