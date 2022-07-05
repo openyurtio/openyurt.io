@@ -2,13 +2,13 @@
 title: Edge Local Storage
 ---
 
-### 1. 确认节点上的本地存储资源
+### 1. Check the local storage resources on the node
 
-确认节点上已经存在的块设备和节点的对应关系。
+Check the corresponding Relation between existing block devices and nodes.
 
-### 2. 创建Configmap
+### 2. Create Configmap
 
-在集群中创建ConfigMap, 这里展示一个相对通用的 Configmap 配置，在这个Configmap 配置中配置本地存储资源。详细说明请参见 [文档](https://github.com/openyurtio/node-resource-manager/blob/main/docs/configmap.zh.md)
+Create a ConfigMap in a cluster. Here is a relatively generic ConfigMap configuration that configures local storage resources. For details, see [DOC](https://github.com/openyurtio/node-resource-manager/blob/main/docs/configmap.zh.md)
 
 ```yaml
 apiVersion: v1
@@ -42,20 +42,21 @@ data:
         - /dev/vdb
 ```
 
-以上配置可以完成如下功能;
+The previous configuration provides the following functionsThe previous configuration provides the following functions
 
-在集群中的 cn-zhangjiakou.192.168.3.114 节点上使用 /dev/vdb & /dev/vdc 这两个块设备创建一个 lvm volumegroup。这里的 devices 可以添加不存在的路径， 插件在节点上初始化的时候会自动忽略。
-在集群中的 cn-beijing.192.168.3.35 节点上使用 /dev/vdb 这个块设备格式化成 prjquota 格式，并挂载到/mnt/path1 这个路径上，后续再这个路径下面创建的子目录都可以设定每个目录的最大quota，同样， 这里的 devices 里面可以填写不存在路径，组件会自动选择第一个存在的块设备完成格式化和绑定的操作
+- In the test cluster,  we used two pieces of equipment : /dev/VDB & / dev/VDC  to create an LVM volumegroup on the worker node: "cn - zhangjiakou. 192.168.3.114 ".  Devices here can add paths that do not exist,  because the plug-in will automatically ignore this path during the node initialisation.
 
-### 3. 安装 node-resource-manager
+- Meanwhile, we format the block device "/dev/vdb" to prjquota format on worker node "cn-beijing.192.168.3.35", and  mount it to path "/mnt/path1",  and then subdirectories created under this path can set the maximum quota for each directory. Devices here can also add paths that do not exist, the component will automatically select the first existing block device for formatting and binding. 
+
+### 3. Install node-resource-manager
 
 ```shell
 kubectl apply -f https://raw.githubusercontent.com/openyurtio/node-resource-manager/main/deploy/nrm.yaml
 ```
 
-### 4. 在集群中部署应用（以lvm为例）
+### 4. Deploy application in cluster（with lvm）
 
-#### 创建 storageclass
+#### Create storageclass
 
 ```yaml
 cat <<EOF | kubectl apply -f -
@@ -75,9 +76,9 @@ allowVolumeExpansion: true
 EOF
 ```
 
-parameters.vgName为在node-resource-topo configmap中定义的VolumeGroup名称volumegroup1。
+Parameters. vgName is the VolumeGroup defined in node-resource-topo configmap, named volumegroup1.
 
-#### 创建PVC
+#### Create PVC
 
 ```yaml
 cat << EOF | kubectl apply -f -
@@ -97,9 +98,9 @@ spec:
 EOF
 ```
 
-这里需要在 pvc 的 annotation 中指定存储所在的节点，
+You need to specify the node where the storage is located in the PVC's annotation,
 
-#### 创建应用
+#### Create application
 
 ```yaml
 cat << EOF | kubectl apply -f -
@@ -131,4 +132,4 @@ spec:
 EOF
 ```
 
-以上，我们就完成了本地存储的基本使用， Quotapath 模式基本相同，只需改造 StorageClass 即可。
+Above, we have completed the basic use of local storage, Quotapath mode is basically the same, just need to change the StorageClass.
