@@ -17,7 +17,7 @@ title: 云原生管理端设备
 - 安装了 [Yurt-app-manager](https://github.com/openyurtio/yurt-app-manager) 组件
 
 - 与master不在同一局域网下的节点都需要部署coreDNS pod
-- 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/service-topology.md)
+- 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://openyurt.io/docs/user-manuals/network/service-topology)
 
 
 
@@ -26,10 +26,8 @@ title: 云原生管理端设备
 安装部署yurt-edgex-manager
 
 
-```powershell
-# 如果期望部署edgex的节点是arm64架构，则使用以下的yaml文件
-# kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
+```bash
+$ kubectl apply -f https://github.com/openyurtio/yurt-edgex-manager/releases/download/v0.2.0/yurt-edgex-manager.yaml
 
 # 检查状态
 $ kubectl get pods -n edgex-system |grep edgex
@@ -63,62 +61,79 @@ NAME      TYPE   READYNODES   NOTREADYNODES   AGE
 hangzhou   Edge   0            1               6d22h
 ```
 
-在hangzhou节点池中创建edgex foundry实例，并在edgex中部署虚拟设备edgex-device-virtual
+在hangzhou节点池中创建edgex foundry实例，并在edgex中部署虚拟设备[edgex-device-virtual](https://github.com/edgexfoundry/device-virtual-go)
 
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-# 如果部署节点是arm64，则改为"edgexfoundry/docker-device-virtual-go-arm64:1.3.0"
-$ export VIRTUAL_DEVICE_IMAGE="edgexfoundry/docker-device-virtual-go:1.3.0"
-
-$ cat <<EOF | kubectl apply -f -
+```yaml
 apiVersion: device.openyurt.io/v1alpha1
 kind: EdgeX
 metadata:
-  name: edgex-sample-$WORKER_NODEPOOL
+  name: edgex-sample-beijing
 spec:
-  version: hanoi
-  poolname: $WORKER_NODEPOOL
-  additinalservices:
-  - metadata:
-      name: edgex-device-virtual
+  version: jakarta
+  poolname: hangzhou
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    org.edgexfoundry.service: edgex-device-virtual
+  name: edgex-device-virtual
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      org.edgexfoundry.service: edgex-device-virtual
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        org.edgexfoundry.service: edgex-device-virtual
     spec:
-      type: NodePort
-      selector:
-        app: edgex-device-virtual
-      ports:
-      - name: http
-        port: 49990
-        protocol: TCP
-        targetPort: 49990
-        nodePort: 30090
-  additinaldeployments:
-  - metadata:
-      name: edgex-device-virtual
-    spec:
-      selector:
-        matchLabels:
-          app: edgex-device-virtual
-      template:
-        metadata:
-          labels:
-            app: edgex-device-virtual
-        spec:
-          hostname: edgex-device-virtual
-          containers:
-          - name: edgex-device-virtual
-            image: $VIRTUAL_DEVICE_IMAGE
-            imagePullPolicy: IfNotPresent
-            ports:
-            - name: http
-              protocol: TCP
-              containerPort: 49990
-            envFrom:
-            - configMapRef:
-                name: common-variables
-            env:
-              - name: Service_Host
-                value: "edgex-device-virtual"
-EOF
+      hostname: edgex-device-virtual
+      nodeSelector:
+        apps.openyurt.io/nodepool: hangzhou
+      containers:
+      - name: edgex-device-virtual
+        image: openyurt/device-virtual:2.1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 59900
+          name: "tcp-59900"
+          protocol: TCP
+        env:
+        - name: MESSAGEQUEUE_HOST
+          value: edgex-redis
+        - name: SERVICE_HOST
+          value: edgex-device-virtual
+        envFrom:
+        - configMapRef:
+            name: common-variables
+        startupProbe:
+          tcpSocket:
+            port: 59900
+          periodSeconds: 1
+          failureThreshold: 120
+        livenessProbe:
+          tcpSocket:
+            port: 59900
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    org.edgexfoundry.service: edgex-device-virtual
+  name: edgex-device-virtual
+spec:
+  ports:
+  - name: "tcp-59900"
+    port: 59900
+    protocol: TCP
+    targetPort: 59900
+  selector:
+    org.edgexfoundry.service: edgex-device-virtual
+  type: NodePort
 ```
 
 检查edgex-foundry的部署状态
@@ -135,101 +150,112 @@ edgex-sample-hangzhou   true    9         9              9            9
 
 
 
-```powershell
+```bash
 $ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
 ```
 
 使用UnitedDeployment在hanghzou节点池中部署一个yurt-device-controller实例
 
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ cat <<EOF | kubectl apply -f -
+```yaml
 apiVersion: apps.openyurt.io/v1alpha1
 kind: UnitedDeployment
 metadata:
   labels:
     controller-tools.k8s.io: "1.0"
-  name: yurt-device-controller
+  name: ud-device
+  namespace: default
 spec:
   selector:
     matchLabels:
-      app: yurt-device-controller
+      app: ud-device
+  topology:
+    pools:
+      - name: hangzhou
+        nodeSelectorTerm:
+          matchExpressions:
+            - key: apps.openyurt.io/nodepool
+              operator: In
+              values:
+                - hangzhou
+        replicas: 1
+        tolerations:
+          - operator: Exists
   workloadTemplate:
     deploymentTemplate:
       metadata:
+        creationTimestamp: null
         labels:
-          app: yurt-device-controller
+          app: ud-device
       spec:
+        selector:
+          matchLabels:
+            app: ud-device
+        strategy: {}
         template:
           metadata:
+            creationTimestamp: null
             labels:
-              app: yurt-device-controller
+              app: ud-device
               control-plane: controller-manager
           spec:
             containers:
-            - args:
-              - --health-probe-bind-address=:8081
-              - --metrics-bind-address=127.0.0.1:8080
-              - --leader-elect=false
-              command:
-              - /yurt-device-controller
-              image: openyurt/yurt-device-controller:latest
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                httpGet:
-                  path: /healthz
-                  port: 8081
-                initialDelaySeconds: 15
-                periodSeconds: 20
-              name: manager
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 8081
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 30Mi
-                requests:
-                  cpu: 100m
-                  memory: 20Mi
-              securityContext:
-                allowPrivilegeEscalation: false
+              - args:
+                  - --health-probe-bind-address=:8081
+                  - --metrics-bind-address=127.0.0.1:8080
+                  - --leader-elect=false
+                  - --namespace=default
+                  - --v=5
+                command:
+                  - /yurt-device-controller
+                image: openyurt/yurt-device-controller:v0.2.0
+                imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /healthz
+                    port: 8081
+                    scheme: HTTP
+                  initialDelaySeconds: 15
+                  periodSeconds: 20
+                  successThreshold: 1
+                  timeoutSeconds: 1
+                name: manager
+                readinessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /readyz
+                    port: 8081
+                    scheme: HTTP
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  timeoutSeconds: 1
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 512Mi
+                  requests:
+                    cpu: 100m
+                    memory: 512Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+            dnsPolicy: ClusterFirst
+            restartPolicy: Always
             securityContext:
               runAsUser: 65532
-            terminationGracePeriodSeconds: 10
-  topology:
-    pools:
-    - name: $WORKER_NODEPOOL
-      nodeSelectorTerm:
-        matchExpressions:
-        - key: apps.openyurt.io/nodepool
-          operator: In
-          values:
-          - $WORKER_NODEPOOL
-      replicas: 1
-      tolerations:
-      - effect: NoSchedule
-        key: apps.openyurt.io/example
-        operator: Exists
-  revisionHistoryLimit: 5
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
-  name: default-cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: default
+  name: ud-rolebinding
 roleRef:
+  apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: cluster-admin
-  apiGroup: ""
----
-EOF
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
 ```
 
 检查yurt-device-controller是否部署成功
@@ -241,14 +267,16 @@ yurt-device-controller-beijing-sf7xz-79c9cbf4b7-mbfds             1/1     Runnin
 
 # 3. 查看同步上来设备相关信息
 
-可以通过以下命令查看同步上来设备相关信息
+上文中提到的device-virtual-go驱动会自动往EdgeX实例中注册5个虚拟设备，yurt-device-controller会将它自动同步上来
 
-
-
-```powershell
+```bash
 $ kubectl get device
-$ kubectl get deviceservice
-$ kubectl get deviceprofile
+NAME                                     NODEPOOL   SYNCED   AGE
+hangzhou-random-binary-device            hangzhou   true     19h
+hangzhou-random-boolean-device           hangzhou   true     19h
+hangzhou-random-float-device             hangzhou   true     19h
+hangzhou-random-integer-device           hangzhou   true     19h
+hangzhou-random-unsignedinteger-device   hangzhou   true     19h
 ```
 
 # 4. 卸载相关组件并清理环境
@@ -264,7 +292,7 @@ $ kubectl delete deviceservice --all
 
 # 1.2 删除部署的yurt-device-controller
 $ kubectl delete uniteddeployment yurt-device-controller
-$ kubectl delete clusterrolebinding default-cluster-admin
+$ kubectl delete clusterrolebinding ud-rolebinding
 
 # 1.3 删除device, deviceservice, deviceprofile资源相关的crd
 $ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
@@ -273,9 +301,7 @@ $ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-device-con
 $ kubectl delete edgex --all
 
 # 2.2 卸载yurt-edgex-manager
-# 如果使用的arm64版本的，使用以下命令
-# kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
+$ kubectl delete -f https://github.com/openyurtio/yurt-edgex-manager/releases/download/v0.2.0/yurt-edgex-manager.yaml
 
 # （以下步骤可选）
 # 3.1 将边缘节点移除hangzhou节点池

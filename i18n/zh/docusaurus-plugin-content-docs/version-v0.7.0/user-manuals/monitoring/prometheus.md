@@ -79,7 +79,7 @@ prometheus默认使用IP来访问节点的metric地址，我们需要通过prome
 
 在kubelet的ServiceMonitor中增加relabel规则，用`__meta_kubernetes_endpoint_address_target_name`替换掉节点IP：
 
-```yaml
+```bash
 $ kubectl edit serviceMonitor kubelet -n monitoring
 spec:
   endpoint:
@@ -107,7 +107,7 @@ kubectl patch configmap yurt-tunnel-server-cfg  -n kube-system  -p '{"data": {"h
 
 在node-exporter的ServiceMonitor中添加relabel规则，用`__meta_kubernetes_pod_node_name`替换掉节点IP。：
 
-```yaml
+```bash
 $ kubectl edit servicemonitor  prom-kube-prometheus-stack-node-exporter
 spec:
  endpoint:
