@@ -13,7 +13,7 @@ OpenYurt擅长以非侵入的方式，实现云边资源的统一管理和运维
 
 下面是云边端三者整体的架构模型：
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/26856741/1641996163563-185aeb40-93cb-4581-b48e-b8e1da8ff619.png)
+![img](../../../../../static/img/cloud-edge-device.png)
 
 边缘端设备的通信范围往往局限于某一网络区域内，因此可以将同一网络区域内的边缘节点划分为一个节点池，在每一个节点池内部署一个端设备管理平台和一个yurt device controller组件：
 
@@ -42,23 +42,23 @@ OpenYurt擅长以非侵入的方式，实现云边资源的统一管理和运维
 
 ### 版本记录
 
-| 版本号 | 镜像地址                               | 发布时间 | 发布内容 | 备注 |
-| ------ | -------------------------------------- | -------- | -------- | ---- |
-| v0.1.0 | openyurt/yurt-device-controller:v0.1.0 | 2021.09  | 首次发布 | -    |
-
+| 版本号    | 镜像地址                                   | 发布时间    | 发布内容                      | 备注    |
+|--------|----------------------------------------|---------|---------------------------|-------|
+| v0.1.0 | openyurt/yurt-device-controller:v0.1.0 | 2021.09 | 首次发布                      | - --- |
+| v0.2.0 | openyurt/yurt-device-controller:v0.2.0 | 2022.05 | Support EdgeX LTS Version |       |
 ## 边缘设备管理平台
 
 EdgeX Foundry 是一款由生态系统提供强力支持的边缘物联网即插即用型、开放式软件平台。它具有高度灵活和可扩展性，可以大大的降低应用与边缘设备，传感器等硬件互操作的复杂性。OpenYurt 与 EdgeX Foundry社区合作，在0.5.0版本完成了集成对接，除了yurt-device-controller，还提供了yurt-edgex-manager组件以简化edgex foundry在边缘场景下的部署工作。
 
 结合上述的云边端架构图，OpenYurt与EdgeX Foundry集成的架构图如下：
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856741/1634174981669-3c6aa2db-73fa-4b1b-9698-82aab9e14461.png)
+![img](../../../../../static/img/openyurt-edgex-integration.png)
 
 ### yurt-edgex-manager
 
 OpenYurt 引入了一个yurt-edgex-controller的控制器来管理EdgeX CR。EdgeX CR是对EdgeX Foundy在OpenYurt中部署的一个抽象，用户可以操作CR的方式来管理EdgeX的部署，更新，删除。不再需要写复杂的Yaml文件以及Helm Chart。用户只需要创建一个EdgeX的CR，Yurt-edgex-manager会根据CR中版本以及对应的Nodepool的名字部署EdgeX。用户在一个集群中可以根据nodepool的数量部署多个EdgeX，每个EdgeX的版本，以及包括的EdgeX 服务可以配置。
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/jpeg/26856741/1635842669290-8b90d705-755d-4e5a-8846-ae4c2aabbcbd.jpeg)
+![img](../../../../../static/img/yurt-edgex-manager.jpeg)
 
 - **EdgeX**: 是一套EdgeX foundy部署的抽象，包括EdgeX foundry的版本，以及需要部署的Nodepool的名字。 基础的EdgeX CR包括8个基础的EdgeX 服务和部署，此外还提供AdditionalDeployment和Additional Service的字段，让用户可以部署任何所需的EdgeX组件和第三方应用。
 
@@ -66,9 +66,10 @@ OpenYurt 引入了一个yurt-edgex-controller的控制器来管理EdgeX CR。Edg
 
 ### 版本记录
 
-| 版本号 | 镜像地址                          | 发布时间 | 发布内容 | 备注                          |
-| ------ | --------------------------------- | -------- | -------- | ----------------------------- |
-| v0.1.0 | openyurt/yurt-edgex-manager:0.1.0 | 2021.09  | 首次发布 | 支持 edgex foundry Hanoi 版本 |
+| 版本号    | 镜像地址                              | 发布时间    | 发布内容                      | 备注  |
+|--------|-----------------------------------|---------|---------------------------|-----|
+| v0.1.0 | openyurt/yurt-edgex-manager:0.1.0 | 2021.09 | 首次发布                      |     |
+| v0.2.0 | openyurt/yurt-edgex-manager:0.2.0 | 2022.05 | Support EdgeX LTS Version |     |
 
 ## 参考链接
 
