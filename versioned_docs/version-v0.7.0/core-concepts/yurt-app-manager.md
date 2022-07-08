@@ -4,82 +4,63 @@ title: YurtAppManager
 
 
 
-Yurt-App-Manager是OpenYurt集群提供边缘单元化管理的功能组件，全面提升在边缘场景下的应用部署效率，降低边缘节点和应用运维的复杂度。
+Yurt-App-Manager is a functional component that provides united edge management capabilities for an OpenYurt cluster, in order to comprehensively improve the efficiency of application deployment and reduce the complexity of operation and maintenance in edge scenario.
+
+## Components Introduction
+
+- Considering the edge computing scenario, the edge nodes can usually be grouped by their locations, or other logical characteristics, such as their CPU architecture, telecom carriers or cloud providers. The nodes among different groups could also be isolated from each other by various obvious reasons, such as network unreachablility, resource heterogeneity, resource unsharability, and application independence. This is the origin of the edge Node Pool.
+
+- Same applications and images may need to be deployed into different Node Pools.
+
+- The endpoints of native Kubernetes service may spread over any node in the cluster. Hence, high probability endure of unreachable access or low efficiency may occur when the service flow accesses across nodes from different groups.
+
+![img](../../../static/img/cloud-edge-overview.png)
 
 
+In order to solve the issues above, OpenYurt proposes the solution from three layers,
 
-## 组件介绍
+- Node unified management by Node Pool. Nodes can be managed unitedly according to their regions or other logical characteristics.
+- Application unified management by YurtAppSet(previous UnitedDeployment). The workloads would be deployed into different node pools. The replicas, versions, etc. can be configured at node pool level.
+- Traffic unified management by refined Service Topology. The access to endpoints can be limited by simple configuration, for example, the endpoints can only be accessed from the nodes within the same node pool, or the same node.
 
-- 在边缘计算场景下，边缘节点通常具备很强的区域性、地域性、或者其他逻辑上的分组特性，比如具有相同的CPU架构、运营商或云提供商，不同分组的节点间往往存在网络不互通、资源不共享、资源异构、应用独立等明显的隔离属性。这也是边缘节点池的由来。
-- 相同的应用和镜像，可能需要部署到不同的节点池中。
+Yurt-App-Manager is a standard extension of Kubernetes, and provides NodePool controller and YurtAppSet (previous UnitedDeployment) controller, for providing edge node and edge application OPS capabilities, respectively.
 
-- 原生Kubernetes Service的后端端点扁平分布在集群中任意节点。因此，跨跃不同分组节点的Service流量，会大概率出现访问不可达、或者访问效率低下的问题。
+## NodePool overview
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/31456432/1641890786820-8723fed9-f3fd-43a9-b165-99fb367bb6a3.png)
+Yurt-App-Manager provides a Node Pool controller, which abstracts out the concept of node pool according to specific node attributes, such as region, CPU architecture, cloud provider, etc., so that nodes can be managed unitedly at a pool level.
 
+We are used to grouping and managing the nodes by different Kubernetes Labels, but with the increase of nodes and labels' quantity, the operation and maintenance of nodes (such as batch configuration about scheduling policies, taints, etc.) will become more and more complex, as shown in the following figure:
 
+![img](../../../static/img/nodepool1.png)
 
-
-
-针对以上的场景和问题，OpenYurt 从三个层面来解决：
-
-- 节点单元化： 节点池，以节点池视角对不同边缘区域下的主机进行统一管理和运维
-- 应用的单元化： 单元化部署，使用新的单元化部署模型将用户的工作负载部署在不同的节点池中，业务的实例数，版本都可以按照节点池的维度进行统一管理。
-
-- 流量的单元化： Service 拓扑，通过简单配置来限制Service后端Endpoint的访问范围，例如只能由相同节点池的节点访问，或者只能本节点访问。
-
-而Yurt-App-Manager是 Kubernetes 的一个标准扩展，它可以配合 Kubernetes 使用，提供 NodePool 和 UnitedDeployment 两种控制器，从主机维度和应用维度来提供边缘场景下节点和应用的运维能力。
-
-## 边缘节点池概述
-
-OpenYurt的Yurt-App-Manager 的组件提供了节点池Node Pool控制器，将节点按照特定属性（地域，CPU架构，云提供商）等等，抽象成节点池概念，以节点池的维度对节点进行统一管理。
-
-传统的做法是用Kubernetes 打Label 的方式来对主机进行分类管理，但是随着节点规模和Label数量的增加，对节点主机分类运维（例如：批量设置调度策略、traints等）会变得越来越复杂，如下图所示：
-
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/31456432/1641821636032-47106886-a026-484b-b867-ef74ce9e93b6.png)
-
-NodePool 以节点组的维度对节点划分做了更高维度的抽象，可以从节点池视角对不同边缘区域下的主机进行统一管理和运维，如下图所示：
+Nodepool makes an abstraction of node by group of nodes, so that we can manage the nodes in different edge regions from the perspective of node pool,  as shown in the following figure:
 
 
+![img](../../../static/img/nodepool2.png)
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/31456432/1641822057755-c50eecec-4ae9-4f35-a86f-1fbfe48498af.png)
+## YurtAppSet (previous UnitedDeployment)
 
+With the increasing geographical distribution and the differentiated requirements of applications, the operation and maintenance of edge system has become increasingly complex, for example:
 
+- You need to modify each deployment one by one when upgrading the image.
+- You need to define the naming rule for deployment to indicate the same application
 
+- Except for the names, nodeselectors and replicas, other configuration differences for multiple deployments of the same application are relatively small.
 
-
-## 单元化部署应用模型
-
-随着地域分布越来越多，以及不同地域对应用的差异化需求，使得运维变得越来越复杂，具体表现在以下几个方面：
-
-- 镜像版本升级，需要将每个Deployment逐一修改。
-- 需要自定义Deployment的命名规范，以此来表明相同的应用。
-
-- 相同应用的多个Deployment，除了name，nodeselectors, replicas 这些特性外，其他的差异化配置比较小。
-
-单元化部署（UnitedDeployment）是OpenYurt默认提供Yurt-App-Manager组件所提供的能力，是kubernetes CRD 资源，通过更上层次的抽象，对这些子的Deployment 进行统一管理：create/update/delete。
+YurtAppSet (previous UnitedDeployment) capibility is provided by the Yurt-App-Manager by default. Through Kubernetes CRD resource, it uniformly manages deployments with create/update/delete operations.
 
 
+![img](../../../static/img/nodepool3.png)
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/31456432/1641823282158-8e00965d-e17e-4a79-912c-01589f98217e.png)
+YurtAppSet (previous UnitedDeployment) controller provides a template to define applications and manages multiple workloads to match multiple regions. The workload in YurtAppSet is deployed for a pool. Currently, two kinds of workload are supported, they are `StatefulSet` and `Deployment`. The controller will create child workloads according to the pool configurations in YurtAppSet. Each resource has a desired number of `replicas` of PODs. By only one YurtAppSet instance, you can automatically maintain multiple Deployment or StatefulSet, and meanwhile keep differentiated configurations for different pools, such as replicas.
 
-UnitedDeployment 控制器可以提供一个模板来定义应用，并通过管理多个 workload 来匹配下面不同的区域。 每个 UnitedDeployment 下每个区域的 workload 被称为 pool， 目前 pool 支持使用两种workload： `StatefulSet` 和 `Deployment`。控制器会根据 UnitedDeployment 中pool的配置创建子的workload 资源对象，每个资源对象都有一个期望的 `replicas` Pod 数量。通过一个UnitedDeployment 实例就可以自动维护多个 Deployment 或者 Statefulset 资源，同时还能具备replicas 等的差异化配置。
+For more intuitive operational experience, please refer to Yurt-App-Manager [tutorial](../user-manuals/workload/node-pool-management.md).
 
+More discussions about Yurt-App-Manager please refer to the issues and pull requests in OpenYurt community,
 
+- issue124：[YurtAppSet usages](https://github.com/openyurtio/openyurt/issues/124)
+- issue171：[ [feature request\] the definition of NodePool and YurtAppSet](https://github.com/openyurtio/openyurt/issues/171)
 
-
-
-
-
-如若获取更直观的操作体验，请查看 Yurt-App-Manager [使用教程](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/blob/master/docs/tutorial/yurt-app-manager.md)和[开发者教程](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/blob/master/docs/tutorial/yurt-app-manager-dev.md)。
-
-
-
-更多关于 Yurt-App-Manager 的讨论请参考社区 issue 和 pull request：
-
-- issue124：[UnitedDeployment usages]( https://github.com/openyurtio/openyurt/issues/124)
-- issue171：[ [feature request\] the definition of NodePool and UnitedDeployment](https://github.com/openyurtio/openyurt/issues/171)
-
-- pull request 173： [[proposal\] add nodepool and uniteddployment crd proposal](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/pull/173)
+- pull request 173： [[proposal\] add nodepool and YurtAppSet crd proposal](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/pull/173)
 
 
