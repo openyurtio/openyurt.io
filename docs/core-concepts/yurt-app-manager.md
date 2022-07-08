@@ -36,12 +36,7 @@ We are used to grouping and managing the nodes by different Kubernetes Labels, b
 
 Nodepool makes an abstraction of node by group of nodes, so that we can manage the nodes in different edge regions from the perspective of node pool,  as shown in the following figure:
 
-
 ![img](../../static/img/nodepool2.png)
-
-
-
-
 
 ## YurtAppSet (previous UnitedDeployment)
 
@@ -54,19 +49,11 @@ With the increasing geographical distribution and the differentiated requirement
 
 YurtAppSet (previous UnitedDeployment) capibility is provided by the Yurt-App-Manager by default. Through Kubernetes CRD resource, it uniformly manages deployments with create/update/delete operations.
 
-
 ![img](../../static/img/nodepool3.png)
 
 YurtAppSet (previous UnitedDeployment) controller provides a template to define applications and manages multiple workloads to match multiple regions. The workload in YurtAppSet is deployed for a pool. Currently, two kinds of workload are supported, they are `StatefulSet` and `Deployment`. The controller will create child workloads according to the pool configurations in YurtAppSet. Each resource has a desired number of `replicas` of PODs. By only one YurtAppSet instance, you can automatically maintain multiple Deployment or StatefulSet, and meanwhile keep differentiated configurations for different pools, such as replicas.
 
-
-
-
-
-
-For more intuitive operational experience, please refer to Yurt-App-Manager [tutorial](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/blob/master/docs/tutorial/yurt-app-manager.MD) and [developer guide](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/blob/master/docs/tutorial/yurt-app-manager-dev.md).
-
-
+For more intuitive operational experience, please refer to Yurt-App-Manager [tutorial](../user-manuals/workload/node-pool-management.md).
 
 More discussions about Yurt-App-Manager please refer to the issues and pull requests in OpenYurt community,
 
