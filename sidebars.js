@@ -30,6 +30,7 @@ module.exports = {
                                 'installation/openyurt-prepare',
                                 'installation/yurtcluster',
                                 'installation/manually-setup',
+                                'installation/yurt-tunnel-tutorial',
 
                             ]
                         },

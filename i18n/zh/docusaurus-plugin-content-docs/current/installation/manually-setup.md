@@ -98,7 +98,7 @@ Yurthub 将在几分钟内准备就绪。
 
 ## 部署 Yurt-tunnel (可选)
 
-请参考此 [文档](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurt-tunnel.md#5-setup-the-yurt-tunnel-manually) 手动部署 Yurttunnel。
+请参考此 [文档](https://github.com/openyurtio/openyurt.io/blob/master/docs/installation/yurt-tunnel-tutorial.md#5-setup-the-yurt-tunnel-manually)  手动部署 Yurttunnel。
 
 ## 重置 Kubelet
 

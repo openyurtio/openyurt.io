@@ -98,7 +98,7 @@ and the Yurthub will be ready in minutes.
 
 ## Setup Yurt-tunnel (Optional)
 
-Please refer to this [document](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurt-tunnel.md#5-setup-the-yurt-tunnel-manually) to setup Yurttunnel manually.
+Please refer to this [document](https://github.com/openyurtio/openyurt.io/blob/master/docs/installation/yurt-tunnel-tutorial.md#5-setup-the-yurt-tunnel-manually)  to setup Yurttunnel manually.
 
 ## Reset the Kubelet
 
