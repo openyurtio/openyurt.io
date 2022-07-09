@@ -29,6 +29,7 @@ module.exports = {
                 '⭐️ If you like OpenYurt, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/openyurtio/openyurt">GitHub</a>! ⭐️',
         },
         algolia: {
+            appId: '<NEW_APP_ID>',
             apiKey: '636381de756ade28690a2d37b6a9e117',
             indexName: 'openyurt',
         },
