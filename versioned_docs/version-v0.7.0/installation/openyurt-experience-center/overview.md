@@ -4,7 +4,7 @@ title: OpenYurt Experience Center Introduction
 
 ## Overview
 
-As an edge cloud native project, OpenYurt crosses edge computing and cloud native two fields. Many developers from edge computing background are not familiar with cloud native related technologies. In order to lower the threshold of using OpenYurt and help developers get started with OpenYurt quickly, our community has launched a platform called [OpenYurt Experience Center](http://47.242.50.237/). Instead of building an OpenYurt cluster from scratch, new users who want to try out OpenYurt's features can simply apply for a test account on the platform and then they will have an available OpenYurt cluster right away.
+As an edge cloud native project, OpenYurt crosses edge computing and cloud native two fields. Many developers from edge computing background are not familiar with cloud native related technologies. In order to lower the threshold of using OpenYurt and help developers get started with OpenYurt quickly, our community has launched a platform called [OpenYurt Experience Center](http://47.243.253.79/). Instead of building an OpenYurt cluster from scratch, new users who want to try out OpenYurt's features can simply apply for a test account on the platform and then they will have an available OpenYurt cluster right away.
 
 ![](../../../../static/img/docs/installation/openyurt-experience-center/register_blank.png)
 

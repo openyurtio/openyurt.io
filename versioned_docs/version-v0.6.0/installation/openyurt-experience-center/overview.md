@@ -2,7 +2,7 @@
 title: OpenYurt Experience Center Introduction
 ---
 
-> For better user experience， [Experience Center](http://47.242.50.237/)has been relocated to [new address](http://47.242.50.237/)，and [the old one](http://139.224.236.157/) will no longer be maintained after 7 days 。
+> For better user experience， [Experience Center](http://47.243.253.79/)has been relocated to [new address](http://47.243.253.79/)，and [the old one](http://139.224.236.157/) will no longer be maintained after 7 days 。
 
 ## Overview
 

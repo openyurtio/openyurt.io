@@ -56,7 +56,7 @@ module.exports = {
                 },
                 {
                     label: 'Experience-Center',
-                    href: 'http://47.242.50.237/login',
+                    href: 'http://47.243.253.79/login',
                     position: 'left'
                 },
                 {
@@ -111,7 +111,7 @@ module.exports = {
                         },
                         {
                             label: 'OpenYurt Experience Center',
-                            href: 'http://47.242.50.237/login',
+                            href: 'http://47.243.253.79/login',
                         },
                     ],
                 },
