@@ -4,11 +4,11 @@ import Layout from '@theme/Layout';
 import Translate, { translate } from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import GitHubButton from 'react-github-btn';
 import styles from './index.module.css';
 import FeatureBlock from '../components/FeaturesList';
 import WhatIs from '../components/WhatIs';
-import Button from "../components/Button";
+import Button from '../components/Button';
+import GhButton from '../components/GitHubButton'
 
 export default function Home() {
     const context = useDocusaurusContext();
@@ -22,14 +22,9 @@ export default function Home() {
                     {/*    <img className={styles.heroLogo} src={useBaseUrl('img/openyrut.png')} alt="OpenYurt Logo" />*/}
                     {/*</div>*/}
                     <h2 className={clsx('hero__title', styles.heroTitle)}>{siteConfig.title}</h2>
-                    <GitHubButton
-                        href="https://github.com/openyurtio/openyurt"
-                        data-icon="octicon-star"
-                        data-size="large"
-                        data-show-count="true"
-                        aria-label="Star facebook/metro on GitHub">
-                        Star
-                    </GitHubButton>
+
+                    <GhButton />
+
                     <p className="hero__subtitle">{siteConfig.tagline}</p>
                     <div
                         className={clsx(styles.heroButtons, 'name', 'margin-vert--md')}>
