@@ -1,11 +1,9 @@
-import clsx from "clsx";
-import styles from "../pages/index.module.css";
 import Translate, { translate } from '@docusaurus/Translate';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import React from "react";
 
 const WhatIs = () => (
-    <div className={clsx('hero', styles.hero)}>
+    <div className="hero">
         <div className="container">
             <div className="row">
                 <div className="col col--6">
