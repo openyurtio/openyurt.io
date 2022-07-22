@@ -28,6 +28,7 @@ SLB负责从用户请求到节点维度的负载均衡，而Ingress负责从节�
 关于三个项目之间的比较，可以从网上查到一些相关介绍，整体来说，它们实现的功能大同小异，从项目成熟度及流行度的角度考虑，我们选择以MetalLB为例，探讨一下如何通过MetalLB在OpenYurt
 边缘侧实现对LoadBalancer类型service的支持。
 
+<!--truncate-->
 
 ##  初识MetalLB
 ###  两个任务

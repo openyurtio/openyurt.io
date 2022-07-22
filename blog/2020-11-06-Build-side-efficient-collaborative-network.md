@@ -9,6 +9,7 @@ tags:  [ yurttunnel ]
 - OpenYurt是如何在弱网和断网环境下实现边缘自治的——[YurtHub](./2021-03-29-Edge-gateway-caching-capabilities.md)
 - OpenYurt另一个核心能力——云边通信，以及相关组件Yurttunnel
 
+<!--truncate-->
 
 ## Yurttunnel使用场景
 

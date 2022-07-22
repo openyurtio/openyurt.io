@@ -8,6 +8,7 @@ tags:  [ yurthub ]
 导读：OpenYurt 自开源以来，以非侵入式的架构设计融合云原生和边缘计算两大领域，引起了不少行业内同学的关注。阿里云推出开源项目 OpenYurt，一方面是把阿里云在云原生边缘计算领域的经验回馈给开源社区，另一方面也希望加速云计算向边缘延伸的进程，并和社区共同探讨未来云原生边缘计算架构的统一标准。
 本文主要介绍了 OpenYurt 中组件 YurtHub 的扩展能力。
 
+<!--truncate-->
 
 ## OpenYurt介绍
 阿里云边缘容器服务上线 1 年后，正式开源了云原生边缘计算解决方案 OpenYurt，跟其他开源的容器化边缘计算方案的区别在于：OpenYurt 秉持 Extending your native Kubernetes to edge 的理念，对 Kubernetes 系统零修改，并提供一键式转换原生 Kubernetes 为 openyurt，让原生 K8s 集群具备边缘集群能力。

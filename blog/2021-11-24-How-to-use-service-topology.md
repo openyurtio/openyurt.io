@@ -20,6 +20,8 @@ You can set the `topologyKeys` values of a service to direct traffic as follows.
 | openyurt.io/topologyKeys |                 kubernetes.io/hostname                 |   Only to endpoints on the same node.   |
 | openyurt.io/topologyKeys | kubernetes.io/zone<br /> or <br />openyurt.io/nodepool | Only to endpoints on the same nodepool. |
 
+<!--truncate-->
+
 ## Prerequisites
 
 1. Kubernetes v1.18 or above, since EndpointSlice resource needs to be supported.
