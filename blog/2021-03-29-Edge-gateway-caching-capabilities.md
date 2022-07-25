@@ -16,6 +16,8 @@ tags:  [ yurthub ]
 
 解决这个问题，需要使边缘侧具有自治能力，即当云边网络断开或者连接不稳定时，确保边缘业务可以持续运行。在 OpenYurt 中，该能力由 yurt-controller-manager 和 YurtHub 组件提供。
 
+<!--truncate-->
+
 ### 1）Yurthub架构
 在之前的文章中，我们详细介绍了YurtHub 组件的能力。其架构图如下：
 

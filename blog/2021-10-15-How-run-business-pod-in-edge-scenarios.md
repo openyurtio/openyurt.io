@@ -13,6 +13,8 @@ OpenYurt是业界首个非侵入的边缘计算云原生开源项目，通过边
 
 在OpenYurt集群中，提供了使用InClusterConfig的业务Pod零修改就可以运行在边缘环境的能力。
 
+<!--truncate-->
+
 ### 2.面临挑战
 
 使用InClusterConfig的业务Pod在边缘环境中运行，需要解决如下问题：

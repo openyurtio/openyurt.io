@@ -21,7 +21,7 @@ tags:  [ openyurt ]
 
 看来，在执行它之前有必要搞清楚它到底做了什么。
 
-
+<!--truncate-->
 
 ## yurtctl convert 到底做了些什么？
 

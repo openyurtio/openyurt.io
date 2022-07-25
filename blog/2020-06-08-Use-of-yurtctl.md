@@ -12,6 +12,7 @@ tags:  [ yurtctl ]
 
 自 OpenYurt 开源以来受到了开发者的关注，今天这篇文章将带大家快速上手 OpenYurt ，介绍如何使用 OpenYurt 提供的命令行管理工具 Yurtctl， 高效快速地部署 OpenYurt 集群。
 
+<!--truncate-->
 
 ## OpenYurt介绍
 OpenYurt 主打“云边一体化”概念，依托 Kubernetes 强大的容器应用编排能力，满足了云边一体化的应用分发、交付、和管控的诉求。相较于其他基于 Kubernetes 的边缘计算框架，OpenYurt 秉持着“最小修改”原则，通过在边缘节点安装 Yurthub 组件，和在云端部署 Yurt-controller-manager，保证了在对 Kubernetes 零侵入的情况下，提供管理边缘计算应用所需的相关能力。

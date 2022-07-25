@@ -24,7 +24,7 @@ tags:  [ openyurt ]
 
 本文通过在云端部署 Kubernetes 集群的控制面，并将树莓派接入集群来搭建云管边场景。基于这个环境演示 OpenYurt 的核心能力，带大家快速上手 OpenYurt。
 
-
+<!--truncate-->
 
 ## 环境准备
 
