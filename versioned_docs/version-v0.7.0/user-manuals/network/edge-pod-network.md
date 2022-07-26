@@ -76,8 +76,8 @@ wget https://raw.githubusercontent.com/openyurtio/openyurt/master/docs/tutorial/
 git am 0002-ipam-keep-pod-ip.patch;
 ```
 host-local cni rpm update:
-```
-rpm -ivh https://github.com/openyurtio/openyurt/releases/download/v0.6.0/openyurt-cni-0.8.7-0.x86_64.rpm
+```shell
+rpm -ivh https://github.com/openyurtio/openyurt/releases/download/v0.7.0/openyurt-cni-0.8.7-0.x86_64.rpm
 ```
 
 ## Add "get node" permission for Flannel
