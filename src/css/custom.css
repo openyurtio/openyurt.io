@@ -242,12 +242,12 @@ table td {
   }
 }
 
-.cnc-fLogo {
-  height: 60px;
+.cncf-logo {
+  height: 90px;
 }
 
 @media screen and (max-width: 768px) {
-  .cnc-fLogo {
+  .cncf-logo {
     height: 64px;
   }
 }
