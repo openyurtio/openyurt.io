@@ -15,21 +15,14 @@
                 {
                     "Installation": [
                         "version-v0.7.0/installation/summary",
+                        "version-v0.7.0/installation/manually-setup",
+                        "version-v0.7.0/installation/yurtadm-init-join",
                         {
                             "OpenYurt Experience Center": [
                                 "version-v0.7.0/installation/openyurt-experience-center/overview",
                                 "version-v0.7.0/installation/openyurt-experience-center/user",
                                 "version-v0.7.0/installation/openyurt-experience-center/web_console",
                                 "version-v0.7.0/installation/openyurt-experience-center/kubeconfig"
-                            ]
-                        },
-                        "version-v0.7.0/installation/yurtadm-init-join",
-                        {
-                            "Conversion between OpenYurt and Kubernetes": [
-                                "version-v0.7.0/installation/openyurt-prepare",
-                                "version-v0.7.0/installation/yurtcluster",
-                                "version-v0.7.0/installation/manually-setup"
-
                             ]
                         }
                     ]

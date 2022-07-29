@@ -1,17 +1,28 @@
 ---
 title: OpenYurt Precondition
 ---
-## 1.Background
+## 0.Background
 
-OpenYurt should change kubernetes component configurations to adapt to edge environment. The components include: CoreDNS,KubeProxy etc。
+OpenYurt should change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc。
+
+## 1. Kube-Controller-Manager Adjustment
+
+In order to make the yurt-controller-mamanger to work properly, we need to turn off the default nodelifecycle controller in Kube-Controller-Manager.
+The nodelifecycle controller can be disabled by restarting the kube-controller-manager with a proper `--controllers`option.
+Assume that the original option looks like `--controllers=*,bootstrapsigner,tokencleaner`, to disable
+the nodelifecycle controller, we change the option to `--controllers=-nodelifecycle,*,bootstrapsigner,tokencleaner`.
+
+If the kube-controller-manager is deployed as a static pod on the master node, and you have the permission to log in to the master node,
+then above operations can be done by revising the file `/etc/kubernetes/manifests/kube-controller-manager.yaml`. After revision, the kube-controller-manager will be
+restarted automatically.
 
 ## 2. CoreDNS Adjustment
 
 In general, CoreDNS uses deployment as workload. But in cloud-edge scenario, domain name resolution could not cross `NodePool`, so CoreDNS need to use `Daemonset` or `YurtAppDaemon` to deploy. Its main function is to resolve hostname to tunnelserver address.
 
-### 2.1 CoreDNS Modification
+### 2.1 Configure CoreDNS ConfigMap
 
-Add hosts for `coredns` `ConfigMap` of `kube-system` `namespace`：
+Add hosts for `coredns` `ConfigMap` in `kube-system` `namespace`：
 
 ```yaml
         hosts /etc/edge/tunnel-nodes {
@@ -36,7 +47,7 @@ data:
            lameduck 5s
         }
         ready
-        hosts /etc/edge/tunnel-nodes { # 增加hosts插件
+        hosts /etc/edge/tunnel-nodes { # add hosts plugin
             reload 300ms
             fallthrough
         }
@@ -60,7 +71,7 @@ metadata:
   namespace: kube-system
 ```
 
-### 2.2 CoreDNS Service Topology
+### 2.2 Configure CoreDNS Service
 
 Add annotation to coredns service, which could use openyurt’s ability to choose local endpoint.
 
@@ -89,7 +100,7 @@ metadata:
   selfLink: /api/v1/namespaces/kube-system/services/kube-dns
   uid: ee23195f-44c3-4c70-99e2-aff4d5cf0ae1
 spec:
-  clusterIP: 10.254.0.10
+  clusterIP: xx.xx.xx.xx
   ports:
   - name: dns
     port: 53
@@ -109,7 +120,7 @@ spec:
   type: ClusterIP
 ```
 
-### 2.2 CoreDNS DaemonSet Deploy
+### 2.3 Use CoreDNS DaemonSet
 
 The original CoreDNS is deployed by `DaemonSet`, please follow below steps to modify.
 1) change the coredns to your version;
@@ -214,7 +225,7 @@ spec:
         name: hosts
 ```
 
-### 2.4 Scale Down CoreDNS Deployment Replicate
+### 2.4 Scale Down CoreDNS Deployment Replicas
 
 Only support when CoreDNS is deployed by deployment workload.
 
@@ -222,7 +233,7 @@ Only support when CoreDNS is deployed by deployment workload.
 kubectl scale --replicas=0 deployment/coredns -n kube-system
 ```
 
-## 3. KubeProxy Adjusment
+## 3. KubeProxy Adjustment
 
 The k8s cluster created by kubeadm will generate a kubeconfig for kubeproxy. If we do not modify default configuration like [`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) and [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/), KubeProxy will use the kubeconfig to get all endpoints.
 
@@ -234,7 +245,7 @@ In cloud-edge scenario, edge node could not communicate with each other, so endp
 kubectl edit cm -n kube-system kube-proxy
 ```
 
-Comment `config.conf` file's property `clientConnection.kubeconfig`，the modification result：
+Comment `config.conf` file's property `clientConnection.kubeconfig`，so kube-proxy will use [InClusterConfig](https://kubernetes.io/docs/tasks/run-application/access-api-from-pod/#directly-accessing-the-rest-api) to access kube-apiserver. the modification result：
 
 ```yaml
 apiVersion: v1
@@ -264,7 +275,7 @@ kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 
 ### KubeProxy Functional Verification
 
-We could verify modify result by view `KubeProxy` log. **We don't recommend you to change the flage as the logs maybe outbreak.**
+We could verify modify result by view `KubeProxy` log. **We don't recommend you to change the flags as the logs maybe outbreak.**
 
 ```shell
 kubectl edit ds -n kube-system kube-proxy

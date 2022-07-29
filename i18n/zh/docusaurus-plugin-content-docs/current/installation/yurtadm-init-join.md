@@ -1,5 +1,5 @@
 ---
-title: 创建OpenYurt测试集群(Yurtadm init/join)
+title: Yurtadm init/join
 ---
 
 ## 1.背景说明
@@ -7,8 +7,6 @@ title: 创建OpenYurt测试集群(Yurtadm init/join)
 为了让用户快速拥有一个 OpenYurt 测试集群，OpenYurt 提供了命令 Yurtadm init 初始化集群，用户只需要选择 OpenYurt 集群的镜像版本，就可以创建对应版本的 OpenYurt，Yurt -APP-Manager、Yurt-Controller-Manager、Yurttunnel-Server、Yurttunnel-Agent 组件会自动部署。
 
 后续扩展集群，用户可以使用命令 Yurtadm join，将边缘节点或者云端节点加入集群。
-
-
 
 ## 2.使用流程
 
