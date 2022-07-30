@@ -3,11 +3,11 @@ title: OpenYurt Precondition
 ---
 ## 0.Background
 
-OpenYurt should change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc。
+OpenYurt need to change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc。
 
 ## 1. Kube-Controller-Manager Adjustment
 
-In order to make the yurt-controller-mamanger to work properly, we need to turn off the default nodelifecycle controller in Kube-Controller-Manager.
+In order to make the yurt-controller-mamanger work properly, we need to turn off the default nodelifecycle controller in Kube-Controller-Manager.
 The nodelifecycle controller can be disabled by restarting the kube-controller-manager with a proper `--controllers`option.
 Assume that the original option looks like `--controllers=*,bootstrapsigner,tokencleaner`, to disable
 the nodelifecycle controller, we change the option to `--controllers=-nodelifecycle,*,bootstrapsigner,tokencleaner`.

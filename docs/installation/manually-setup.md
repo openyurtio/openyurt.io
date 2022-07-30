@@ -16,7 +16,7 @@ us-west-1.192.168.0.87   Ready    <none>   3d23h   v1.20.11
 us-west-1.192.168.0.88   Ready    <none>   3d23h   v1.20.11
 ```
 
-OpenYurt should change kubernetes component configurations to adapt to edge environment. Please complete the following configurations for `Kube-Controller-Manager`, `CoreDNS`, `KubeProxy`。
+OpenYurt need to change kubernetes component configurations to adapt to edge environment. Please complete the following configurations for `Kube-Controller-Manager`, `CoreDNS`, `KubeProxy`。
 - [Kube-Controller-Manager](./openyurt-prepare.md#1-kube-controller-manager-adjustment)
 - [CoreDNS](./openyurt-prepare.md#2-coredns-adjustment)
 - [KubeProxy](./openyurt-prepare.md#3-kubeproxy-adjustment)
@@ -97,7 +97,7 @@ And, apply the yurt-tunnel-agent yaml:
 kubectl apply -f config/setup/yurt-tunnel-agent.yaml
 ```
 
-After the agent and the server are running, we should check yurt-tunnel can work by executing command like `kubectl logs/exec`
+After the agent and the server are running, we should check if yurt-tunnel can work by executing command like `kubectl logs/exec`
 
 ### 3.4 Setup Yurthub Settings
 
@@ -131,8 +131,8 @@ and the Yurthub will be ready in minutes.
 
 #### 4.1.2 Configure Kubelet
 
-we need to reset the kubelet service to let it access the apiserver through the yurthub (The following steps assume that we are logged in to the edge node as the root user).
-As kubelet will connect to the Yurthub through http, so we create a new kubeconfig file for the kubelet service.
+we need to reset the kubelet service to let it access the apiserver through the yurthub (The following steps assume that we have logged on to the edge node as the root user).
+As kubelet will connect to the Yurthub through HTTP, so we create a new kubeconfig file for the kubelet service.
 ```bash
 mkdir -p /var/lib/openyurt
 cat << EOF > /var/lib/openyurt/kubelet.conf
@@ -153,7 +153,7 @@ preferences: {}
 EOF
 ```
 
-In order to let kubelet to use the new kubeconfig, we edit the drop-in file of the kubelet service (i.e., `/etc/systemd/system/kubelet.service.d/10-kubeadm.conf`)
+In order for let kubelet to use the new kubeconfig, we edit the drop-in file of the kubelet service (i.e., `/etc/systemd/system/kubelet.service.d/10-kubeadm.conf`)
 ```bash
 sed -i "s|KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=\/etc\/kubernetes\/bootstrap-kubelet.conf\ --kubeconfig=\/etc\/kubernetes\/kubelet.conf|KUBELET_KUBECONFIG_ARGS=--kubeconfig=\/var\/lib\/openyurt\/kubelet.conf|g" \
     /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
