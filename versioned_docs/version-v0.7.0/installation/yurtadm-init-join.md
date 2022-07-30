@@ -8,8 +8,6 @@ In order to allow users to quickly obtain an OpenYurt test cluster, OpenYurt pro
 
 To expand the cluster later, users can use the Yurtadm join command to add edge nodes or cloud nodes to the cluster.
 
-
-
 ## 2.Process
 
 ### 2.1Compile Yurtadm

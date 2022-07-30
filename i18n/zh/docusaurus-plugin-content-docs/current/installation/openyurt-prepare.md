@@ -1,9 +1,17 @@
 ---
 title: OpenYurt 安装前置条件
 ---
-## 1.背景说明
+## 0.背景说明
 
-OpenYurt为适应边端环境，需要用户对K8S做一些调整，如：CoreDNS，KubeProxy等。
+OpenYurt为适应边端环境，需要用户对K8S做一些调整，如：Kube-Controller-Manager, CoreDNS, KubeProxy等。
+
+## 1. Kube-Controller-Manager调整
+
+为了让 `yurt-controller-mamanger` 能够正常工作，我们需要关闭Kube-Controller-Manager中的 `nodelifecycle` 控制器。可以通过配置 `--controllers` 参数值并重启 `kube-controller-manager` 来禁用 `nodelifecycle` 控制器。
+
+假设最初的参数值像这样 `--controllers=*,bootstrapsigner,tokencleaner`，要禁用 `nodelifecycle` 控制器，我们需要将参数值更改为 `--controllers=-nodelifecycle,*,bootstrapsigner,tokencleaner`。
+
+如果 `kube-controller-manager` 是以静态 pod 的方式部署在 master 节点上，并且您有登录 master 节点的权限，则可以通过修改 `/etc/kubernetes/manifests/kube-controller-manager.yaml` 文件来完成上述操作。修改后，`kube-controller-manager` 会自动重启。
 
 ## 2. CoreDNS调整
 
@@ -112,7 +120,7 @@ spec:
   type: ClusterIP
 ```
 
-### 2.2 CoreDNS DaemonSet部署
+### 2.3 CoreDNS DaemonSet部署
 
 如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整：
 

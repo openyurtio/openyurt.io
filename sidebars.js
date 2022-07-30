@@ -16,22 +16,14 @@ module.exports = {
                 {
                     'Installation': [
                         'installation/summary',
+                        'installation/manually-setup',
+                        'installation/yurtadm-init-join',
                         {
                             "OpenYurt Experience Center": [
                                 'installation/openyurt-experience-center/overview',
                                 'installation/openyurt-experience-center/user',
                                 'installation/openyurt-experience-center/web_console',
                                 'installation/openyurt-experience-center/kubeconfig',
-                            ]
-                        },
-                        'installation/yurtadm-init-join',
-                        {
-                            'Conversion between OpenYurt and Kubernetes': [
-                                'installation/openyurt-prepare',
-                                'installation/yurtcluster',
-                                'installation/manually-setup',
-                                'installation/yurt-tunnel-tutorial',
-
                             ]
                         },
                     ]
