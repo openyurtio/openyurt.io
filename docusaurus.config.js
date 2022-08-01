@@ -126,7 +126,11 @@ module.exports = {
             theme: require('prism-react-renderer/themes/dracula'),
         },
     },
-    plugins: ['./src/plugins/faviconCustomPlugin'],
+    plugins:
+        [
+            'docusaurus-plugin-sass',
+            './src/plugins/faviconCustomPlugin',
+        ],
     presets: [
         [
             '@docusaurus/preset-classic',
@@ -152,7 +156,7 @@ module.exports = {
                     blogSidebarCount: 'ALL',
                 },
                 theme: {
-                    customCss: require.resolve('./src/css/custom.css'),
+                    customCss: require.resolve('./src/css/custom.scss'),
                 },
             },
         ],
