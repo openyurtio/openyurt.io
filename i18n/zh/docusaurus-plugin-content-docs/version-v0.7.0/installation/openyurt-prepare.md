@@ -1,11 +1,11 @@
 ---
-title: OpenYurt 安装前置条件
+title: OpenYurt 安装相关Kubernetes配置调整
 ---
-## 0.背景说明
+## 1.背景说明
 
-OpenYurt为适应边端环境，需要用户对K8S做一些调整，如：Kube-Controller-Manager, CoreDNS, KubeProxy等。
+为适应云边协同场景，用户需要对K8S做一些调整，如Kube-Controller-Manager, CoreDNS, KubeProxy等。
 
-## 1. Kube-Controller-Manager调整
+## 2. Kube-Controller-Manager调整
 
 为了让 `yurt-controller-mamanger` 能够正常工作，我们需要关闭Kube-Controller-Manager中的 `nodelifecycle` 控制器。可以通过配置 `--controllers` 参数值并重启 `kube-controller-manager` 来禁用 `nodelifecycle` 控制器。
 
@@ -13,11 +13,34 @@ OpenYurt为适应边端环境，需要用户对K8S做一些调整，如：Kube-C
 
 如果 `kube-controller-manager` 是以静态 pod 的方式部署在 master 节点上，并且您有登录 master 节点的权限，则可以通过修改 `/etc/kubernetes/manifests/kube-controller-manager.yaml` 文件来完成上述操作。修改后，`kube-controller-manager` 会自动重启。
 
-## 2. CoreDNS调整
+## 3. Kube-apiserver调整
+
+同时为了保证Master节点上的Kube-apiserver访问kubelet的流量，可以无感知的经过yurt-tunnel-server/yurt-tunnel-agent，需要调整kube-apiserver组件的相关配置。
+
+假定kube-apiserver是使用static pod安装(/etc/kubernetes/manifests/kube-apiserver.yaml)
+1. spec.dnsPolicy字段配置为：ClusterFirstWithHostNet, 确保Kube-apiserver在hostNetwork模式下可以访问到CoreDNS
+2. 修改启动参数--kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP，确保Kube-apiserver优先使用Hostname访问kubelet
+
+```
+$ vi /etc/kubernetes/manifests/kube-apiserver.yaml
+apiVersion: v1
+kind: Pod
+...
+spec:
+  dnsPolicy: ClusterFirstWithHostNet # ① dnsPolicy修改为ClusterFirstWithHostNet
+  containers:
+  - command:
+    - kube-apiserver
+...
+    - --kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP # ②把Hostname放在第一位
+ ...
+```
+
+## 4. CoreDNS调整
 
 一般场景下，CoreDNS是以Deployment形式部署，在边端场景下，域名解析请求无法跨`NodePool`，所以CoreDNS需要以`Daemonset`或者`YurtAppDaemon`形式部署，以实现将hostname解析为tunnelserver地址。
 
-### 2.1 CoreDNS 配置修改
+### 4.1 CoreDNS 配置修改
 
 修改`kube-system` `namespace`下的`ConfigMap` `coredns`，增加如下内容：
 
@@ -68,11 +91,9 @@ metadata:
   namespace: kube-system
 ```
 
+### 4.2 CoreDNS 支持服务流量拓扑
 
-
-### 2.2 CoreDNS 支持服务拓扑
-
-增加annotation，利用openyurt的机制实现边缘服务选择。
+增加annotation，利用OpenYurt中Yurthub的边缘数据过滤机制实现服务流量拓扑能力，确保节点上的域名解析请求只会发给同一节点池内的CoreDNS。
 
 ```shell
 # 利用openyurt实现endpoint过滤
@@ -120,7 +141,7 @@ spec:
   type: ClusterIP
 ```
 
-### 2.3 CoreDNS DaemonSet部署
+### 4.3 CoreDNS DaemonSet部署
 
 如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整：
 
@@ -227,7 +248,7 @@ spec:
         name: hosts
 ```
 
-### 2.4 减少CoreDNS Deployment 副本数
+### 4.4 减少CoreDNS Deployment 副本数
 
 如果k8s不是用Deployment部署，可以不进行操作。
 
@@ -235,13 +256,13 @@ spec:
 kubectl scale --replicas=0 deployment/coredns -n kube-system
 ```
 
-## 3. KubeProxy调整
+## 5. KubeProxy调整
 
 kubeadm部署的k8s集群会为KubeProxy生成kubeconfig配置，在不配置[`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) 和 [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/) 情况下，KubeProxy使用这个kubeconfig拿到的endpoints是全量的。
 
 云边端场景下，边缘节点间很有可能无法互通，因此需要endpoints基于nodepool进行拓扑。直接将kube-proxy的kubeconfig配置删除，将apiserver请求经过yurthub即可解决服务拓扑问题。
 
-### KubeProxy支持流量拓扑
+### 5.1 KubeProxy支持流量拓扑
 
 ```shell
 kubectl edit cm -n kube-system kube-proxy
@@ -267,7 +288,7 @@ data:
 // 省略
 ```
 
-### 重启KubeProxy Pod
+### 5.2 重启KubeProxy Pod
 
 为使上述配置生效，需要重启kubeproxy的pod，**线上环境谨慎操作**。
 
@@ -275,7 +296,7 @@ data:
 kubectl delete pod -n kube-system -l k8s-app=kube-proxy
 ```
 
-### KubeProxy功能验证
+### 5.3 KubeProxy功能验证
 
 可以通过KubeProxy的日志进行验证是否修改成功，**为防止日志过多，生产环境谨慎使用**。
 
