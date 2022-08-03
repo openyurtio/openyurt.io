@@ -56,7 +56,7 @@ autonomous edge nodes during disconnection.
 $ kubectl apply -f config/setup/yurt-controller-manager.yaml
 deployment.apps/yurt-controller-manager created
 ```
-#### Note
+#### Note:
 Since Docker turn on pull rate limit on anonymous request. You may encounter error message like "You have reached your pull rate limit. xxxx". In that case you will need to create a docker-registry secret to pull the image.
 ```
 $kc create secret docker-registry dockerpass --docker-username=your-docker-username --docker-password='your-docker-password' --docker-email='your-email-address' -n kube-system

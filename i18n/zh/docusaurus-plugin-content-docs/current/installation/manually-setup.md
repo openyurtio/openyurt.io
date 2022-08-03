@@ -53,7 +53,7 @@ node/us-west-1.192.168.0.88 annotated
 $ kubectl apply -f config/setup/yurt-controller-manager.yaml
 deployment.apps/yurt-controller-manager created
 ```
-### 备注
+#### 备注:
 由于 `Docker` 对匿名请求开启了拉取速率限制，您可能会遇到错误信息提示，比如："You have reached your pull rate limit. xxxx"。在这种情况下，您需要创建一个 `docker-registry` 密码来拉取镜像。
 
 ```
