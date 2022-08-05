@@ -125,11 +125,21 @@ module.exports = {
         prism: {
             theme: require('prism-react-renderer/themes/dracula'),
         },
+        zoom: {
+            selector: '.markdown :not(em) > img',
+            config: {
+                background: {
+                    light: 'rgb(255, 255, 255)',
+                    dark: 'rgb(50, 50, 50)'
+                }
+            }
+        }
     },
     plugins:
         [
             'docusaurus-plugin-sass',
             './src/plugins/faviconCustomPlugin',
+            require.resolve("docusaurus-plugin-image-zoom"),
         ],
     presets: [
         [
