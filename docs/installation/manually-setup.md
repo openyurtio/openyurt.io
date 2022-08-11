@@ -59,7 +59,7 @@ deployment.apps/yurt-controller-manager created
 #### Note:
 Since Docker turn on pull rate limit on anonymous request. You may encounter error message like "You have reached your pull rate limit. xxxx". In that case you will need to create a docker-registry secret to pull the image.
 ```
-$kc create secret docker-registry dockerpass --docker-username=your-docker-username --docker-password='your-docker-password' --docker-email='your-email-address' -n kube-system
+$ kubectl create secret docker-registry dockerpass --docker-username=your-docker-username --docker-password='your-docker-password' --docker-email='your-email-address' -n kube-system
 ```
 Then edit the config/setup/yurt-controller-manager.yaml
 ```yaml
@@ -153,7 +153,7 @@ preferences: {}
 EOF
 ```
 
-In order for let kubelet to use the new kubeconfig, we edit the drop-in file of the kubelet service (i.e., `/etc/systemd/system/kubelet.service.d/10-kubeadm.conf`)
+In order for let kubelet to use the new kubeconfig, we edit the drop-in file of the kubelet service (i.e., `/etc/systemd/system/kubelet.service.d/10-kubeadm.conf` or `/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf` for CentOS)
 ```bash
 sed -i "s|KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=\/etc\/kubernetes\/bootstrap-kubelet.conf\ --kubeconfig=\/etc\/kubernetes\/kubelet.conf|KUBELET_KUBECONFIG_ARGS=--kubeconfig=\/var\/lib\/openyurt\/kubelet.conf|g" \
     /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
