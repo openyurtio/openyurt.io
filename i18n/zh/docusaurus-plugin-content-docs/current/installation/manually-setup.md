@@ -72,14 +72,22 @@ $ kubectl create secret docker-registry dockerpass --docker-username=your-docker
 
 #### 3.2.1 部署Yurt-App-Manager
 
-首先从[yurt-app-manager repo](https://github.com/openyurtio/yurt-app-manager/tree/master/config/setup)获取`config/setup/all_in_one.yaml`。执行如下命令:
+添加OpenYurt的Helm仓库：
+
 ```
-$ kubectl apply -f config/setup/all_in_one.yaml
+helm repo add openyurt https://openyurtio.github.io/openyurt-helm
 ```
 
-确认yurt-app-manager组件已经成功创建:
+安装`yurt-app-manager`:
+
+```shell
+helm install -n kube-system yurt-app-manager openyurt/yurt-app-manager
 ```
-$ kubectl get pod -n kube-system | grep yurt-app-manager
+
+确认`yurt-app-manager`组件已经成功创建:
+
+```
+kubectl get pod -n kube-system | grep yurt-app-manager
 ```
 
 #### 3.2.2 创建节点池
