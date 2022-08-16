@@ -15,7 +15,7 @@ This document demonstrates how to scrape metrics from edge node through Yurt-Tun
 - prometheus-operator
 
 If you don't have an OpenYurt on hand, you can use [yurtctl](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurtctl.md) to create one or convert from an exist Kubernetes cluster. Installation of prometheus-operator
-you can refer to [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus#quickstart)。
+you can refer to [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus#quickstart).
 
 ## 1.Modify CoreDNS config
 
@@ -99,7 +99,7 @@ spec:
 ### scape other metrics（take node-exporter as an example）
 
 `Yurt-tunnel` will only do forward for port 10250 and 10255, if you want to add forward for other ports, you can modify `yurt-tunnel-server-cfg` ConfigMap.
-For `node-exporter`， you may need to add `9100` to `https-proxy-ports`。If you want to add http forward, just modify `http-proxy-ports`.
+For `node-exporter`， you may need to add `9100` to `https-proxy-ports`. If you want to add http forward, just modify `http-proxy-ports`.
 
 #### modify `yurt-tunnel-server-cfg`ConfigMap
 

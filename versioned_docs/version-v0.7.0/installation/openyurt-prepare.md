@@ -3,7 +3,7 @@ title: OpenYurt Precondition
 ---
 ## 0.Background
 
-OpenYurt need to change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc。
+OpenYurt need to change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc.
 
 ## 1. Kube-Controller-Manager Adjustment
 
