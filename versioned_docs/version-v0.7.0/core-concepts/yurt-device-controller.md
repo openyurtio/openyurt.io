@@ -10,7 +10,7 @@ However, when the related management capability is extended to the edge "device"
 - In order to support various edge devices, the existing framework must develop special adapters for each category of devices;
 - When adapting Kubernetes to the edge computing environments, existing solutions either change the system architecture or modify core components (such as kubelet) significantly.
 
-At the same time, we saw a lot of great edge device management platforms emerging in the community，such as EdgeX Foundry。inspiring by the Unix philosophy, "Do one thing and do it well", 
+At the same time, we saw a lot of great edge device management platforms emerging in the community，such as EdgeX Foundry. inspiring by the Unix philosophy, "Do one thing and do it well",
 we believe that Kubernetes should focus on managing computing resources while edge devices management can be done by adopting existing edge computing platforms.
 
 A overall architecture about cloud-edge-device depicted below
@@ -51,7 +51,7 @@ The major Yurt-Device-Controller components consist of:
 ## EdgeX Foundry
 
 EdgeX Foundry is a vendor-neutral open source project hosted by The Linux Foundation building a common open framework for IoT edge computing. It's a framework hosted within a full hardware and OS-agnostic 
-reference software platform to enable an ecosystem of plug-and-play components that unifies the marketplace and accelerates the deployment of IoT solutions。In collaboration with the EdgeX Foundry community，
+reference software platform to enable an ecosystem of plug-and-play components that unifies the marketplace and accelerates the deployment of IoT solutions. In collaboration with the EdgeX Foundry community，
 OpenYurt integrated EdgeX since 0.5.0. In addition to yurt-device-controller, A yurt-edgex-manager component is also provided to simplify the deployment of the EdgeX Foundry in edge scenarios.
 
 Integration Architecture：

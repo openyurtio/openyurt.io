@@ -16,7 +16,7 @@ us-west-1.192.168.0.87   Ready    <none>   3d23h   v1.20.11
 us-west-1.192.168.0.88   Ready    <none>   3d23h   v1.20.11
 ```
 
-OpenYurt need to change kubernetes component configurations to adapt to edge environment. Please complete the following configurations for `Kube-Controller-Manager`, `CoreDNS`, `KubeProxy`。
+OpenYurt need to change kubernetes component configurations to adapt to edge environment. Please complete the following configurations for `Kube-Controller-Manager`, `CoreDNS`, `KubeProxy`.
 - [Kube-Controller-Manager](./openyurt-prepare.md#1-kube-controller-manager-adjustment)
 - [CoreDNS](./openyurt-prepare.md#2-coredns-adjustment)
 - [KubeProxy](./openyurt-prepare.md#3-kubeproxy-adjustment)
