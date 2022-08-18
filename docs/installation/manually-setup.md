@@ -75,14 +75,22 @@ Then edit the config/setup/yurt-controller-manager.yaml
 
 ### 3.2 Setup Yurt-App-Manager
 
-please get `config/setup/all_in_one.yaml` from [yurt-app-manager repo](https://github.com/openyurtio/yurt-app-manager/tree/master/config/setup)
-```
-$ kubectl apply -f config/setup/all_in_one.yaml
+Add OpenYurt Helm Reop：
+
+```shell
+helm repo add openyurt https://openyurtio.github.io/openyurt-helm
 ```
 
-Wait for the yurt-app-manager operator to be created successfully
+Install `yurt-app-manager` use command as follows:
+
+```shell
+helm install -n kube-system yurt-app-manager openyurt/yurt-app-manager
 ```
-$ kubectl get pod -n kube-system | grep yurt-app-manager
+
+Check `yurt-app-manager` pod if startup:
+
+```
+kubectl get pod -n kube-system | grep yurt-app-manager
 ```
 
 ### 3.3 Setup Yurt-tunnel
