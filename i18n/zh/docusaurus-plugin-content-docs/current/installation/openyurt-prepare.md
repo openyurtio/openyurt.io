@@ -15,11 +15,13 @@ title: OpenYurt 安装相关Kubernetes配置调整
 
 ## 3. Kube-apiserver调整
 
-同时为了保证Master节点上的Kube-apiserver访问kubelet的流量，可以无感知的经过yurt-tunnel-server/yurt-tunnel-agent，需要调整kube-apiserver组件的相关配置。
+为了保证Master节点上kube-apiserver使用`hostname:port`访问kubelet，同时确保使用`yurt-tunnel-dns pod`对`hostname`进行域名解析。kube-apiserver的相关配置调整如下:
 
 假定kube-apiserver是使用static pod安装(/etc/kubernetes/manifests/kube-apiserver.yaml)
-1. spec.dnsPolicy字段配置为：ClusterFirstWithHostNet, 确保Kube-apiserver在hostNetwork模式下可以访问到CoreDNS
-2. 修改启动参数--kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP，确保Kube-apiserver优先使用Hostname访问kubelet
+1. 修改dnsPolicy="None"
+2. 增加dnsConfig配置，其中的`nameservers`配置为`yurt-tunnel-dns service`的`clusterIP`(这里假定为`1.2.3.4`)
+3. 修改启动参数--kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP，确保Kube-apiserver优先使用Hostname访问kubelet
+4. 删除启动参数--kubelet-certificate-authority，确保kube-apiserver不校验yurt-tunnel-server的TLS证书(kubeadm搭建的集群中，默认没有配置该参数，可直接忽略)
 
 ```
 $ vi /etc/kubernetes/manifests/kube-apiserver.yaml
@@ -27,71 +29,30 @@ apiVersion: v1
 kind: Pod
 ...
 spec:
-  dnsPolicy: ClusterFirstWithHostNet # ① dnsPolicy修改为ClusterFirstWithHostNet
+  dnsPolicy: "None" # 1. dnsPolicy修改为None
+  dnsConfig:        # 2. 增加dnsConfig配置
+    nameservers:
+      - 1.2.3.4 # 使用yurt-tunnel-dns service的clusterIP替换
+    searches:
+      - kube-system.svc.cluster.local
+      - svc.cluster.local
+      - cluster.local
+    options:
+      - name: ndots
+        value: "5"
   containers:
   - command:
     - kube-apiserver
-...
-    - --kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP # ②把Hostname放在第一位
- ...
+  ...
+    - --kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP # 3. 把Hostname放在第一位
+  ...
 ```
 
 ## 4. CoreDNS调整
 
-一般场景下，CoreDNS是以Deployment形式部署，在边端场景下，域名解析请求无法跨`NodePool`，所以CoreDNS需要以`Daemonset`或者`YurtAppDaemon`形式部署，以实现将hostname解析为tunnelserver地址。
+一般场景下，CoreDNS是以Deployment形式部署，在边端场景下，域名解析请求无法跨`NodePool`，所以CoreDNS需要以`Daemonset`或者`YurtAppDaemon`形式部署，同时kube-dns service流量拓扑配置成NodePool。
 
-### 4.1 CoreDNS 配置修改
-
-修改`kube-system` `namespace`下的`ConfigMap` `coredns`，增加如下内容：
-
-```yaml
-        hosts /etc/edge/tunnel-nodes { # 增加hosts插件
-            reload 300ms
-            fallthrough
-        }
-```
-
-修改后效果如下：
-
-```yaml
-apiVersion: v1
-data:
-  Corefile: |
-    .:53 {
-        errors
-        log . {
-          class denial success
-
-        }
-        health {
-           lameduck 5s
-        }
-        ready
-        hosts /etc/edge/tunnel-nodes { # 增加hosts插件
-            reload 300ms
-            fallthrough
-        }
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-           pods insecure
-           fallthrough in-addr.arpa ip6.arpa
-           ttl 30
-        }
-        prometheus :9153
-        forward . /etc/resolv.conf {
-           max_concurrent 1000
-        }
-        cache 30
-        loop
-        reload
-        loadbalance
-    }
-kind: ConfigMap
-metadata:
-  name: coredns
-  namespace: kube-system
-```
-
-### 4.2 CoreDNS 支持服务流量拓扑
+### 4.1 CoreDNS 支持服务流量拓扑
 
 增加annotation，利用OpenYurt中Yurthub的边缘数据过滤机制实现服务流量拓扑能力，确保节点上的域名解析请求只会发给同一节点池内的CoreDNS。
 
@@ -141,13 +102,11 @@ spec:
   type: ClusterIP
 ```
 
-### 4.3 CoreDNS DaemonSet部署
+### 4.2 CoreDNS DaemonSet部署
 
 如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整：
 
 1）可以调整CoreDNS的镜像为自己的版本；
-
-2）需要挂载Volume ConfigMap `yurt-tunnel-nodes`；
 
 ```yaml
 apiVersion: apps/v1
@@ -219,9 +178,6 @@ spec:
         - mountPath: /etc/coredns
           name: config-volume
           readOnly: true
-        - mountPath: /etc/edge
-          name: hosts
-          readOnly: true
       dnsPolicy: Default
       nodeSelector:
         kubernetes.io/os: linux
@@ -242,13 +198,9 @@ spec:
             path: Corefile
           name: coredns
         name: config-volume
-      - configMap:
-          defaultMode: 420
-          name: yurt-tunnel-nodes
-        name: hosts
 ```
 
-### 4.4 减少CoreDNS Deployment 副本数
+### 4.3 减少CoreDNS Deployment 副本数
 
 如果k8s不是用Deployment部署，可以不进行操作。
 
@@ -281,67 +233,9 @@ data:
       acceptContentTypes: ""
       burst: 0
       contentType: ""
-      #kubeconfig: /var/lib/kube-proxy/kubeconfig.conf
+      #kubeconfig: /var/lib/kube-proxy/kubeconfig.conf <-- 删除这个配置
       qps: 0
     clusterCIDR: 100.64.0.0/10
     configSyncPeriod: 0s
 // 省略
-```
-
-### 5.2 重启KubeProxy Pod
-
-为使上述配置生效，需要重启kubeproxy的pod，**线上环境谨慎操作**。
-
-```shell
-kubectl delete pod -n kube-system -l k8s-app=kube-proxy
-```
-
-### 5.3 KubeProxy功能验证
-
-可以通过KubeProxy的日志进行验证是否修改成功，**为防止日志过多，生产环境谨慎使用**。
-
-```shell
-kubectl edit ds -n kube-system kube-proxy
-```
-
-在command后面追加参数`--v=6`，修改后效果：
-
-```shell
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  annotations:
-    deprecated.daemonset.template.generation: "3"
-  creationTimestamp: "2022-05-10T06:27:27Z"
-  generation: 3
-  labels:
-    k8s-app: kube-proxy
-  name: kube-proxy
-  namespace: kube-system
-  resourceVersion: "5377081"
-  uid: 0f8eccdd-d26f-48f0-8401-8d762a630dc8
-spec:
-  revisionHistoryLimit: 10
-  selector:
-    matchLabels:
-      k8s-app: kube-proxy
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        k8s-app: kube-proxy
-    spec:
-      containers:
-      - command:
-        - /usr/local/bin/kube-proxy
-        - --config=/var/lib/kube-proxy/config.conf
-        - --hostname-override=$(NODE_NAME)
-        - --v=6
-```
-
-检查KubeProxy的Pod输出日志，如果apiserver地址是：`169.254.2.1:10268`代表修改成功。日志输出样例：
-
-```text
-I0521 02:57:01.986790       1 round_trippers.go:454] GET https://169.254.2.1:10268/api/v1/nodes/jd-sh-qianyi-test-02 200 OK in 12 milliseconds
-I0521 02:57:02.021682       1 round_trippers.go:454] POST https://169.254.2.1:10268/api/v1/namespaces/default/events 201 Created in 4 milliseconds                                                       
 ```
