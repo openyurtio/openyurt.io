@@ -4,7 +4,7 @@ title: YurtHub
 
 ## 1. Features
 
-As a important component of OpenYurt, `YurtHub` provides additional capabilities for the edge-side components in the scenario of cloud-edge computing.
+As an important component of OpenYurt, `YurtHub` provides additional capabilities for the edge-side components in the scenario of cloud-edge computing.
 
 ### 1）Edge Autonomy
 
@@ -120,6 +120,13 @@ Determine whether pods connect to kube-apiserver through `YurtHub`
 ```
 
 The address of `YurtHub Server`. `YurtHub Server` listens on this address serving for requests of pprof, token, healthz and metrics. It works with the option `--serve-port`.
+
+```plain
+--bind-proxy-address  Default: "127.0.0.1"
+```
+
+The address of `YurtHub Proxy Server`. `YurtHub Proxy Server` listens on this address to proxy HTTP requests to kube-apiserver. It works with the option `--proxy-port`.
+
 
 ```plain
 --cert-mgr-mode  Default: "hubself"
@@ -300,4 +307,3 @@ Output the version of `YurtHub`.
 ```
 
 Working mode of `YurtHub`. It can be "edge" which means `YurtHub` is running on an edge node, or "cloud" which means `YurtHub` is running on a cloud node.
-
