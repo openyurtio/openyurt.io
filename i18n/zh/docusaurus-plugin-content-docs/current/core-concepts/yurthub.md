@@ -120,6 +120,12 @@ Pod 是否通过 YurtHub 连接 kube-apiserver。
 YurtHub server 的 IP 地址，Yurthub server监听该地址上的pprof，token更新，healthz以及metrics请求，与 --serve-port 搭配使用。
 
 ```plain
+--bind-proxy-address  默认值: "127.0.0.1"
+```
+
+YurtHub Proxy server 的 IP 地址，Yurthub Proxy server代理发往kube-api-server的请求，与 --proxy-port 搭配使用。
+
+```plain
 --cert-mgr-mode  默认值: "hubself"
 ```
 
