@@ -20,14 +20,14 @@ $ cd openyurt
 $ make build WHAT="yurtadm" ARCH="amd64" REGION=cn
 ```
 
-可执行文件将存放在 `_output/bin/` 目录下。
+可执行文件将存放在 `_output/local/bin/` 目录下。
 
 ### 2.2初始化集群
 
 执行以下命令初始化集群：
 
 ```sh
-$ _output/bin/yurtadm init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
+$ _output/local/bin/linux/amd64/yurtadm init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
 ```
 
 其中主要参数为：
@@ -47,17 +47,17 @@ $ _output/bin/yurtadm init --apiserver-advertise-address 1.2.3.4 --openyurt-vers
 执行以下命令加入边缘节点：
 
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 
 执行以下命令加入云端节点：
 
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 当边缘节点runtime为containerd时，需要配置`cri-socket`参数，如上面执行命令加入边缘节点改为：
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
 ```
 
 ## 3.实现细节

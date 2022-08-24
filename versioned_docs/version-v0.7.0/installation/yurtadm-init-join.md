@@ -10,7 +10,7 @@ To expand the cluster later, users can use the Yurtadm join command to add edge 
 
 ## 2.Process
 
-### 2.1Compile Yurtadm
+### 2.1 Compile Yurtadm
 When initializing the cluster, you need to obtain the Yurtadm executable first. To quickly build and install yurtadm, you can execute the following command to complete the installation if the build system has golang 1.13+ and bash installed:
 
 ```sh
@@ -19,14 +19,14 @@ $ cd openyurt
 $ make build WHAT="yurtadm" ARCH="amd64" REGION=cn
 ```
 
-The executable will be stored in the `_output/bin/` directory.
+The executable will be stored in the `_output/local/bin/` directory, depends on the platform.
 
 ### 2.2 Initialize the cluster
 
 Execute the following command to initialize the cluster:
 
 ```sh
-$ _output/bin/yurtadm init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
+$ _output/local/bin/linux/amd64/yurtadm init --apiserver-advertise-address 1.2.3.4 --openyurt-version latest --passwd 1234
 ```
 
 The main parameters are:
@@ -46,18 +46,18 @@ Users can join cloud nodes and edge nodes to the OpenYurt cluster using Yurtadm 
 Execute the following command to join the edge node to cluster:
 
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 
 Execute the following command to join the cloud node to cluster:
 
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
 ```
 
 When the runtime of the edge node is containerd, the `cri-socket` parameter needs to be configured. For example, change the command above of joining the edge node to:
 ```sh
-$ _output/bin/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
+$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
 ```
 
 
