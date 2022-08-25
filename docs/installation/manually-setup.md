@@ -90,7 +90,7 @@ helm install -n kube-system yurt-app-manager openyurt/yurt-app-manager
 Check `yurt-app-manager` pod if startup:
 
 ```
-kubectl get pod -n kube-system | grep yurt-app-manager
+kubectl get pod | grep yurt-app-manager
 ```
 
 ### 3.3 Setup Yurt-tunnel

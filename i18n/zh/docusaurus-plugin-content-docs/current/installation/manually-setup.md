@@ -121,7 +121,7 @@ helm install -n kube-system yurt-app-manager openyurt/yurt-app-manager
 确认`yurt-app-manager`组件已经成功创建:
 
 ```
-kubectl get pod -n kube-system | grep yurt-app-manager
+kubectl get pod | grep yurt-app-manager
 ```
 
 #### 3.2.2 创建节点池
