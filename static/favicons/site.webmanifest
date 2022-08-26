@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "An open platform that extends upstream Kubernetes to Edge | OpenYurt",
+    "short_name": "OpenYurt",
     "icons": [
         {
             "src": "/favicons/android-chrome-192x192.png",
