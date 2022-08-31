@@ -11,7 +11,7 @@ To expand the cluster later, users can use the Yurtadm join command to add edge 
 ## 2.Process
 
 ### 2.1 Compile Yurtadm
-When initializing the cluster, you need to obtain the Yurtadm executable first. To quickly build and install yurtadm, you can execute the following command to complete the installation if the build system has golang 1.13+ and bash installed:
+When initializing the cluster, you need to obtain the Yurtadm executable first. To quickly build and install yurtadm, you can execute the following command to complete the installation if the build system has golang at least 1.13 up to 1.17 and bash installed:
 
 ```sh
 $ git clone https://github.com/openyurtio/openyurt.git
