@@ -94,6 +94,15 @@ module.exports = {
         },
         {
             type: 'category',
+            label: 'Test Report',
+            collapsed: true,
+            items: [
+                'test-report/yurthub-performance-test',
+                'test-report/pod-recover-efficiency-test',
+            ],
+        },
+        {
+            type: 'category',
             label: 'Best Practices',
             collapsed: false,
             items: [
