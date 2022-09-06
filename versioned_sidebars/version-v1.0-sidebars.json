@@ -98,8 +98,17 @@
         },
         {
             "type": "category",
+            "label": "Test Report",
+            "collapsed": true,
+            "items": [
+                "version-v1.0/test-report/yurthub-performance-test",
+                "version-v1.0/test-report/pod-recover-efficiency-test"
+            ]
+        },
+        {
+            "type": "category",
             "label": "Best Practices",
-            "collapsed": false,
+            "collapsed": true,
             "items": [
                 "version-v1.0/best-practices/practices-1"
             ]
