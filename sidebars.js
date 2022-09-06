@@ -14,18 +14,23 @@ module.exports = {
                     ]
                 },
                 {
-                    'Installation': [
-                        'installation/summary',
-                        'installation/manually-setup',
-                        'installation/yurtadm-init-join',
+                    "Installation": [
+                        "installation/summary",
                         {
-                            "OpenYurt Experience Center": [
-                                'installation/openyurt-experience-center/overview',
-                                'installation/openyurt-experience-center/user',
-                                'installation/openyurt-experience-center/web_console',
-                                'installation/openyurt-experience-center/kubeconfig',
+                            "Install Control Plane Components": [
+                                "installation/manually-setup",
+                                "installation/yurtadm-init",
+                                {
+                                    "OpenYurt Experience Center": [
+                                        "installation/openyurt-experience-center/overview",
+                                        "installation/openyurt-experience-center/user",
+                                        "installation/openyurt-experience-center/web_console",
+                                        "installation/openyurt-experience-center/kubeconfig"
+                                    ]
+                                }
                             ]
                         },
+                        "installation/yurtadm-join"
                     ]
                 } 
             ],

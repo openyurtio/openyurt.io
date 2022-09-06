@@ -37,9 +37,6 @@
     "message": "最佳实践",
     "description": "The label for category case studies in sidebar docs"
   },
-  "sidebar.docs.category.Test Report": {
-    "message": "测试报告"
-  },
   "sidebar.docs.category.User Manuals": {
     "message": "用户手册"
   },
