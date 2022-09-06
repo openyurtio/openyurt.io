@@ -10,7 +10,7 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 
 - Attention to Version: 
   
-    From OpenYurt v0.5.0, each version corresponds to a version of the docs. So you need to pay attention to the version 
+    From OpenYurt v1.0, each version corresponds to a version of the docs. So you need to pay attention to the version 
   when adding or updating the doc.
   
 - Attention to EN/ZH:
@@ -21,27 +21,27 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 
   Please refer to the existing format for the doc format.
 
-#### For Historic Version (example: v0.5.0)
+#### For Historic Version (example: v1.0)
 
-Take the docs of v0.5.0 version as an example, the following explains how to add or update the doc.
+Take the docs of v1.0 version as an example, the following explains how to add or update the doc.
 
 1) Add or Update English doc
 
-   The doc needs to be placed in `versioned_docs/version-v0.5.0/`.
+   The doc needs to be placed in `versioned_docs/version-v1.0/`.
    Images are placed in the directory `static/img/docs/`.
    
 2) Add or Update Chinese doc
 
-   The doc needs to be placed in `i18n/zh/docusaurus-plugin-content-docs/version-v0.5.0/`.
+   The doc needs to be placed in `i18n/zh/docusaurus-plugin-content-docs/version-v1.0/`.
    Images are placed in the directory `static/img/docs/`.
    
 3) Modify the directory structure
 
-   If you add a doc or modify the doc directory structure, please modify the file `versioned_sidebars/version-v0.5.0-sidebars.json`
+   If you add a doc or modify the doc directory structure, please modify the file `versioned_sidebars/version-v1.0-sidebars.json`
    to add document path or adjust directory structure.
    
-   Then for file `i18n/zh/docusaurus-plugin-content-docs/version-v0.5.0.json`, please check whether categories in
-   `versioned_sidebars/version-v0.5.0-sidebars.json` has corresponding translation. 
+   Then for file `i18n/zh/docusaurus-plugin-content-docs/version-v1.0.json`, please check whether categories in
+   `versioned_sidebars/version-v1.0-sidebars.json` has corresponding translation. 
    
 #### For Next Version
 

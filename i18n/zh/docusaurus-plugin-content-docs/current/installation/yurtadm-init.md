@@ -1,5 +1,5 @@
 ---
-title: Yurtadm init/join
+title: 从零开始安装
 ---
 
 ## 1.背景说明
@@ -39,26 +39,6 @@ $ _output/local/bin/linux/amd64/yurtadm init --apiserver-advertise-address 1.2.3
 ```
 
 如果想要配置更多信息，可以通过 `-h`  来获取。
-
-### 2.4节点加入
-
-用户可以通过 Yurtadm join 将云端节点、边缘节点加入 OpenYurt 集群。注意，在加入节点时，需要在节点上安装运行时，并关闭交换分区。
-
-执行以下命令加入边缘节点：
-
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
-```
-
-执行以下命令加入云端节点：
-
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
-```
-当边缘节点runtime为containerd时，需要配置`cri-socket`参数，如上面执行命令加入边缘节点改为：
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
-```
 
 ## 3.实现细节
 ### 3.1 Yurtadm init

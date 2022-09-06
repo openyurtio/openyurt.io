@@ -1,0 +1,123 @@
+
+{
+    "version-v1.0/docs": [
+        {
+            "type": "category",
+            "label": "Getting Started",
+            "collapsed": false,
+            "items": [
+                "version-v1.0/introduction",
+                {
+                    "Usage Conditions": [
+                        "version-v1.0/usage-conditions/resource-and-system-requirements"
+                    ]
+                },
+                {
+                    "Installation": [
+                        "version-v1.0/installation/summary",
+                        {
+                            "Install Control Plane Components": [
+                                "version-v1.0/installation/manually-setup",
+                                "version-v1.0/installation/yurtadm-init",
+                                {
+                                    "OpenYurt Experience Center": [
+                                        "version-v1.0/installation/openyurt-experience-center/overview",
+                                        "version-v1.0/installation/openyurt-experience-center/user",
+                                        "version-v1.0/installation/openyurt-experience-center/web_console",
+                                        "version-v1.0/installation/openyurt-experience-center/kubeconfig"
+                                    ]
+                                }
+                            ]
+                        },
+                        "version-v1.0/installation/yurtadm-join"
+                    ]
+                } 
+            ]
+        },
+        {
+            "type": "category",
+            "label": "Core Concepts",
+            "collapsed": false,
+            "items": [
+                "version-v1.0/core-concepts/architecture",
+                {
+                    "Components": [
+                        "version-v1.0/core-concepts/raven",
+                        "version-v1.0/core-concepts/yurthub",
+                        "version-v1.0/core-concepts/yurttunnel",
+                        "version-v1.0/core-concepts/yurt-app-manager",
+                        "version-v1.0/core-concepts/yurt-controller-manager",
+                        "version-v1.0/core-concepts/node-resource-manager",
+                        "version-v1.0/core-concepts/yurt-device-controller"
+                    ]
+                }
+
+            ]
+        },
+        {
+            "type": "category",
+            "label": "User Manuals",
+            "collapsed": true,
+            "items": [
+                {
+                    "Autonomy": [
+                        "version-v1.0/user-manuals/autonomy/node-autonomy"
+                    ]
+                },
+                {
+                    "Network": [
+                        "version-v1.0/user-manuals/network/raven",
+                        "version-v1.0/user-manuals/network/edge-pod-network",
+                        "version-v1.0/user-manuals/network/service-topology",
+                        "version-v1.0/user-manuals/network/edge-ingress"
+                    ]
+                },
+                {
+                    "Storage": [
+                        "version-v1.0/user-manuals/storage/edge-local-storage"
+                    ]
+                },
+                {
+                    "Workload": [
+                        "version-v1.0/user-manuals/workload/node-pool-management",
+                        "version-v1.0/user-manuals/workload/yurt-app-set",
+                        "version-v1.0/user-manuals/workload/yurt-app-daemon"
+                    ]
+                },
+                {
+                    "Monitoring": [
+                        "version-v1.0/user-manuals/monitoring/prometheus"
+                    ]
+                },
+                {
+                    "IOT": [
+                        "version-v1.0/user-manuals/iot/edgex-foundry"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "category",
+            "label": "Best Practices",
+            "collapsed": false,
+            "items": [
+                "version-v1.0/best-practices/practices-1"
+            ]
+        },
+        {
+            "type": "category",
+            "label": "Developer Manuals",
+            "collapsed": true,
+            "items": [
+                "version-v1.0/developer-manuals/how-to-build-and-test",
+                "version-v1.0/developer-manuals/local-up-openyurt",
+                "version-v1.0/developer-manuals/ci-workflow",
+                "version-v1.0/developer-manuals/how-to-contribute"
+            ]
+        },
+        {
+            "type": "doc",
+            "id": "version-v1.0/faq"
+        }
+    ]
+}

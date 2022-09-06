@@ -1,5 +1,5 @@
 ---
-title: Yurtadm init/join
+title: Yurtadm init
 ---
 
 ## 1.Background
@@ -38,27 +38,6 @@ The main parameters are:
 ```
 
 Use `-h`  to configure more information.
-
-### 2.3Joining nodes to cluster
-
-Users can join cloud nodes and edge nodes to the OpenYurt cluster using Yurtadm join. Note that when joining a node, the runtime needs to be installed on the node and the swap partition is turned off.
-
-Execute the following command to join the edge node to cluster:
-
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
-```
-
-Execute the following command to join the cloud node to cluster:
-
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
-```
-
-When the runtime of the edge node is containerd, the `cri-socket` parameter needs to be configured. For example, change the command above of joining the edge node to:
-```sh
-$ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
-```
 
 
 ## 3.Implement details
