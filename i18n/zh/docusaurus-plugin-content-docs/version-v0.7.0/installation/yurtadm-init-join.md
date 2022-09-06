@@ -12,7 +12,7 @@ title: Yurtadm init/join
 
 ### 2.1编译 Yurtadm
 在进行初始化集群时，需要先获取 Yurtadm 可执行文件。
-要快速构建和安装设置 yurtadm ，在编译系统已安装了 golang 1.13+ 和 bash 的前提下你可以执行以下命令来完成安装：
+要快速构建和安装设置 yurtadm ，在编译系统已安装了 golang 1.13~1.17 和 bash 的前提下你可以执行以下命令来完成安装：
 
 ```sh
 $ git clone https://github.com/openyurtio/openyurt.git
