@@ -22,7 +22,9 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 ```sh
 $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=cloud --discovery-token-unsafe-skip-ca-verification --v=5
 ```
+
 当边缘节点runtime为containerd时，需要配置`cri-socket`参数，如上面执行命令加入边缘节点改为：
+
 ```sh
 $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
 ```
@@ -33,15 +35,47 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 
 下述操作，仅仅针对已经是Kubernetes集群的工作节点。
 
-### 2.1 部署Edge工作模式的Yurthub
+### 2.1 给节点打标签
+
+OpenYurt需要根据节点的`openyurt.io/is-edge-worker`标签区分云端节点和边缘节点，从而在云边断联情况下判断是否驱逐节点上Pod. 假设我们的节点`us-west-1.192.168.0.88`是一个边缘节点，则
+
+```bash
+$ kubectl label node us-west-1.192.168.0.88 openyurt.io/is-edge-worker=true
+node/us-west-1.192.168.0.88 labeled
+```
+
+> 如果`us-west-1.192.168.0.88`不是一个边缘节点，则将`true`改为`false`即可
+
+为了激活自治模式，我们需要通过如下命令给边缘节点添加注解。
+
+```bash
+$ kubectl annotate node us-west-1.192.168.0.88 node.beta.openyurt.io/autonomy=true
+node/us-west-1.192.168.0.88 annotated
+```
+
+如果希望使用OpenYurt的单元化管理能力，我们可以将该节点加入节点池中：
+
+```bash
+$ cat <<EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1alpha1
+kind: NodePool
+metadata:
+  name: worker
+spec:
+  type: Edge
+EOF
+$ kubectl label node us-west-1.192.168.0.87 apps.openyurt.io/desired-nodepool=worker
+```
+
+### 2.2 部署Edge工作模式的Yurthub
 
 - 从[openyurt repo](https://github.com/openyurtio/openyurt/blob/master/config/setup/yurthub.yaml)获取yurthub.yaml，执行如下修改后上传到边缘节点的/etc/kubernets/manifests目录。
 - 获取 apiserver 的地址 (即ip:port) 和 [bootstrap token](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/) ，用于替换模板文件 `yurthub.yaml` 中的对应值
 
 在下面的命令中，我们假设 apiserver 的地址是 `1.2.3.4:5678`，bootstrap token 是 `07401b.f395accd246ae52d`
 
-```
-# vi /etc/kubernetes/manifests/yurt-hub.yaml
+```bash
+$ vi /etc/kubernetes/manifests/yurt-hub.yaml
 ...
     command:
     - yurthub
@@ -54,7 +88,7 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 
 Yurthub 将在几分钟内准备就绪。
 
-### 2.2 配置Kubelet
+### 2.3 配置Kubelet
 
 接下来需要重置kubelet服务，让kubelet通过Yurthub访问apiserver (以下步骤假设我们以root身份登录到边缘节点)。由于 kubelet 会通过 http 连接 Yurthub，所以我们为 kubelet 服务创建一个新的 kubeconfig 文件。
 
@@ -93,6 +127,7 @@ $ systemctl daemon-reload && systemctl restart kubelet
 ```
 
 最后，当重启Kubelet之后需要确认节点状态是否Ready。
+
 ```bash
 $ kubectl get nodes
 NAME                     STATUS   ROLES    AGE     VERSION
@@ -100,10 +135,11 @@ us-west-1.192.168.0.87   Ready    <none>   3d23h   v1.20.11
 us-west-1.192.168.0.88   Ready    <none>   3d23h   v1.20.11
 ```
 
-### 2.3 重建节点上的Pods
+### 2.4 重建节点上的Pods
 
 当安装完Yurthub并且调整好Kubelet配置后，为了让节点上所有Pods(Yurthub除外)都可以通过Yurthub访问Kube-apiserver，所有需要重建节点上所有Pods(Yurthub pod除外)。请务必确认该操作对生产环境的影响后再执行。
-```
+
+```bash
 $ kubectl get pod -A -o wide | grep us-west-1.192.168.0.88
 kube-system   yurt-hub-us-west-1.192.168.0.88           1/1     Running   0          19d     172.16.0.32    us-west-1.192.168.0.88   <none>           <none>
 kube-system   coredns-qq6dk                             1/1     Running   0          19d     10.148.2.197   us-west-1.192.168.0.88   <none>           <none>
@@ -120,5 +156,3 @@ kube-system   coredns-qq6ad                             1/1     Running   0     
 kube-system   kube-flannel-ds-j123d                     1/1     Running   0          19d     172.16.0.32    us-west-1.192.168.0.88   <none>           <none>
 kube-system   kube-proxy-a2qdc                          1/1     Running   0          19d     172.16.0.32    us-west-1.192.168.0.88   <none>           <none>
 ```
-
-

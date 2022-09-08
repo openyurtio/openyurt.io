@@ -23,7 +23,7 @@ title: OpenYurt 安装相关Kubernetes配置调整
 3. 修改启动参数--kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP，确保Kube-apiserver优先使用Hostname访问kubelet
 4. 删除启动参数--kubelet-certificate-authority，确保kube-apiserver不校验yurt-tunnel-server的TLS证书(kubeadm搭建的集群中，默认没有配置该参数，可直接忽略)
 
-```
+```bash
 $ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 apiVersion: v1
 kind: Pod
@@ -104,9 +104,7 @@ spec:
 
 ### 4.2 CoreDNS DaemonSet部署
 
-如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整：
-
-1）可以调整CoreDNS的镜像为自己的版本；
+如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整(CoreDNS的镜像可调整为自己的版本)：
 
 ```yaml
 apiVersion: apps/v1

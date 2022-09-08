@@ -1,11 +1,11 @@
 ---
 title: OpenYurt Precondition
 ---
-## 0.Background
+## 1.Background
 
-OpenYurt need to change kubernetes component configurations to adapt to edge environment. The components include: Kube-Controller-Manager, CoreDNS,KubeProxy etc。
+OpenYurt need to change kubernetes component configurations to adapt to edge environment. The components include:Kube-apiserver, Kube-Controller-Manager, CoreDNS,KubeProxy etc。
 
-## 1. Kube-Controller-Manager Adjustment
+## 2. Kube-Controller-Manager Adjustment
 
 In order to make the yurt-controller-mamanger work properly, we need to turn off the default nodelifecycle controller in Kube-Controller-Manager.
 The nodelifecycle controller can be disabled by restarting the kube-controller-manager with a proper `--controllers`option.
@@ -16,62 +16,47 @@ If the kube-controller-manager is deployed as a static pod on the master node, a
 then above operations can be done by revising the file `/etc/kubernetes/manifests/kube-controller-manager.yaml`. After revision, the kube-controller-manager will be
 restarted automatically.
 
-## 2. CoreDNS Adjustment
+## 3. Kube-apiserver Adjustment
 
-In general, CoreDNS uses deployment as workload. But in cloud-edge scenario, domain name resolution could not cross `NodePool`, so CoreDNS need to use `Daemonset` or `YurtAppDaemon` to deploy. Its main function is to resolve hostname to tunnelserver address.
+To make sure kube-apiserver on the master node use `hostname:port` to access kubelet, and at the same time this hostname resolution request should be handled by `yurt-tunnel-dns` pod. We should apply some adjustments to kube-apiserver configurations.
 
-### 2.1 Configure CoreDNS ConfigMap
+We assume your kube-apiserver is installed through static pod(/etc/kubernetes/manifests/kube-apiserver.yaml)
 
-Add hosts for `coredns` `ConfigMap` in `kube-system` `namespace`：
+1. modifiy dnsPolicy="None"
+2. add dnsConfig configurations which set the `nameservers` as the `clusterIP` of `yurt-tunnel-dns service` (assumed to be `1.2.3.4` here)
+3. modify startup parameters `--kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP`, to make sure that Kube-apiserver prefers to use Hostname to access kubelet
+4. delete startup parameters `--kubelet-certificate-authority`, to make sure that kube-apisever don't calibrate TLS certificate of yurt-tunnel-server (If you create your cluster from kubeadm, this step can be omitted since it don't have this settings by default)
 
-```yaml
-        hosts /etc/edge/tunnel-nodes {
-            reload 300ms
-            fallthrough
-        }
-```
-
-The results of modifications:
-
-```yaml
+```bash
+$ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 apiVersion: v1
-data:
-  Corefile: |
-    .:53 {
-        errors
-        log . {
-          class denial success
-
-        }
-        health {
-           lameduck 5s
-        }
-        ready
-        hosts /etc/edge/tunnel-nodes { # add hosts plugin
-            reload 300ms
-            fallthrough
-        }
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-           pods insecure
-           fallthrough in-addr.arpa ip6.arpa
-           ttl 30
-        }
-        prometheus :9153
-        forward . /etc/resolv.conf {
-           max_concurrent 1000
-        }
-        cache 30
-        loop
-        reload
-        loadbalance
-    }
-kind: ConfigMap
-metadata:
-  name: coredns
-  namespace: kube-system
+kind: Pod
+...
+spec:
+  dnsPolicy: "None" # 1. dnsPolicy修改为None
+  dnsConfig:        # 2. 增加dnsConfig配置
+    nameservers:
+      - 1.2.3.4 # 使用yurt-tunnel-dns service的clusterIP替换
+    searches:
+      - kube-system.svc.cluster.local
+      - svc.cluster.local
+      - cluster.local
+    options:
+      - name: ndots
+        value: "5"
+  containers:
+  - command:
+    - kube-apiserver
+  ...
+    - --kubelet-preferred-address-types=Hostname,InternalIP,ExternalIP # 3. 把Hostname放在第一位
+  ...
 ```
 
-### 2.2 Configure CoreDNS Service
+## 4. CoreDNS Adjustment
+
+In general, CoreDNS uses deployment as workload. But in cloud-edge scenario, domain name resolution could not cross `NodePool`, so CoreDNS need to use `Daemonset` or `YurtAppDaemon` to deploy. At the same time, we should also set the topologyKeys of kube-dns service as NodePool.
+
+### 4.1 Configure CoreDNS Service
 
 Add annotation to coredns service, which could use openyurt’s ability to choose local endpoint.
 
@@ -120,11 +105,9 @@ spec:
   type: ClusterIP
 ```
 
-### 2.3 Use CoreDNS DaemonSet
+### 4.2 Use CoreDNS DaemonSet
 
-The original CoreDNS is deployed by `DaemonSet`, please follow below steps to modify.
-1) change the coredns to your version;
-2) mount ConfigMap `yurt-tunnel-nodes` to pod；
+The original CoreDNS is deployed by `DaemonSet`, please modify the settings manually (the CoreDNS image version can be adjusted to demand).
 
 ```yaml
 apiVersion: apps/v1
@@ -196,9 +179,6 @@ spec:
         - mountPath: /etc/coredns
           name: config-volume
           readOnly: true
-        - mountPath: /etc/edge
-          name: hosts
-          readOnly: true
       dnsPolicy: Default
       nodeSelector:
         kubernetes.io/os: linux
@@ -219,13 +199,9 @@ spec:
             path: Corefile
           name: coredns
         name: config-volume
-      - configMap:
-          defaultMode: 420
-          name: yurt-tunnel-nodes
-        name: hosts
 ```
 
-### 2.4 Scale Down CoreDNS Deployment Replicas
+### 4.3 Scale Down CoreDNS Deployment Replicas
 
 Only support when CoreDNS is deployed by deployment workload.
 
@@ -233,13 +209,13 @@ Only support when CoreDNS is deployed by deployment workload.
 kubectl scale --replicas=0 deployment/coredns -n kube-system
 ```
 
-## 3. KubeProxy Adjustment
+## 5. KubeProxy Adjustment
 
 The k8s cluster created by kubeadm will generate a kubeconfig for kubeproxy. If we do not modify default configuration like [`Service Topology`](https://kubernetes.io/docs/concepts/services-networking/service-topology/) and [`Topology Aware Hints`](https://kubernetes.io/docs/concepts/services-networking/topology-aware-hints/), KubeProxy will use the kubeconfig to get all endpoints.
 
 In cloud-edge scenario, edge node could not communicate with each other, so endpoints need implement nodepool topology.
 
-### KubeProxy Service Topology
+### 5.1 KubeProxy Service Topology
 
 ```shell
 kubectl edit cm -n kube-system kube-proxy
@@ -264,63 +240,3 @@ data:
     configSyncPeriod: 0s
 // ...
 ```
-
-### Restart KubeProxy Pod
-
-To put the new configuration into effect, we should restart `kubeproxy`, be cautiously used in a production environment.
-
-```shell
-kubectl delete pod -n kube-system -l k8s-app=kube-proxy
-```
-
-### KubeProxy Functional Verification
-
-We could verify modify result by view `KubeProxy` log. **We don't recommend you to change the flags as the logs maybe outbreak.**
-
-```shell
-kubectl edit ds -n kube-system kube-proxy
-```
-
-Append parameter `--v=6` to container's command, and the change result is:
-
-```shell
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  annotations:
-    deprecated.daemonset.template.generation: "3"
-  creationTimestamp: "2022-05-10T06:27:27Z"
-  generation: 3
-  labels:
-    k8s-app: kube-proxy
-  name: kube-proxy
-  namespace: kube-system
-  resourceVersion: "5377081"
-  uid: 0f8eccdd-d26f-48f0-8401-8d762a630dc8
-spec:
-  revisionHistoryLimit: 10
-  selector:
-    matchLabels:
-      k8s-app: kube-proxy
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        k8s-app: kube-proxy
-    spec:
-      containers:
-      - command:
-        - /usr/local/bin/kube-proxy
-        - --config=/var/lib/kube-proxy/config.conf
-        - --hostname-override=$(NODE_NAME)
-        - --v=6
-```
-
-Check `KubeProxy`'s stdout, if `ApiServer`'s address is `169.254.2.1:10268` which means modify success. The sample logs like:
-
-```text
-I0521 02:57:01.986790       1 round_trippers.go:454] GET https://169.254.2.1:10268/api/v1/nodes/jd-sh-qianyi-test-02 200 OK in 12 milliseconds
-I0521 02:57:02.021682       1 round_trippers.go:454] POST https://169.254.2.1:10268/api/v1/namespaces/default/events 201 Created in 4 milliseconds                                                       
-```
-
-
