@@ -97,7 +97,7 @@ When collecting latency, we conclude two types latency:
 
 - Full_latency：record the total time from request reaching YurtHub to request leaving YurtHub
 - Apiserver_latency：record the time from request forwarded by YurtHub to apiserver
-> in the procedure of actual testing, two types latency have no difference, so we have full_latency as standard
+> In the procedure of actual testing, two types latency have no difference, so we have full_latency as standard
 
 
 The following figure show the situation of time spending mostly in the request per type as we see from verb:

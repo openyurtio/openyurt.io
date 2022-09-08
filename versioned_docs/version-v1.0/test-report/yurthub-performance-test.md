@@ -2,16 +2,16 @@
 title: YurtHub Performance Test
 ---
 
-## 背景
-YurtHub是OpenYurt的重要组件，它为APIServer提供了一层额外的抽象，接管了边缘到云的请求流量，支撑了OpenYurt的边缘自治，流量闭环等重要能力。另一方面，大量边缘云原生场景面临着边缘节点资源受限的问题，YurtHub作为边缘侧的重要组件，它在各种环境下的性能表现对OpenYurt集群都有着很大影响。因此我们需要对YurtHub组件的性能有更深入的了解。
-## 测试环境
-### Kubernetes版本
+## Background
+On the one hand, YurtHub is an important component of OpenYurt，providing the additional abstraction, taking over the traffic from edge to cloud, and supporting the key abilities of Node Autonomy, Flow Closed Loop, and so on. On the other hand, lots of the cloud native scenarios are troubled by the resource limitation of the edge node, as the important component of OpenYurt, the performance of YurtHub in different situation play an influential role in the cluster of OpenYurt. Therefore, we need to obtain deeper understanding on the performance of YurtHub.
+## Test Environment
+### Kubernetes Version
 `Major:"1", Minor:"22", GitVersion:"v1.22.12", GitCommit:"b058e1760c79f46a834ba59bd7a3486ecf28237d", GitTreeState:"clean", BuildDate:"2022-07-13T14:53:39Z", GoVersion:"go1.16.15", Compiler:"gc", Platform:"linux/amd64"`
-### OpenYurt 版本
+### OpenYurt Version
 `GitVersion:"v0.7.0", GitCommit:"d331a42", BuildDate:"2022-08-29T13:33:43Z", GoVersion:"go1.17.12", Compiler:"gc", Platform:"linux/amd64"`
-### 节点配置
-Master 节点与Node节点使用不同配置的ECS，集群中包含1个master节点和其他100个node节点。100个node节点均通过`yurtadm`以edge模式接入。
-#### 操作系统
+### Node Configuration
+Master and WorkNode use the ECSs with different configurations, and the used cluster contains one master and other one hundred worknodes. All worknodes join the cluster by using the command `yurtadm` on edge mode.
+#### Operating System
 |  | Master  | Node  |
 | --- | --- | --- |
 | LSB Version  | :core-4.1-amd64:core-4.1-noarch | :core-4.1-amd64:core-4.1-noarch |
@@ -45,38 +45,38 @@ Master 节点与Node节点使用不同配置的ECS，集群中包含1个master�
 | Total memory  | 32245896 K | 7862304 K |
 
 #### Disk
-|  | Master  | Node  |
-| --- | --- | --- |
-| Total Size   | 40GiB (3800 IOPS) | 40GiB (3800 IOPS) |
-| Type  | ESSD云盘 PL0 | ESSD云盘 PL1 |
+|  | Master              | Node                |
+| --- |---------------------|---------------------|
+| Total Size   | 40GiB (3800 IOPS)   | 40GiB (3800 IOPS)   |
+| Type  | ESSD Cloud Disk PL0 | ESSD Cloud Disk PL1 |
 
-## 测试方法
-通过Promethus收集OpenYurt集群中边缘侧yurthub的三类指标
+## Test Method
+Through Promethus collecting three types of indicators from the edge side in the OpenYurt cluster.
 
-- 资源占用：yurthub容器 CPU/Mem 使用情况 
-- 数据流量：yurthub 转发请求流量
-- 请求延迟：yurthub 转发请求的延迟
+- Resource Occupation：YurtHub container CPU/Mem usage
+- Data Traffic：YurtHub forward the traffic of request
+- Request Delay：the delay of YurtHub forwarding request
 
-整体的测试架构如下图所示
+The overall test architecture is shown in the following figure
 ![](../../../static/img/docs/test-report/yurthub/arch.png)
 
-## 测试结果
-> 15:00-19:00 陆续接入100节点
-> 19:30 创建2000 Pod， 1000 Service（以Daemonset形式部署，每个节点部署20个Pod，单个Service包含50个endpoints）
-> 19:35 所有资源创建完成
-> 21:06 删除所有资源
+## Test Result
+> 15:00-19:00 worknodes join successively
+> 19:30 creating 2000 Pod， 1000 Service (deploying by Daemonset format, per node deploys 20 Pods, per Service contains 50 Endpoints)
+> 19:35 all resources creating complete
+> 21:06 delete all resources
 
 ### Traffic 
 ![](../../../static/img/docs/test-report/yurthub/traffic.png)
-上图是100个边缘节点的Yurthub在整个过程中的请求流量表现，可以观察到一下特征：
+The above picture is the whole performance of request traffic of YurtHub in the scenario of 100 edge nodes, and the following features can be observed:
 
-- 流量数据在正常情况下有一个5min周期性的波动，峰值大概在15-20 KB/s
-- workload部署过程中流量有一个激增，峰值在350 KB/s
-- workload卸载时流量也有一个激增，而且持续时间更短，峰值更高大概在780 KB/s
+- In normal situation, traffic data have a wave of 5min period, and peak ranges 15-20 KB/s
+- In the process of workload deploying, traffic booms one time, and peak is 350 KB/s
+- In the process of workload downloading, traffic alse booms one time, having shorter duration time and higher peak about 780 KB/s
 
-针对流量来源进一步探究，我们选取一台机器的流量情况分析
+For further exploration of the source of traffic, we select one machine to analyze the traffic usage
 ![](../../../static/img/docs/test-report/yurthub/traffic_create.png)
-上图时workload部署时，该机器的流量情况，可以看到流量突变时从上到下的使用排名：
+The above figure shows the usage of traffic as workload deploying, we can get the rank of usage orderly when traffic mutating:
 
 - endpointslices, watch, 240 KB/s
 - endpoints, watch, 50 KB/s 
@@ -84,23 +84,23 @@ Master 节点与Node节点使用不同配置的ECS，集群中包含1个master�
 - nodes, watch, 24 KB/s
 - pod, watch, 3 KB/s
 
-该机器的峰值流量大约在320 KB/s，绝大多数来源于service相关的watch请求（endpointslice, endpoint, service），这可能也与service中endpoint较多（单个service50个endpoints）有关系。另外，正常情况下周期5min的流量变化也是由nodes资源的watch请求引起的。
+The peak of traffic of machine is approximately 320 KB/s, and those traffic contain mostly watch requests about service. The count of endpoint in service(per service 50 endpoints) may cause such situation. In normal case, the watch request about nodes also causes the variety of traffic of 5min period.
 
 ![](../../../static/img/docs/test-report/yurthub/traffic_delete.png)
-上图是该机器在卸载时的流量表现，总的峰值流量大概在780k左右，按资源与动作划分，从大到小流量使用情况如下：
+The above figure show the performance of traffic of machine in the process of uninstalling, total peak of traffic reach about 780k. Sorting by resource and action, the usage of traffic as the following data show:
 
 - endpointslices, watch, 540 KB/s
 - service, watch, 140 KB/s
 - endpoints, watch, 100 KB/s
 ### Latency
-在latency采集时，我们区分了两类latency：
+When collecting latency, we conclude two types latency:
 
-- full_latency： 记录从请求到达yurthub到请求从yurthub离开时总时长
-- apiserver_latency：记录请求从yurthub转发到apiserver的时长
-> 实际测试过程中发现这两类latency几乎没有区别，所以以full_latency为准
+- Full_latency：record the total time from request reaching YurtHub to request leaving YurtHub
+- Apiserver_latency：record the time from request forwarded by YurtHub to apiserver
+> In the procedure of actual testing, two types latency have no difference, so we have full_latency as standard
 
 
-下图中我们根据verb查看每类请求中耗时最多的latency情况：
+The following figure show the situation of time spending mostly in the request per type as we see from verb:
 
 - Delete
 
@@ -125,18 +125,18 @@ Master 节点与Node节点使用不同配置的ECS，集群中包含1个master�
 - Get
 
 ![](../../../static/img/docs/test-report/yurthub/latency_get.png)
-可以看到最耗时的请求主要是node的create，get， list请求，以及service的list请求。
+We can see the most time-spending requests mainly are the request of create/get/list about node and the request of list about service.
 ### Memory
 ![](../../../static/img/docs/test-report/yurthub/mem.png)
-在初始状态下，workload部署前，yurthub的内存占用集中在35-40MB，有两台机器因为Prometheus的监控套件部署在上面，所以使用内存较多。另外最下方那条曲线是master节点上以cloud模式部署的yurthub。在19:30每个节点部署了20Pod后，节点内存有约 2-5MB 的小幅提升，并且一直维持在这个水平，当workload删除后，内存占用先是10MB的明显下降，接着又回升到workload删除前的水平。
+In the initial state, before workload deploying, the memory occupation of YurtHub mostly ranges 35-40MB. Two machines use memory mostly, because the monitor suite of Prometheus deploy on those. The bottom line show the variety of YurtHub which is deployed on master by cloud mode. At 19:30 per node deployed 20 Pods, the memory of node improve about 2-5MB, and sustain such level. After workload is deleted, the memory reduce 10MB obviously, and recover to the previous level.
 ### CPU
 ![](../../../static/img/docs/test-report/yurthub/cpu.png)
-CPU的单核占用率情况与流量使用情况类似，正常状态下呈周期性的波动但都维持在一个较低的水平（约0.02%），两个波峰分别出现在workload部署（22%）以及workload删除时（25%）。
+The occupation of single core CPU is similar to the usage of traffic, normally periodic wave sustains a low level(approximately 0.02%), two peaks of wave show at times of workload deploying（22%）and workload deleting（25%）.
 
-## 结论及分析
+## Conclusion and Analysis
 
-- 无workload的压力下 yurthub 约占用30-40MB的内存以及极少的（< 0.02）的CPU资源。
-   - CPU资源的使用主要是用于处理yurthub收到的请求，在资源创建时单核占用率的峰值可以达到25%左右。
-   - 内存资源水平与节点上的workload分布情况有关，对着资源的创建和删除有5MB左右的变化。但是在所有测试workload都删除后, yurthub的内存占用先是大幅下降接着又回到了删除前的水平，具体原因有待进一步的分析。
-- Yurthub的流量使用情况可以看出，在资源创建和销毁过程中，会在短时间会出现大量的请求（分别达到350 KB/s 和 780 KB/s），其中大部分流量都来源于Service相关资源(endpointslice, endpoint, service) 的watch请求。
-- Yurthub的请求处理转发过程相比于请求本身的延迟可以忽略不计，请求延迟主要和请求资源的大小有关。
+- Without the pressure of workload, YurtHub occupys memory of approximately 30-40MB and rare CPU（< 0.02）.
+  - CPU mainly apply to handle the request received by YurtHub, and the peak of single core occupation could reach about 25% when resource creating.
+  - The level of memory is related to the distribution of workload, and varies about 5MB when resource is created and deleted. After all workloads are deleted, memory occupation of YurtHub reduces largely then back to previous level, and specific causes waits to be analysed.
+- The usage of YurtHub traffic shows, in the procedure of resource creating and destroying, lots of requests spring(respectively 350 KB/s and 780 KB/s) in short time, among most traffic come from watch requests related to service(endpointslice, endpoint, service).
+- The delay in the procedure of YurtHub forwarding request can be ignored comparing to request itself, and the delay of request mainly is related to the size of request resource.
