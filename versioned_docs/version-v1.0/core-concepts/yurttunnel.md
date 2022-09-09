@@ -33,7 +33,7 @@ To create a secure, non-intrusive, and scalable reverse tunnel in the K8s cloud-
 
 * Tunnel
 * Self-management of certificates at both ends of the tunnel
-* Cloud component requests are diverted to the tunnel
+* Cloud component requests are forwarded to the tunnel
 
 Architecture of `YurtTunnel` is as follows:
 
@@ -69,29 +69,35 @@ Option 2: Only the initial cloud-edge connection is used to forward requests. In
 In order to keep long and secure communication of cloud-edge, and also to support https request forwarding, `YurtTunnel` needs to generate its own certificate and maintain the automatic rotation of the certificate. The details are as follows:
 
 ```Plain
-# 1. Yurt-Tunnel-Server certificate:
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L45-90
-- certificate path: /var/lib/yurt-tunnel-server/pki
-- CommonName: "kube-apiserver-kubelet-client"  // webhook validation for kubelet server
-- Organization: {"system:masters", "openyurt:yurttunnel"} // webhook validation for kubelet server and auto approve for Yurt-Tunnel-Server certificate
-- Subject Alternate Name values: {x-tunnel-server-svc, x-tunnel-server-internal-svc's ips and dns names}
-- KeyUsage: "any"
+# 1. Yurt-Tunnel-Server server certificate:
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-server/app/start.go#L120-L139
+- certificate path: /var/lib/yurt-tunnel-server/pki/yurt-tunnel-server-xxx.pem
+- SignerName: "kubernetes.io/kubelet-serving"
+- CommonName: "system:node:tunnel-server"
+- Organization: {"system:nodes"}
+- Subject Alternate Name values: {x-tunnel-server-svc, x-tunnel-server-internal-svc的ips和dns names}
+- KeyUsage: ["key encipherment", "digital signature", "server auth"]
 
-# 2. Yurt-Tunnel-Agent certificate：
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L94-112
-- certificate path: /var/lib/yurt-tunnel-agent/pki
-- CommonName: "yurttunnel-agent"
-- Organization: {"openyurt:yurttunnel"} // auto approve for Yurt-Tunnel-Server certificate
-- Subject Alternate Name values: {NodeName, nodeIP}
-- KeyUsage: "any"
+# 2. tunnel proxy client certificate: is used by yurt-tunnel-server in order to make connection with components on edge nodes(like kubelet) for forwarding requests.
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-server/app/start.go#L146-L152
+- certificate path: /var/lib/yurt-tunnel-server/pki/yurt-tunnel-server-proxy-client-xxx.pem
+- SignerName: "kubernetes.io/kube-apiserver-client"
+- CommonName: "tunnel-proxy-client"
+- Organization: {"openyurt:yurttunnel"}
+- KeyUsage: ["key encipherment", "digital signature", "client auth"]
 
-# 3. Yurt-tunnel Certificate Signing Request (CSR) is approved by Yurt-Tunnel-Server
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/csrapprover.go#L115
-- watch csr resource
-- filter non yurt-tunnel csr (there is no "openyurt:yurttunnel" in Organization)
-- approve unapproved csr
+# 3. Yurt-Tunnel-Agent client certificate：
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-agent/app/start.go#L99-L107
+- certificate path: /var/lib/yurt-tunnel-agent/pki/yurt-tunnel-agent-xxx.pem
+- SignerName: "kubernetes.io/kube-apiserver-client"
+- CommonName: "tunnel-agent-client"
+- Organization: {"openyurt:yurttunnel"}
+- KeyUsage: ["key encipherment", "digital signature", "client auth"]
 
-# 4. certificate automatic rotation
+# 4. Yurt-tunnel Certificate Signing Request (CSR) is approved by Yurt-Controller-Manager
+# https://github.com/openyurtio/openyurt/blob/master/pkg/controller/certificates/csrapprover.go
+
+# 5. certificate automatic rotation
 # https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/client-go/util/certificate/certificate_manager.go#L224
 ```
 
@@ -135,7 +141,7 @@ Solution 2: Use dns domain name to resolve NodeName as the access address of Yur
 
 4) port extension
 
-If users need to access other ports on the edge (other than 10250 and 10255), they need to add dnat rules in iptables or add port mapping in x-tunnel-server-internal-svc, as shown following:
+If users need to access other ports(like 9051 for http requests) on the edge (other than 10250 and 10255), they need to add dnat rules in iptables or add port mapping in x-tunnel-server-internal-svc, as shown following:
 
 ```Shell
 
@@ -169,10 +175,10 @@ spec:
 The above iptables dnat rules and service port mapping are automatically updated by `Yurt-Tunnel-Server`. Users only need to add port configuration in `yurt-tunnel-server-cfg` configmap in `kube-system`. details as follows:
 
 ```Yaml
-# Notice: Due to uncontrollable factors of the certificate, the new port currently only supports forwarding from 10264 of Yurt-Tunnel-Server
 apiVersion: v1
 data:
-  dnat-ports-pair: 9051=10264 # new port = 10264 (non 10264 forwarding is not supported)
+  http-proxy-ports: "9051" # ports for HTTP requests 
+  https-proxy-ports: "" # ports for HTTPs requests
 kind: ConfigMap
 metadata:
   name: yurt-tunnel-server-cfg
