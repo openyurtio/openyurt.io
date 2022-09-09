@@ -9,6 +9,8 @@ title: 节点接入
 
 ## 1. 从零开始把节点加入集群
 
+### 1.1 yurtadm join
+
 用户可以通过 Yurtadm join 将云端节点、边缘节点加入 OpenYurt 集群。注意，在加入节点时，需要在节点上安装运行时，并关闭交换分区。
 
 执行以下命令加入边缘节点：
@@ -29,7 +31,80 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf09qn9ft3gt --node-type=edge --discovery-token-unsafe-skip-ca-verification --cri-socket=/run/containerd/containerd.sock --v=5
 ```
 
-* 如何编译`yurtadm`二进制，可以参考[链接](./yurtadm-init.md#21编译-yurtadm)
+对参数的解释：
+
+- `1.2.3.4:6443`: apiserver 的地址
+- `--token`：bootstrap token
+- `--node-type`：openyurt 节点类型，可以为：cloud 或者 edge
+
+如何编译`yurtadm`二进制，可以参考[链接](./yurtadm-init.md#21编译-yurtadm)
+
+`yurtadm join` 的过程会自动安装以下k8s组件：
+
+- kubeadm
+- kubectl
+- kubelet
+- kube-proxy
+
+### 1.2 yurtadm reset
+
+当需要删除使用 `yurtadm join` 加入的节点时，可以使用 `yurtadm reset`。下面是详细步骤：
+
+在 master 节点上：
+
+```
+kubectl drain {NodeName} --delete-local-data --force --ignore-daemonsets
+kubectl delete node {NodeName}
+```
+
+在 join 的节点上：
+
+1\. 执行 `yurtadm reset`
+
+```
+yurtadm reset
+```
+
+2\. 删除 `/etc/cni/net.d`目录：
+
+```
+rm -rf /etc/cni/net.d
+```
+
+### 1.3 常见问题
+
+**1. yurtadm join 报错：crictl not found in system path**
+
+节点没有安装 docker，安装docker就可以解决此问题。
+
+
+
+**2. yurtadm join 报错：[ERROR FileExisting-conntrack]: conntrack not found in system path**
+
+执行 `yum install -y conntrack` 然后重新执行 yurtadm join 命令即可。
+
+
+
+**3. kubectl logs 边缘节点的pod出现：error: Error from server (ServiceUnavailable): the server is currently unable to handle the request ( pods/log xxx)** 
+
+问题描述：https://github.com/openyurtio/openyurt/issues/984
+
+没有使用最新的 yurt-tunnel-agent:latest  镜像，查看一下镜像创建时间，如果不是最新的镜像，需要重新pull一下镜像。
+
+
+
+**4. kubectl logs 边缘节点的pod出现：error: You must be logged in to the server (the server has asked for the client to provide credentials ( pods/log xxx))** 
+
+具体问题描述：https://github.com/openyurtio/openyurt/issues/984
+
+删除 /var/lib/yurttunnel-server/pki 目录，然后重新部署yurt-tunnel:
+
+```
+rm -rf /var/lib/yurttunnel-server/pki
+helm uninstall openyurt -n kube-system
+cd /var/lib/sealer/data/my-cluster/rootfs
+helm upgrade --install openyurt openyurt/openyurt -n kube-system -f manifests/openyurt-values.yaml
+```
 
 ## 2. 在存量的K8s节点上安装OpenYurt Node组件
 
