@@ -69,28 +69,34 @@ Yurt-Tunnel-Agent注册的身份信息如下：
 
 ```Plain
 # 1. Yurt-Tunnel-Server证书:
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L45-90
-- 证书存储位置: /var/lib/yurt-tunnel-server/pki
-- CommonName: "kube-apiserver-kubelet-client"  // 用于kubelet server的webhook校验
-- Organization: {"system:masters", "openyurt:yurttunnel"} // 用于kubelet server的webhook校验和Yurt-Tunnel-Server证书的auto approve
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-server/app/start.go#L120-L139
+- 证书存储位置: /var/lib/yurt-tunnel-server/pki/yurt-tunnel-server-xxx.pem
+- SignerName: "kubernetes.io/kubelet-serving"
+- CommonName: "system:node:tunnel-server"
+- Organization: {"system:nodes"}
 - Subject Alternate Name values: {x-tunnel-server-svc, x-tunnel-server-internal-svc的ips和dns names}
-- KeyUsage: "any"
+- KeyUsage: ["key encipherment", "digital signature", "server auth"]
 
-# 2. Yurt-Tunnel-Agent证书：
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/certmanager.go#L94-112
-- 证书存储位置: /var/lib/yurt-tunnel-agent/pki
-- CommonName: "yurttunnel-agent"
-- Organization: {"openyurt:yurttunnel"} // 用于Yurt-Tunnel-Agent证书的auto approve
-- Subject Alternate Name values: {NodeName, nodeIP}
-- KeyUsage: "any"
+# 2. tunnel proxy client证书: yurt-tunnel-server中使用，用于和边缘节点的组件(如kubelet)建立tls连接，从而实现请求转发。
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-server/app/start.go#L146-L152
+- 证书存储位置: /var/lib/yurt-tunnel-server/pki/yurt-tunnel-server-proxy-client-xxx.pem
+- SignerName: "kubernetes.io/kube-apiserver-client"
+- CommonName: "tunnel-proxy-client"
+- Organization: {"openyurt:yurttunnel"}
+- KeyUsage: ["key encipherment", "digital signature", "client auth"]
 
-# 3. yurt-tunnel证书申请(CSR)均由Yurt-Tunnel-Server来approve
-# https://github.com/openyurtio/openyurt/blob/master/pkg/yurttunnel/pki/certmanager/csrapprover.go#L115
-- 监听csr资源
-- 过滤非yurt-tunnel的csr(Organization中没有"openyurt:yurttunnel")
-- approve还未Approved的csr
+# 3. Yurt-Tunnel-Agent证书：
+# https://github.com/openyurtio/openyurt/blob/master/cmd/yurt-tunnel-agent/app/start.go#L99-L107
+- 证书存储位置: /var/lib/yurt-tunnel-agent/pki/yurt-tunnel-agent-xxx.pem
+- SignerName: "kubernetes.io/kube-apiserver-client"
+- CommonName: "tunnel-agent-client"
+- Organization: {"openyurt:yurttunnel"}
+- KeyUsage: ["key encipherment", "digital signature", "client auth"]
 
-# 4. 证书自动轮替处理
+# 4. yurt-tunnel证书申请(CSR)均由Yurt-Controller-Manager来approve
+# https://github.com/openyurtio/openyurt/blob/master/pkg/controller/certificates/csrapprover.go
+
+# 5. 证书自动轮替处理
 # https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/client-go/util/certificate/certificate_manager.go#L224
 ```
 
@@ -167,10 +173,10 @@ spec:
 当然上述的 iptables dnat rules 和 service 端口映射，都是由 Yurt-Tunnel-Server 自动更新。用户只需要在 `kube-system` 下的 `yurt-tunnel-server-cfg` configmap 中增加端口配置即可。具体如下:
 
 ```Yaml
-# 注意：由于证书不可控因素，目前新增端口只支持从Yurt-Tunnel-Server的10264转发
 apiVersion: v1
 data:
-  dnat-ports-pair: 9051=10264 # 新增端口=10264(非10264转发不支持)
+  http-proxy-ports: "9051" # 新增HTTP端口
+  https-proxy-ports: "" # 新增HTTPs端口
 kind: ConfigMap
 metadata:
   name: yurt-tunnel-server-cfg
