@@ -88,12 +88,13 @@ kubectl get pod -n kube-system | grep yurt-app-manager
 
 ```bash
 cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
   name: master
 spec:
   type: Cloud
+EOF
 ```
 
 #### 3.1.3 节点加入节点池

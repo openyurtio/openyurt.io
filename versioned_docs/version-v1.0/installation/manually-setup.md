@@ -89,7 +89,7 @@ To better manage the nodes and the traffic on the nodes (e.g., Service traffic t
 
 ```bash
 cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
   name: master
