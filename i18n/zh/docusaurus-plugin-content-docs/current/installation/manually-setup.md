@@ -73,7 +73,7 @@ kubeadm默认安装kube-proxy和CoreDNS的配置也需要配置，从而适配�
 [Yurt-App-Manager](../core-concepts/yurt-app-manager.md)是OpenYurt集群提供边缘单元化管理的功能组件，全面提升在边缘场景下的应用部署效率，降低边缘节点和应用运维的复杂度。通过helm安装该组件：
 
 ```bash
-helm install yurt-app-manager -n kube-system ./charts/yurt-app-manager/
+helm install yurt-app-manager -n kube-system . --set image.tag=latest
 ```
 
 确认yurt-app-manager组件已经成功创建:
@@ -117,7 +117,17 @@ node/us-west-1.192.168.0.87 labeled
 我们可以通过helm安装以上组件:
 
 ```bash
-helm install openyurt -n kube-system ./charts/openyurt/
+cat <<EOF | helm install openyurt ./openyurt -n kube-system -f -
+yurtTunnelServer:
+  image:
+    tag: latest
+yurtTunnelAgent:
+  image:
+    tag: latest
+yurtControllerManager:
+  image:
+    tag: latest
+EOF
 ```
 
 可以通过`helm list -A`确认是否安装成功：

@@ -74,7 +74,7 @@ We recommend to install OpenYurt components with [Helm](https://helm.sh/), pleas
 [Yurt-App-Manager](../core-concepts/yurt-app-manager.md) is a functional component that provides united edge management capabilities for an OpenYurt cluster. You can install this component with helm.
 
 ```bash
-helm install yurt-app-manager -n kube-system ./charts/yurt-app-manager/
+helm install  yurt-app-manager -n kube-system . --set image.tag=latest
 ```
 
 You can check if yurt-app-manager has been installed successfully with:
@@ -118,7 +118,17 @@ Componentes in the `openyurt/openyurt` includes:
 We can install all the components above with helm:
 
 ```bash
-helm install openyurt -n kube-system ./charts/openyurt/
+cat <<EOF | helm install openyurt ./openyurt -n kube-system -f -
+yurtTunnelServer:
+  image:
+    tag: latest
+yurtTunnelAgent:
+  image:
+    tag: latest
+yurtControllerManager:
+  image:
+    tag: latest
+EOF
 ```
 
 If everthing went well, you'll see something like this after typing `helm list -A`
