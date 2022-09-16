@@ -115,6 +115,12 @@ Componentes in the `openyurt/openyurt` includes:
 - [yurt-tunnel-server](../core-concepts/yurttunnel.md): it constructs the cloud-edge tunnel on the server side
 - [yurt-tunnel-agent](../core-concepts/yurttunnel.md): it constructs the cloud-edge tunnel on the edge side
 
+> If your cloud node and edge node are in different network domains, please overwrite the default charts parameters for yurt-tunnel components in `values.yaml`:
+>
+> - `yurtTunnelAgent.parameters.tunnelserverAddr="ip:port"`: the public ip along with port of tunnel server where tunnel agent can connect to
+> - `yurtTunnelServer.parameters.certIps="ip1,ip2"`: the public ip of tunnel server
+> - `yurtTunnelServer.parameters.certDnsNames="dns_name1,dns_name2"`: the dns name of tunnel server [OPTIONAL]
+
 We can install all the components above with helm:
 
 ```bash

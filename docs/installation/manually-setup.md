@@ -74,7 +74,7 @@ We recommend to install OpenYurt components with [Helm](https://helm.sh/), pleas
 [Yurt-App-Manager](../core-concepts/yurt-app-manager.md) is a functional component that provides united edge management capabilities for an OpenYurt cluster. You can install this component with helm.
 
 ```bash
-helm install  yurt-app-manager -n kube-system . --set image.tag=latest
+helm install  yurt-app-manager -n kube-system ./charts/yurt-app-manager --set image.tag=latest
 ```
 
 You can check if yurt-app-manager has been installed successfully with:
@@ -115,10 +115,16 @@ Componentes in the `openyurt/openyurt` includes:
 - [yurt-tunnel-server](../core-concepts/yurttunnel.md): it constructs the cloud-edge tunnel on the server side
 - [yurt-tunnel-agent](../core-concepts/yurttunnel.md): it constructs the cloud-edge tunnel on the edge side
 
+> If your cloud node and edge node are in different network domains, please overwrite the default parameters for yurt-tunnel components in `values.yaml`:
+>
+> - `yurtTunnelAgent.parameters.tunnelserverAddr="ip:port"`: the public ip along with port of tunnel server where tunnel agent can connect to
+> - `yurtTunnelServer.parameters.certIps="ip1,ip2"`: the public ip of tunnel server
+> - `yurtTunnelServer.parameters.certDnsNames="dns_name1,dns_name2"`: the dns name of tunnel server [OPTIONAL]
+
 We can install all the components above with helm:
 
 ```bash
-cat <<EOF | helm install openyurt ./openyurt -n kube-system -f -
+cat <<EOF | helm install openyurt ./charts/openyurt -n kube-system -f -
 yurtTunnelServer:
   image:
     tag: latest

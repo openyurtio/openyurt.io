@@ -114,6 +114,12 @@ node/us-west-1.192.168.0.87 labeled
 - [yurt-tunnel-server](../core-concepts/yurttunnel.md): 在云端构建云边隧道
 - [yurt-tunnel-agent](../core-concepts/yurttunnel.md): 在边缘侧构建云边隧道
 
+> 如果你的云边节点不在同一网络平面内, 请手动修改`values.yaml`中tunnel相关参数:
+>
+> - `yurtTunnelAgent.parameters.tunnelserverAddr="ip:port"`: 用于tunnel agent连接tunnel server的公网IP与端口
+> - `yurtTunnelServer.parameters.certIps="ip1,ip2"`: tunnel server的公网IP
+> - `yurtTunnelServer.parameters.certDnsNames="dns_name1,dns_name2"`: tunnel server的DNS名称 [OPTIONAL]
+
 我们可以通过helm安装以上组件:
 
 ```bash
