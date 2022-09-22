@@ -4,6 +4,8 @@ title: 介绍
 
 OpenYurt集群安装分成2个部分，分别为`安装OpenYurt管控组件`和`节点接入`。
 
+> *一些安装过程中可能遇到的问题可以参考[FAQ](../faq.md)。*
+
 ### Part 1: 安装OpenYurt管控组件
 
 OpenYurt社区提供了以下几种方式来帮助安装OpenYurt管控组件：

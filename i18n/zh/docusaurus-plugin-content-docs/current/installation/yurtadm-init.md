@@ -60,25 +60,3 @@ sealer (当前 v0.8.6 版本)  的 k8s1.22.8 基础镜像的打包过程中将�
 `yurtadm init` 底层使用 `sealer run` 实现。
 
 sealer 制作的 openyurt 集群镜像的相关文件会放在 `/var/lib/sealer/data/my-cluster/rootfs` 目录下。所有文件相关信息见：https://github.com/windydayc/openyurt-cluster-image
-
-
-
-## 4. 常见问题
-
-**1\. yurtadm init 过程中 helm 安装出错： Release "yurt-app-manager" does not exist. Installing it now.**
-**Error: failed to download "openyurt/yurt-app-manager" (hint: running `helm repo update` may help)**
-
-手动执行 helm 安装 yurt-app-manager 的过程：
-
-```bash
-# 进入集群镜像的上下文目录
-cd /var/lib/sealer/data/my-cluster/rootfs
-# 安装 yurt-app-manager
-helm upgrade --install yurt-app-manager openyurt/yurt-app-manager -n kube-system -f manifests/yurt-app-manager-values.yaml
-```
-
-
-
-**2. yurtadm init 中途安装失败，如何把环境清理干净？**
-
-按照 http://sealer.cool/zh/help/faq.html#how-to-clean-host-environment-manually-when-sealer-apply-failed 来清理。

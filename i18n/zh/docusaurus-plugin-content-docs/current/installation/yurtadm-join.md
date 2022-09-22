@@ -71,41 +71,6 @@ yurtadm reset
 rm -rf /etc/cni/net.d
 ```
 
-### 1.3 常见问题
-
-**1. yurtadm join 报错：crictl not found in system path**
-
-节点没有安装 docker，安装docker就可以解决此问题。
-
-
-
-**2. yurtadm join 报错：[ERROR FileExisting-conntrack]: conntrack not found in system path**
-
-执行 `yum install -y conntrack` 然后重新执行 yurtadm join 命令即可。
-
-
-
-**3. kubectl logs 边缘节点的pod出现：error: Error from server (ServiceUnavailable): the server is currently unable to handle the request ( pods/log xxx)** 
-
-问题描述：https://github.com/openyurtio/openyurt/issues/984
-
-没有使用最新的 yurt-tunnel-agent:latest  镜像，查看一下镜像创建时间，如果不是最新的镜像，需要重新pull一下镜像。
-
-
-
-**4. kubectl logs 边缘节点的pod出现：error: You must be logged in to the server (the server has asked for the client to provide credentials ( pods/log xxx))** 
-
-具体问题描述：https://github.com/openyurtio/openyurt/issues/984
-
-删除 /var/lib/yurttunnel-server/pki 目录，然后重新部署yurt-tunnel:
-
-```
-rm -rf /var/lib/yurttunnel-server/pki
-helm uninstall openyurt -n kube-system
-cd /var/lib/sealer/data/my-cluster/rootfs
-helm upgrade --install openyurt openyurt/openyurt -n kube-system -f manifests/openyurt-values.yaml
-```
-
 ## 2. 在存量的K8s节点上安装OpenYurt Node组件
 
 下述操作，仅仅针对已经是Kubernetes集群的工作节点。
