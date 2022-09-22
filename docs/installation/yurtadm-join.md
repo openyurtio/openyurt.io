@@ -71,31 +71,6 @@ yurtadm reset
 rm -rf /etc/cni/net.d
 ```
 
-### 1.3 FAQ
-
-**1. yurtadm join error：crictl not found in system path**
-
-The node does not have docker installed, and installing docker can solve this problem.
-
-
-
-**2. yurtadm join error：[ERROR FileExisting-conntrack]: conntrack not found in system path**
-
-Execute `yum install -y conntrack` and then execute the yurtadm join command again.
-
-
-
-**3. kubectl logs edge node error：error: Error from server (ServiceUnavailable): the server is currently unable to handle the request ( pods/log xxx)** 
-
-https://github.com/openyurtio/openyurt/issues/984
-
-
-
-**4. kubectl logs edge node error：error: You must be logged in to the server (the server has asked for the client to provide credentials ( pods/log xxx))** 
-
-https://github.com/openyurtio/openyurt/issues/984
-
-
 
 ## 2. Install OpenYurt node components
 
