@@ -45,25 +45,25 @@ YurtIngress opeator负责将nginx ingress controller编排到需要启用边缘I
       metadata:
         name: yurtingress-test
       spec:
-          ingress_controller_replicas_per_pool: 2
-          ingress_controller_image: k8s.gcr.io/ingress-nginx/controller:v0.49.0
-          ingress_webhook_certgen_image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.49.0
+          ingressControllerReplicasPerPool: 2
+          ingressControllerImage: k8s.gcr.io/ingress-nginx/controller:v0.49.0
+          ingressWebhookCertGenImage: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.49.0
           pools:
             - name: pool01
-              ingress_ips:
+              ingressIPs:
                 - xxx.xxx.xxx.xxx
             - name: pool03
 
 其中：  
-`igress_controller_replicas_per_pool`/`ingress_controller_image`/`ingress_webhook_certgen_image`可供用户自定义相关默认配置，
-`ingress_ips` 代表如果用户想通过externalIPs的方式为某个特定的节点池对外暴露nginx ingress控制器服务的公网IP地址。
+`ingressControllerReplicasPerPool`/`ingressControllerImage`/`ingressWebhookCertGenImage`可供用户自定义相关默认配置，
+`ingressIPs` 代表如果用户想通过externalIPs的方式为某个特定的节点池对外暴露nginx ingress控制器服务的公网IP地址。
 
 
 提示：
 
 a). 用户可以通过定义不同的YurtIngress CRs来对不同节点池做一些个性化配置，比如通过定义不同的CR来对不同的节点池配置不同的ingress控制器副本数。
 
-b). 在spec中，“ingress_controller_replicas_per_pool”表示部署在每个节点池上的ingress控制器副本数，它主要用于HA高可用场景。
+b). 在spec中，“ingressControllerReplicasPerPool”表示部署在每个节点池上的ingress控制器副本数，它主要用于HA高可用场景。
 
 c). 在spec中，“pools”表示要在其上开启ingress功能的节点池列表，目前支持节点池名及针对该节点池的ingress服务公网IP配置。
 
