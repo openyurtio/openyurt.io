@@ -111,7 +111,7 @@ $ kubectl create secret docker-registry dockerpass --docker-username=your-docker
 $ kubectl apply -f config/setup/all_in_one.yaml
 ```
 
-确认yurt-app-manager组件已经成功创建:
+确认yurt-app-manager组件的pod和service配置已经成功创建:
 ```
 $ kubectl get pod -n kube-system | grep yurt-app-manager
 $ kubectl get svc -n kube-system | grep yurt-app-manager
