@@ -77,10 +77,11 @@ We recommend to install OpenYurt components with [Helm](https://helm.sh/), pleas
 helm install  yurt-app-manager -n kube-system ./charts/yurt-app-manager --set image.tag=latest
 ```
 
-You can check if yurt-app-manager has been installed successfully with:
+You can check if yurt-app-manager pod and service have been installed successfully with:
 
 ```bash
 kubectl get pod -n kube-system | grep yurt-app-manager
+kubectl get svc -n kube-system | grep yurt-app-manager
 ```
 
 #### 3.1.2 Create NodePool

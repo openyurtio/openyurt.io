@@ -83,6 +83,7 @@ $ kubectl apply -f config/setup/all_in_one.yaml
 Wait for the yurt-app-manager operator to be created successfully
 ```
 $ kubectl get pod -n kube-system | grep yurt-app-manager
+$ kubectl get svc -n kube-system | grep yurt-app-manager
 ```
 
 ### 3.3 Setup Yurt-tunnel

@@ -80,6 +80,7 @@ helm install yurt-app-manager -n kube-system ./charts/yurt-app-manager/
 
 ```bash
 kubectl get pod -n kube-system | grep yurt-app-manager
+kubectl get svc -n kube-system | grep yurt-app-manager
 ```
 
 #### 3.1.2 创建节点池
