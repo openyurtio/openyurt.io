@@ -32,6 +32,15 @@ Since `yurtadm init` uses [sealer](http://sealer.cool/) to create an OpenYurt cl
 
 ## **yurt-tunnel**
 
+how to troubleshoot the reason when `kubectl exec` command failed to work. please follow the below flow.
+
+![img](../../static/img/yurt-tunnel-troubleshooting.png)
+
+- if `exec` request info can't be found in logs of kube-apiserver, please set log level of kube-apiserver to 3(--v=3)
+- make sure `kube-apiserver` use `yurt-tunnel-dns` pod to resolve hostname. please reference the tutorial of kube-apiserver adjustment here: https://openyurt.io/docs/installation/openyurt-prepare#3-kube-apiserver-adjustment
+
+There are some issues about yurt-tunnel failure, it might have some help.
+
 **1. kubectl logs edge node error：error: Error from server (ServiceUnavailable): the server is currently unable to handle the request ( pods/log xxx)** 
 
 For more details about this problem, you can refer to [issue 984](https://github.com/openyurtio/openyurt/issues/984).
