@@ -8,7 +8,31 @@ In edge scenarios, the native DaemonSet upgrade model does not perfectly satisfy
 
 In order to address the above problems, we extend the native DaemonSet upgrade model by adding a custom controller `daemonPodUpdater-controller`, providing Auto and OTA two upgrade model.
 - Auto: Solve the DaemonSet upgrade process blocking problem which caused by node `Not-Ready` when the cloud-edge is disconnected. During auto upgrade, `not-ready` nodes will be ignored. And when `Not-Ready` nodes turn to `Ready`, upgrade process will be completed automatically.
-- OTA: Add pod annotation `PodNeedUpgrade` which indicates the upgrade availability information. YurtHub OTA component can use this annotation to determine if a new version of DaemonSet application exists.
+- OTA: Add pod status condition `PodNeedUpgrade` which indicates the upgrade availability information. YurtHub OTA component can use this condition to determine if a new version of DaemonSet application exists.
+
+## Configuration
+```yaml
+# example configuration for auto or ota upgrade
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  # ···
+  annotations:
+    # This annotation is the first prerequisite for using auto or ota upgrade
+    # and the only valid values are "auto" or "ota".
+    apps.openyurt.io/update-strategy: ota
+    # This annotation is used for rolling update and only works in auto mode.
+    # The supported value is the same with native DaemonSet maxUnavailable, default to 10%.
+    apps.openyurt.io/max-unavailable: 30%
+  # ···
+spec:
+  # ···
+  # Set updateStrategy to "OnDelete" is another prerequisite for using auto or ota upgrade.
+  updateStrategy:
+    type: OnDelete
+  # ···
+```
+In short, if you wish to use Auto or OTA upgrade, you need to set annotation `apps.openyurt.io/update-strategy` to "auto" or "ota" and set `.spec.updateStrategy.type` to "OnDelete".
 
 ## Usage：
 
@@ -123,6 +147,18 @@ Containers:
 ```
 
 ### 3）OTA Upgrade Model
+
+#### OTA Upgrade API
+YurtHub provides two REST APIs for OTA upgrades.
+1. `GET /pods`
+
+   This API allows you to get information about the pods on the node.
+
+2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+
+   This API allows you to specify and upgrade a DaemonSet Pod. The path parameters `ns` and `podname` represent the namespace and name of the pod, respectively.
+
+#### OTA Upgrade Example
 - Create daemonset instance
 ```shell
 cat <<EOF | kubectl apply -f -
@@ -156,7 +192,7 @@ nginx-daemonset-ppf9p   1/1     Running   0          92s   10.244.1.4   openyurt
 nginx-daemonset-rgp9h   1/1     Running   0          92s   10.244.2.4   openyurt-e2e-test-worker3   <none>           <none>
 ```
 
-- Check pod annotation `PodNeedUpgrade`: take pod `nginx-daemonset-bwzss` on node `openyurt-e2e-test-worker2` as an example
+- Check pod status condition `PodNeedUpgrade`: take pod `nginx-daemonset-bwzss` on node `openyurt-e2e-test-worker2` as an example
 ```shell
 $ kubectl describe pods nginx-daemonset-bwzss
 
@@ -176,7 +212,7 @@ containers:
 ***
 ```
 
-- Check pod annotation `PodNeedUpgrade` again
+- Check pod status condition `PodNeedUpgrade` again
 ```shell
 $ kubectl describe pods nginx-daemonset-bwzss
 
@@ -189,7 +225,10 @@ Conditions:
 
 - Execute OTA upgrade
 ```shell
-# call Upgrade API
+# enter edge node container of Kind cluster 
+$ docker exec -it openyurt-e2e-test-worker2 /bin/bash
+
+# call Upgrade API, this upgrade API is only available on the edge nodes
 $ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/upgrade
 Start updating pod default/nginx-daemonset-bwzss
 ```

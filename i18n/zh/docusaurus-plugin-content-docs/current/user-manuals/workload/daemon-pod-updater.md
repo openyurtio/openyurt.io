@@ -8,7 +8,30 @@ title: DaemonSet 升级模型
 
 为了解决上述问题，我们对原生 DaemonSet 升级模型进行扩展，新增自定义控制器`daemonPodUpdater-controller`，提供 Auto 与 OTA 两种升级模型。
 - Auto 模型：解决云边断连时，节点`Not-Ready`导致的 DaemonSet 升级阻塞问题，在升级过程中会忽略`Not-Ready`节点，从而保证升级流程的顺利完成，并且在节点状态从`Not-Ready`转变为`Ready`后，自动完成 DaemonSet 应用的升级。
-- OTA 模型：新增 Pod 注解`PodNeedUpgrade`来表明更新可用信息。YurtHub OTA 升级组件可以通过该注解判断 DaemonSet 应用是否存在新版本。
+- OTA 模型：新增 Pod status condition `PodNeedUpgrade`来表明更新可用信息。YurtHub OTA 升级组件可以通过该 condition 判断 DaemonSet 应用是否存在新版本。
+
+## 配置
+```yaml
+# auto 或 ota 升级模型配置文件示例
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  # ···
+  annotations:
+    # 该注解是使用 auto 或者 ota 升级模型的前提条件之一，目前支持的配置值为"auto" 或者 "ota"。
+    apps.openyurt.io/update-strategy: ota
+    # 该注解用于滚动更新时设置最大不可用 pod 数量，仅在 auto 模式下起作用。
+    # 该注解支持的配置值与原生 DaemonSet 配置中 maxUnavailable 相同，默认值为10%。
+    apps.openyurt.io/max-unavailable: 30%
+  # ···
+spec:
+  # ···
+  # 使用 auto 或者 ota 升级模型的另一个前提条件是将 updateStrategy 设置为 OnDelete。
+  updateStrategy:
+    type: OnDelete
+  # ···
+```
+总的来说，如果你希望使用 auto 或者 ota 升级模型，那么你需要将注解 `apps.openyurt.io/update-strategy` 设置为 "auto" 或者 "ota", 并且将 `.spec.updateStrategy.type` 设置为 "OnDelete"。
 
 
 ## 用户使用：
@@ -123,6 +146,18 @@ Containers:
 ```
 
 ### 3）OTA升级模型
+
+#### OTA 升级接口
+YurtHub 提供了两个 OTA 升级相关的 REST APIs。
+1. `GET /pods`
+
+    通过该接口可以获取节点上 pods 信息。
+
+2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+
+    通过该接口用户可以指定更新某个 DaemonSet Pod。路径参数 `ns` 与 `podname` 分别代表 Pod 的 命名空间以及名称。
+
+#### OTA 升级示例
 - 创建 daemonset 实例
 ```shell
 cat <<EOF | kubectl apply -f -
@@ -156,7 +191,7 @@ nginx-daemonset-ppf9p   1/1     Running   0          92s   10.244.1.4   openyurt
 nginx-daemonset-rgp9h   1/1     Running   0          92s   10.244.2.4   openyurt-e2e-test-worker3   <none>           <none>
 ```
 
-- 查看 pod annotation `PodNeedUpgrade`， 以`openyurt-e2e-test-worker2`节点上 pod `nginx-daemonset-bwzss` 为例
+- 查看 pod status condition `PodNeedUpgrade`， 以`openyurt-e2e-test-worker2`节点上 pod `nginx-daemonset-bwzss` 为例
 ```shell
 $ kubectl describe pods nginx-daemonset-bwzss
 
@@ -176,7 +211,7 @@ containers:
 ***
 ```
 
-- 再次查看 pod annotation `PodNeedUpgrade`
+- 再次查看 pod status condition `PodNeedUpgrade`
 ```shell
 $ kubectl describe pods nginx-daemonset-bwzss
 
@@ -189,20 +224,23 @@ Conditions:
 
 - 进入节点`openyurt-e2e-test-worker2`，执行OTA升级
 ```shell
-# call Upgrade API
+# Kind 集群中需要先进入边缘节点
+$ docker exec -it openyurt-e2e-test-worker2 /bin/bash
+
+# 调用 Upgrade API, 该升级接口仅在边缘节点上提供
 $ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/upgrade
 Start updating pod default/nginx-daemonset-bwzss
 ```
 
 - 检查OTA升级结果, 节点`openyurt-e2e-test-worker2`上pod `nginx-daemonset-bwzss`已经被删除，新创建 pod 为 `nginx-daemonset-vrvhn`
 ```shell
-# check result
+# 检查OTA升级结果
 $ kubectl get pods -o wide | grep nginx-daemonset
 nginx-daemonset-ppf9p   1/1     Running   0          15m   10.244.1.4   openyurt-e2e-test-worker    <none>           <none>
 nginx-daemonset-rgp9h   1/1     Running   0          15m   10.244.2.4   openyurt-e2e-test-worker3   <none>           <none>
 nginx-daemonset-vrvhn   1/1     Running   0          63s   10.244.3.5   openyurt-e2e-test-worker2   <none>           <none>
 
-# check pod container image
+# 查看容器镜像版本
 $ kubectl describe pods nginx-daemonset-vrvhn
 ***
 Containers:
