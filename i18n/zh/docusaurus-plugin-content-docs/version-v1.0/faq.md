@@ -58,3 +58,20 @@ helm upgrade --install yurt-app-manager openyurt/yurt-app-manager -n kube-system
 rm -rf /var/lib/yurttunnel-server/pki
 kubectl delete pod yurt-tunnel-server-xxxxxx -n kube-system
 ```
+
+**3. kubectl exec报错: unable to upgrade connection: fail to setup the tunnel: fail to setup TLS handshake through the Tunnel**
+
+`kubectl port-forward`也可能出现上述类似报错信息。
+```bash
+root@control-plane:~# kubectl port-forward <...>
+error: unable to upgrade connection: fail to setup the tunnel: fail to setup TLS handshake through the Tunnel: write unix @->/tmp/interceptor-proxier.sock: write: broken pipe
+```
+ 
+当`yurt-tunnel-server/agent` 连接无法建立，将会触发这个问题。 比如yurt-tunnel-agent未部署到相应的边缘节点，导致连接没有建立从而触发此问题。
+在这种情况下，强烈建议通过 [Setup OpenYurt components](https://openyurt.io/docs/installation/manually-setup#32-setup-openyurtopenyurt-components) 确保 `yurt-tunnel-server /agent` pod 被部署到适当的云和边缘节点。
+
+当节点确定不需要部署`yurt-tunnel-server/agent`时，但是`kubectl exec/port-forward`请求还是碰到此问题，则可能与`/etc/hosts`中的网络设置有关。
+比如`/etc/hosts`包含的网络配置，导致请求会通过`yurt-tunnel-server/agent`。同时节点上不会运行 `yurt-tunnel-agent`，所以此请求最终将失败并显示错误消息。
+
+在这种情况下，需要注释掉/etc/hosts中不相关的IP地址和主机名。
+更多详情请参考[issue 1024](https://github.com/openyurtio/openyurt/issues/1024)。
