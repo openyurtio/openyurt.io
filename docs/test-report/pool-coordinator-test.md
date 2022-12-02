@@ -79,10 +79,10 @@ Start pool-coordinator pod and record the beginning resource used.
   * apiserver used 205MB.
   * etcd used 165MB.
 
-![](../../../static/img/pool-coordinator-step1-cpu-sum.jpg)
-![](../../../static/img/pool-coordinator-step1-cpu.jpg)
-![](../../../static/img/pool-coordinator-step1-mem-sum.jpg)
-![](../../../static/img/pool-coordinator-step1-mem.jpg)
+![](../../static/img/pool-coordinator-step1-cpu-sum.jpg)
+![](../../static/img/pool-coordinator-step1-cpu.jpg)
+![](../../static/img/pool-coordinator-step1-mem-sum.jpg)
+![](../../static/img/pool-coordinator-step1-mem.jpg)
 
 
 ### Phase two
@@ -94,10 +94,10 @@ Write a mount of resources and record the resource used of pool-coordinator. In 
   * apiserver used 240MB.
   * etcd used 210MB.
 
-![](../../../static/img/pool-coordinator-step2-cpu-sum.jpg)
-![](../../../static/img/pool-coordinator-step2-cpu.jpg)
-![](../../../static/img/pool-coordinator-step2-mem-sum.jpg)
-![](../../../static/img/pool-coordinator-step2-mem.jpg)
+![](../../static/img/pool-coordinator-step2-cpu-sum.jpg)
+![](../../static/img/pool-coordinator-step2-cpu.jpg)
+![](../../static/img/pool-coordinator-step2-mem-sum.jpg)
+![](../../static/img/pool-coordinator-step2-mem.jpg)
 
 
 ### Phase three
@@ -109,10 +109,10 @@ Delete all resources in pool-coordinator. To see whether resource used will go d
   * apiserver used 350MB.
   * etcd used 240MB.
 
-![](../../../static/img/pool-coordinator-step3-cpu-sum.jpg)
-![](../../../static/img/pool-coordinator-step3-cpu.jpg)
-![](../../../static/img/pool-coordinator-step3-mem-sum.jpg)
-![](../../../static/img/pool-coordinator-step3-mem.jpg)
+![](../../static/img/pool-coordinator-step3-cpu-sum.jpg)
+![](../../static/img/pool-coordinator-step3-cpu.jpg)
+![](../../static/img/pool-coordinator-step3-mem-sum.jpg)
+![](../../static/img/pool-coordinator-step3-mem.jpg)
 
 
 
@@ -123,10 +123,10 @@ Rewrite a mount of resources to pool-coordinator and patch them frequently and r
 * top CPU used: 640m.
 * mem used rise continually and result in etcd container OOM.
 
-![](../../../static/img/pool-coordinator-step4-cpu-sum.jpg)
-![](../../../static/img/pool-coordinator-step4-cpu.jpg)
-![](../../../static/img/pool-coordinator-step4-mem-sum.jpg)
-![](../../../static/img/pool-coordinator-step4-mem.jpg)
+![](../../static/img/pool-coordinator-step4-cpu-sum.jpg)
+![](../../static/img/pool-coordinator-step4-cpu.jpg)
+![](../../static/img/pool-coordinator-step4-mem-sum.jpg)
+![](../../static/img/pool-coordinator-step4-mem.jpg)
 
 
 ### Phase five
