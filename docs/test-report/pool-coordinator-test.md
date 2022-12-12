@@ -131,20 +131,55 @@ Rewrite a mount of resources to pool-coordinator and patch them frequently and r
 
 ### Phase five
 
-Run program to do leader election and check the result. We can see that program acquired leader successfully.
+Run other program to do leader election and check the result. 
+
+Go code run 500 goroutines and every goroutine do the same things to acquire leader. After acquiring leader successfully, go client sleep 1 second and quit.
+
+We can see that program acquired leader successfully. After one client quited, the other go client can aquire leader successfully.
 
 ```shell
-I1103 20:47:15.123746   87201 leaderelection.go:248] attempting to acquire leader lease default/test-lock...
-I1103 20:47:15.260887   87201 leaderelection.go:258] successfully acquired lease default/test-lock
-I1103 20:47:15.260951   87201 main.go:465] Controller loop...
+I1212 14:58:43.652733   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:43.652766   41875 main.go:656] new leader elected: ff43ffde-3551-47d6-b2af-1fa3ef115b86
+I1212 14:58:43.652779   41875 main.go:562] Controller loop...
+I1212 14:58:44.653060   41875 main.go:564] Controller quit.
+I1212 14:58:44.662196   41875 main.go:648] leader lost: ff43ffde-3551-47d6-b2af-1fa3ef115b86
+I1212 14:58:44.679782   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:44.679826   41875 main.go:656] new leader elected: 76870bb5-eaa0-44b0-a8a8-203c36a2d373
+I1212 14:58:44.679915   41875 main.go:562] Controller loop...
+I1212 14:58:45.680211   41875 main.go:564] Controller quit.
+I1212 14:58:45.686105   41875 main.go:648] leader lost: 76870bb5-eaa0-44b0-a8a8-203c36a2d373
+I1212 14:58:45.697108   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:45.697131   41875 main.go:656] new leader elected: b127e7bc-beeb-474a-b0e9-5023b1563d94
+I1212 14:58:45.697210   41875 main.go:562] Controller loop...
+I1212 14:58:46.698199   41875 main.go:564] Controller quit.
+I1212 14:58:46.702313   41875 main.go:648] leader lost: b127e7bc-beeb-474a-b0e9-5023b1563d94
+I1212 14:58:46.733931   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:46.733953   41875 main.go:656] new leader elected: 7a4dd5d7-5e25-4f69-a882-d32e17bb703a
+I1212 14:58:46.734007   41875 main.go:562] Controller loop...
+I1212 14:58:47.739147   41875 main.go:564] Controller quit.
+I1212 14:58:47.743684   41875 main.go:648] leader lost: 7a4dd5d7-5e25-4f69-a882-d32e17bb703a
+...
+
 ```
 
-Check the lease resource in pool-coordinator. We can see the lease resource too.
+Check the lease resource in pool-coordinator. We can see the lease resource and the holder of lease changes periodically.
 
 ```shell
 $ kubectl get lease
 NAME        HOLDER                                 AGE
-test-lock   2cd06119-8be6-4e0e-a6aa-398f1eca32c0   102s
+test-lock   ff43ffde-3551-47d6-b2af-1fa3ef115b86   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   76870bb5-eaa0-44b0-a8a8-203c36a2d373   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   b127e7bc-beeb-474a-b0e9-5023b1563d94   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   7a4dd5d7-5e25-4f69-a882-d32e17bb703a   5m
 ```
 
 
