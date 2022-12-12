@@ -125,20 +125,53 @@ Master 节点与 worker 节点均使用运行在 VMWare Fusion 中的虚拟机�
 
 ### 第五阶段
 
-启动外部程序，请求 pool-coordinator 选主，选主成功。
+启动外部程序，以 500 个 client 请求 pool-coordinator 选主。如单个 client 选主成功，则在 sleep 1s 后退出。
+
+由代码输出可知，不同的 client 轮流选主成功，结果正常。
 
 ```shell
-I1103 20:47:15.123746   87201 leaderelection.go:248] attempting to acquire leader lease default/test-lock...
-I1103 20:47:15.260887   87201 leaderelection.go:258] successfully acquired lease default/test-lock
-I1103 20:47:15.260951   87201 main.go:465] Controller loop...
+I1212 14:58:43.652733   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:43.652766   41875 main.go:656] new leader elected: ff43ffde-3551-47d6-b2af-1fa3ef115b86
+I1212 14:58:43.652779   41875 main.go:562] Controller loop...
+I1212 14:58:44.653060   41875 main.go:564] Controller quit.
+I1212 14:58:44.662196   41875 main.go:648] leader lost: ff43ffde-3551-47d6-b2af-1fa3ef115b86
+I1212 14:58:44.679782   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:44.679826   41875 main.go:656] new leader elected: 76870bb5-eaa0-44b0-a8a8-203c36a2d373
+I1212 14:58:44.679915   41875 main.go:562] Controller loop...
+I1212 14:58:45.680211   41875 main.go:564] Controller quit.
+I1212 14:58:45.686105   41875 main.go:648] leader lost: 76870bb5-eaa0-44b0-a8a8-203c36a2d373
+I1212 14:58:45.697108   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:45.697131   41875 main.go:656] new leader elected: b127e7bc-beeb-474a-b0e9-5023b1563d94
+I1212 14:58:45.697210   41875 main.go:562] Controller loop...
+I1212 14:58:46.698199   41875 main.go:564] Controller quit.
+I1212 14:58:46.702313   41875 main.go:648] leader lost: b127e7bc-beeb-474a-b0e9-5023b1563d94
+I1212 14:58:46.733931   41875 leaderelection.go:258] successfully acquired lease default/test-lock
+I1212 14:58:46.733953   41875 main.go:656] new leader elected: 7a4dd5d7-5e25-4f69-a882-d32e17bb703a
+I1212 14:58:46.734007   41875 main.go:562] Controller loop...
+I1212 14:58:47.739147   41875 main.go:564] Controller quit.
+I1212 14:58:47.743684   41875 main.go:648] leader lost: 7a4dd5d7-5e25-4f69-a882-d32e17bb703a
+...
+
 ```
 
-查看 pool-coordinator 中 lease 信息，创建成功。
+请求 pool-coordinator 查看 lease 信息，可知：lease 创建成功，并且 lease 的 holder 随着 client 的退出持续不断变化。
 
 ```shell
 $ kubectl get lease
 NAME        HOLDER                                 AGE
-test-lock   2cd06119-8be6-4e0e-a6aa-398f1eca32c0   102s
+test-lock   ff43ffde-3551-47d6-b2af-1fa3ef115b86   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   76870bb5-eaa0-44b0-a8a8-203c36a2d373   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   b127e7bc-beeb-474a-b0e9-5023b1563d94   5m
+
+$ kubectl get lease
+NAME        HOLDER                                 AGE
+test-lock   7a4dd5d7-5e25-4f69-a882-d32e17bb703a   5m
 ```
 
 ## 结论
