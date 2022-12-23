@@ -127,6 +127,14 @@ module.exports = {
             ],
         },
         {
+            type: 'category',
+            label: 'Reference',
+            collapsed: true,
+            items: [
+                'reference/api_reference'
+            ],
+        },
+        {
             type: 'doc',
             id: 'faq'
         },
