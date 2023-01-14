@@ -131,7 +131,22 @@ module.exports = {
             label: 'Reference',
             collapsed: true,
             items: [
-                'reference/api_reference'
+                'reference/api_reference',
+                {
+                    'yurtadm': [
+                        "reference/yurtadm/yurtadm",
+                        "reference/yurtadm/yurtadm_completion",
+                        "reference/yurtadm/yurtadm_completion_bash",
+                        "reference/yurtadm/yurtadm_completion_fish",
+                        "reference/yurtadm/yurtadm_completion_powershell",
+                        "reference/yurtadm/yurtadm_completion_zsh",
+                        "reference/yurtadm/yurtadm_docs",
+                        "reference/yurtadm/yurtadm_init",
+                        "reference/yurtadm/yurtadm_join",
+                        "reference/yurtadm/yurtadm_reset",
+                        "reference/yurtadm/yurtadm_token",                        
+                    ]
+                }
             ],
         },
         {
