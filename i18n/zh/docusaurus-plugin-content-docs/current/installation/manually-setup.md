@@ -10,22 +10,29 @@ title: 在Kubernetes上安装
 
 ```bash
 $ kubectl get nodes
-NAME                     STATUS   ROLES    AGE     VERSION
-us-west-1.192.168.0.87   Ready    <none>   3d23h   v1.20.11
+NAME                      STATUS   ROLES                  AGE     VERSION
+izwz9dohcv74iegqecp4axz   Ready    control-plane,master   6d1h    v1.22.11
 ```
 
 ### 1.1 给云端节点打标签
 
 当与 `apiserver` 断开连接时，只有运行在边缘自治的节点上的Pod才不会被驱逐。因此，我们首先需要通过打 `openyurt.io/is-edge-worker` 的标签的方式，将节点分为云端节点和边缘节点。
-我们将 `us-west-1.192.168.0.87` 作为云端节点，将标签的 `value` 值设置为 `false`
+我们将 `izwz9dohcv74iegqecp4axz` 作为云端节点，将标签的 `value` 值设置为 `false`
 
 ```bash
-$ kubectl label node us-west-1.192.168.0.87 openyurt.io/is-edge-worker=false
-node/us-west-1.192.168.0.87 labeled
+$ kubectl label node izwz9dohcv74iegqecp4axz openyurt.io/is-edge-worker=false
+izwz9dohcv74iegqecp4axz labeled
 ```
 
 ## 2 OpenYurt安装准备
-
+### 前置条件：
+* 集群中所有的节点的IP不可以产生冲突。
+* 如果采用docker作为容器运行时则需要做以下调整，避免docker终止(drop)节点iptables规则中的Chain FORWARD链而导致的Gateway节点转发失败：
+  ```bash
+  iptables -w -P FORWARD ACCEPT
+   sed -i 's#^After=network-online.target firewalld.service$#After=network-online.target firewalld.service containerd.service#g' \
+   /lib/systemd/system/docker.service
+  ```
 ### 2.1 Kube-Controller-Manager调整
 
 为了保证Yurt-Controller-Manager可以正常工作，需要关闭Kube-Controller-Manager中的NodeLifeCycle controller(目前正在优化，后续Kube-Controller-Manager将无需调整)。
@@ -34,32 +41,14 @@ Kube-Controller-Manager配置调整方法如下:
 
 - [Kube-Controller-Manager](./openyurt-prepare.md#2-kube-controller-manager调整)
 
-### 2.2 部署Yurt-Tunnel专用DNS
-
-云端组件(如Kube-apiserver, prometheus, metrics-server等)通过`hostname:port`访问边缘时，为了让`hostname`域名解析到`yurt-tunnel-server`,从而让请求无感知
-经过`yurt-tunnel-server/yurt-tunnel-agent`到达边缘节点。需要确保组件的DNS域名解析请求发送到Yurt-Tunnel专用的DNS(取名为yurt-tunnel-dns)。
-
-通过如下命令安装yurt-tunnel-dns:
-
-```bash
-kubectl apply -f config/setup/yurt-tunnel-dns.yaml
-```
 
 当安装完成后，可以通过命令`kubectl -n kube-system get po`等确认一下yurt-tunnel-dns组件是否正常启动。并且通过`kubectl -n kube-system get svc yurt-tunnel-dns`获取到`yurt-tunnel-dns service`的`clusterIP`.
 
-### 2.3 Kube-apiserver调整
 
-为了保证Master节点上kube-apiserver使用`hostname:port`访问kubelet，同时保证使用`yurt-tunnel-dns pod`对`hostname`进行域名解析。需要调整kube-apiserver组件的相关配置。
-
-Kube-apiserver配置调整方法如下:
-
-- [Kube-apiserver](./openyurt-prepare.md#3-kube-apiserver调整)
-
-### 2.4 Addons调整
+### 2.2 KubeProxy调整
 
 kubeadm默认安装kube-proxy和CoreDNS的配置也需要配置，从而适配云边协同场景。调整配置方法如下:
 
-- [CoreDNS](./openyurt-prepare.md#4-coredns调整)
 - [KubeProxy](./openyurt-prepare.md#5-kubeproxy调整)
 
 ## 3 部署OpenYurt的Control-Plane组件
@@ -103,34 +92,16 @@ EOF
 将云端节点加入3.1.2中创建的云端节点池，具体如下:
 
 ```bash
-$ kubectl label node us-west-1.192.168.0.87 apps.openyurt.io/desired-nodepool=master
-node/us-west-1.192.168.0.87 labeled
+$ kubectl label node izwz9dohcv74iegqecp4axz apps.openyurt.io/desired-nodepool=master
+izwz9dohcv74iegqecp4axz labeled
 ```
 
-### 3.2 部署`openyurt/openyurt`组件
-
-在`openyurt/openyurt`中的组件包括：
-
-- [yurt-controller-manager](../core-concepts/yurt-controller-manager.md): 防止apiserver在断开连接时驱逐运行在边缘节点上的pod
-- [yurt-tunnel-server](../core-concepts/yurttunnel.md): 在云端构建云边隧道
-- [yurt-tunnel-agent](../core-concepts/yurttunnel.md): 在边缘侧构建云边隧道
-
-> 如果你的云边节点不在同一网络平面内, 请手动修改`values.yaml`中tunnel相关参数:
->
-> - `yurtTunnelAgent.parameters.tunnelserverAddr="ip:port"`: 用于tunnel agent连接tunnel server的公网IP与端口
-> - `yurtTunnelServer.parameters.certIps="ip1,ip2"`: tunnel server的公网IP
-> - `yurtTunnelServer.parameters.certDnsNames="dns_name1,dns_name2"`: tunnel server的DNS名称 [OPTIONAL]
-
+### 3.2 部署`openyurt/yurt-controller-manager`组件
+[yurt-controller-manager](../core-concepts/yurt-controller-manager.md)防止apiserver在断开连接时驱逐运行在边缘节点上的pod
 我们可以通过helm安装以上组件:
 
 ```bash
 cat <<EOF | helm install openyurt ./openyurt -n kube-system -f -
-yurtTunnelServer:
-  image:
-    tag: latest
-yurtTunnelAgent:
-  image:
-    tag: latest
 yurtControllerManager:
   image:
     tag: latest
@@ -145,7 +116,30 @@ NAME            	NAMESPACE  	REVISION	UPDATED                                	ST
 openyurt        	kube-system	1       	2022-09-07 17:06:17.764754411 +0800 CST	deployed	openyurt-1.0.0        	1.0.0      
 yurt-app-manager	kube-system	1       	2022-09-07 17:36:30.371904902 +0800 CST	deployed	yurt-app-manager-0.1.2	0.8.0
 ```
+## 4 部署OpenYurt的跨网络域通信组件
+[Raven](../core-concepts/raven.md)提供了云、边位于不同网络区域的网络通信能力，raven项目包含两个组件raven-controller-manager和raven-agent构成：
+### 4.1 部署`raven-controller-manager`组件
+[raven-controller-manager](https://github.com/openyurtio/raven-controller-manager)是一个自定义CR Gateway的标准kubernetes控制器，被部署在云端节点（可为master或cloud节点），Gateway CR管理不同物理区域的节点，动态选举物理区域内一个合格节点作为Gateway节点。 
+```bash
+git clone https://github.com/openyurtio/raven-controller-manager.git
+cd raven-controller-manager
+git checkout v0.3.0
+make generate-deploy-yaml
+kubectl apply -f _output/yamls/raven-controller-manager.yaml
+```
 
-## 4. 注意
+### 4.2 部署`raven-agent`组件
+```bash
+git clone https://github.com/openyurtio/raven.git
+cd raven
+git checkout v0.3.0
+FORWARD_NODE_IP=true make deploy
+```
+
+
+
+
+
+## 5. 注意
 
 以上操作仅针对Master节点，如果集群中还有其他节点，还需要额外调整，操作方法可以参考: [在存量的K8s节点上安装OpenYurt Node组件](./yurtadm-join.md#2-在存量的k8s节点上安装openyurt-node组件)

@@ -4,9 +4,8 @@ title: Raven
 
 ## 1. 背景介绍
 
-在边缘计算中，边-边和边-云通信是常见的网络通信场景，在OpenYurt中，我们已经引入了YurtTunnel来应对边云协作中的运维和监控的网络问题，提供对边缘节点执行 kubectl exec/logs 并从边缘节点获取监控指标的功能，但是YurtTunnel 解决的问题只是边云通信的一个子集，我们还需要提供边-边、边-云容器网络通信的解决方案。
-
-即在OpenYurt集群中，位于不同物理区域的Pod可能需要使用Pod IP、Service IP 或Service name与其他Pod通信，虽然这些Pod位于单个K8s集群中，但它们处于不同物理区域（网络域）中，无法直接通信。因此，我们提出了Raven项目来解决这一问题。
+在边缘计算中，边-边和边-云通信是常见的网络通信场景，在OpenYurt中，我们开发了Raven项目提供边-边、边-云容器网络与主机网络通信的解决方案。
+在OpenYurt集群中，位于不同物理区域的Pod可能需要使用Pod IP、Service IP 或Service name与其他Pod通信，虽然这些Pod位于单个K8s集群中，但它们处于不同物理区域（网络域）中，无法直接通信。因此，Raven项目被开发来解决这一问题。
 
 
 ## 2. 整体架构
@@ -44,19 +43,21 @@ title: Raven
 
 Raven Controller Manager版本：
 
-| 版本号 | 镜像地址                                     | 发布时间    | 发布内容 | 备注                  |
-| ------ |------------------------------------------|---------| -------- |---------------------|
-| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | 首次发布 | 支持  Gateway Node 选举 |
-
+| 版本号    | 镜像地址                                     | 发布时间    | 发布内容 | 备注                           |
+|--------|------------------------------------------|---------|------|------------------------------|
+| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | 首次发布 | 支持  Gateway Node 选举          |
+| v0.2.0 | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | 增加特性 | 支持多  Pod CIDRs<br/> 支持Calico |
+| v0.3.0 | openyurt/raven-controller-manager:v0.3.0 | 2023.01 | 增加特性 | 支持节点 IP 转发                   |
 Raven Agent版本：
 
-| 版本号 | 镜像地址                        | 发布时间    | 发布内容 | 备注                |
-| ------ |-----------------------------|---------| -------- |-------------------|
-| v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端 |
+| 版本号    | 镜像地址                        | 发布时间    | 发布内容 | 备注                               |
+|--------|-----------------------------|---------|------|----------------------------------|
+| v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端                |
+| v0.2.0 | openyurt/raven-agent:v0.2.0 | 2022.12 | 增加特性 | 支持WireGuard作为VPN后端<br/> 支持Calico |
+| v0.3.0 | openyurt/raven-agent:v0.3.0 | 2023.01 | 增加特性 | 支持节点 IP 转发                |
 
 ## 5. 未来计划
 
-- 除IPsec之外，支持更多的VPN技术，例如：WireGuard 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
 - 支持IPVS后端的流量转发 【[issue #16](https://github.com/openyurtio/raven/issues/16)】 
 - 云端支持LB的公网暴露方式 【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
 - 支持NAT穿越 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
