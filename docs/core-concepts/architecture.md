@@ -54,6 +54,6 @@ With this feature, it's easily to send operate instructions from cloud to edge, 
   - YurtDeviceController and YurtEdgeXManager manage edge devices in cloud native way, they combine EdgeX Foundry and OpenYurt seamlessly, providing IOT solutions in an easy, efficient way.
   - Deployment pattern: Deployment for YurtEdgeXManager in cloud nodes, YurtAppSet for YurtDeviceController in each edge nodepool.
 
-- **NodeResourceManager:**
-  - NodeResourceManager manages local resources in cluster nodes, user can modify the local resource definitions with configmap dynamically.
-  - Deployment pattern: DaemonSet in Edge nodes.
+- **Pool-Coordinator:**
+  - Provide KV data storage (stored only in memory) and distributed lock capabilities in the node pool, so that YurtHub can elect a Leader, so as to realize heartbeat proxy, cloud edge traffic reuse, operation and maintenance monitoring in the node pool, etc.
+  - Deployment pattern: YurtAppDaemon and ensures one instance per edge node pool.
