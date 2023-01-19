@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkopenyurt_io=self.webpackChunkopenyurt_io||[]).push([[8894],{18894:(e,u,p)=>{p.r(u)}}]);
