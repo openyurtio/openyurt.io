@@ -13,9 +13,6 @@ For different situations, there are several ways to install OpenYurt Control Pla
   - **[Manually Setup](./manually-setup.md)**
     - Recommend to use in a production environment
     - Need to prepare a Kubernetes Control Plane
-  - **[Yurtadm init](./yurtadm-init.md)**
-    - Use in a test environment
-    - Install OpenYurt Control Plane components(including Kubernetes) from scratch.
   - **[OpenYurt Experience Center](./openyurt-experience-center/overview.md)**
     - Use in a test environment
     - Users can directly obtain a cluster(only include control plane components) with limited permissions after applying for an account on the webpage.

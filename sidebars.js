@@ -19,7 +19,6 @@ module.exports = {
                         {
                             "Install Control Plane Components": [
                                 "installation/manually-setup",
-                                "installation/yurtadm-init",
                                 {
                                     "OpenYurt Experience Center": [
                                         "installation/openyurt-experience-center/overview",
