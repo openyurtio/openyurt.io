@@ -4,7 +4,7 @@ title: 系统架构
 
 OpenYurt的整体架构如下:
 
-![img](../../../../../static/img/docs/core-concepts/yurt-arch.png)
+![img](../../../../../static/img/docs/core-concepts/arch.png)
 
 其中蓝色框为原生Kubernetes组件，橙色框中组件为OpenYurt组件。
 
@@ -53,9 +53,9 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组件访问云�
   - 用于边缘IOT解决方案的非侵入融合，通过云原生模式管控边缘设备。目前EdgeX Foundry已经无缝集成到OpenYurt架构中。
   - YurtEdgeXManager以Deployment形态部署在Cloud Node上，YurtDeviceController以YurtAppSet(之前名为UnitedDeployment)形态部署在Edge Node上，每个NodePool上部署一套YurtDeviceController。
 
-- **NodeResourceManager:**
-  - 管理 OpenYurt 集群本地资源的组件，用户可以通过修改集群内 ConfigMap 的定义来动态配置集群内宿主机上的本地资源。
-  - 以DaemonSet形态部署在Edge Node上。
+- **Pool-Coordinator:**
+  - 在节点池内提供KV数据存储(仅存储在内存中)和分布式锁等能力，供YurtHub选举产生Leader，从而实现心跳代理，云边流量复用，节点池内运维监控等能力。
+  - 以YurtAppDaemon形态部署，会确保每个边缘节点池中有一个实例。
 
 
 
