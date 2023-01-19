@@ -12,9 +12,6 @@ OpenYurt社区提供了以下几种方式来帮助安装OpenYurt管控组件：
   - **[在Kubernetes上安装OpenYurt管控组件](./manually-setup.md)**
     - 推荐生产环境中使用
     - 需要先准备一个生产可用的Kubernetes集群, 然后手动安装各个OpenYurt管控组件
-  - **[从零开始安装OpenYurt管控组件](./yurtadm-init.md)**
-    - 推荐在测试环境中使用
-    - 一键式命令搭建一套OpenYurt Control Plane集群(包括K8s Control Plane)
   - **[OpenYurt体验中心](./openyurt-experience-center/overview.md)**
     - 推荐在测试环境中使用
     - 用户在网页上申请体验中心账户后可直接获取一个包括OpenYurt Control Plane的集群，但用户只能在有限权限下活动，而且需要接入自己的节点体验OpenYurt的完整能力。

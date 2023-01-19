@@ -18,7 +18,6 @@
                         {
                             "Install Control Plane Components": [
                                 "version-v1.1/installation/manually-setup",
-                                "version-v1.1/installation/yurtadm-init",
                                 {
                                     "OpenYurt Experience Center": [
                                         "version-v1.1/installation/openyurt-experience-center/overview",

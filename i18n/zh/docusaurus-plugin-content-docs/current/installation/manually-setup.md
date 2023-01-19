@@ -24,32 +24,15 @@ $ kubectl label node izwz9dohcv74iegqecp4axz openyurt.io/is-edge-worker=false
 izwz9dohcv74iegqecp4axz labeled
 ```
 
-## 2 OpenYurt安装准备
-### 前置条件：
-* 集群中所有的节点的IP不可以产生冲突。
-* 如果采用docker作为容器运行时则需要做以下调整，避免docker终止(drop)节点iptables规则中的Chain FORWARD链而导致的Gateway节点转发失败：
+## 2 OpenYurt安装前置条件
+
+1. 保证集群中所有节点IP不冲突。
+2. 如果采用docker作为容器运行时则需要做以下调整，避免Docker修改iptables FORWARD链默认规则为DROP，从而导致Raven Gateway节点流量转发失败：
   ```bash
   iptables -w -P FORWARD ACCEPT
    sed -i 's#^After=network-online.target firewalld.service$#After=network-online.target firewalld.service containerd.service#g' \
    /lib/systemd/system/docker.service
   ```
-### 2.1 Kube-Controller-Manager调整
-
-为了保证Yurt-Controller-Manager可以正常工作，需要关闭Kube-Controller-Manager中的NodeLifeCycle controller(目前正在优化，后续Kube-Controller-Manager将无需调整)。
-
-Kube-Controller-Manager配置调整方法如下:
-
-- [Kube-Controller-Manager](./openyurt-prepare.md#2-kube-controller-manager调整)
-
-
-当安装完成后，可以通过命令`kubectl -n kube-system get po`等确认一下yurt-tunnel-dns组件是否正常启动。并且通过`kubectl -n kube-system get svc yurt-tunnel-dns`获取到`yurt-tunnel-dns service`的`clusterIP`.
-
-
-### 2.2 KubeProxy调整
-
-kubeadm默认安装kube-proxy和CoreDNS的配置也需要配置，从而适配云边协同场景。调整配置方法如下:
-
-- [KubeProxy](./openyurt-prepare.md#5-kubeproxy调整)
 
 ## 3 部署OpenYurt的Control-Plane组件
 
@@ -135,10 +118,6 @@ cd raven
 git checkout v0.3.0
 FORWARD_NODE_IP=true make deploy
 ```
-
-
-
-
 
 ## 5. 注意
 
