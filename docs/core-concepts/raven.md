@@ -43,15 +43,19 @@ Advantages:
 
 `Raven Controller Manager`:
 
-| version | image                                     | release    | content | comment                  |
-| ------ |------------------------------------------|---------| -------- |---------------------|
-| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | first | support Gateway Node election |
+| version | image                                    | release | content | comment                                      |
+|---------|------------------------------------------|---------|---------|----------------------------------------------|
+| v0.1.0  | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | first   | support Gateway Node election                |
+| v0.2.0  | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | feature | support multi Pod CIDRs <br/> support Calico |
+| v0.3.0  | openyurt/raven-controller-manager:v0.3.0 | 2023.1  | feature | support node IP forwarding                   |
 
 `Raven Agent`：
 
-| version | image                        | release    | content | comment                |
-| ------ |-----------------------------|---------| -------- |-------------------|
-| v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端 |
+| version | image                       | release | content | comment                |
+|---------|-----------------------------|---------|---------|-------------------|
+| v0.1.0  | openyurt/raven-agent:v0.1.0 | 2022.05 | first   | Support IPsec as VPN backend, which implemented by using libreswan |
+| v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico|
+| v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding |
 
 ## 5. 未来计划
 
