@@ -19,12 +19,9 @@ YurtHub manages the network traffic from edge to cloud kube-apiserver and caches
 Components in edge nodes such as kubelet, kube-proxy and flannel access the cloud kube-apiserver via YurtHub.
 When the edge nodes are disconnected from cloud, the caches are used to resume status to avoid workload disruption.
 
-### Traffic from cloud to edge
+### Traffic in data plane
 
-YurtTunnel manages the network traffic from cloud to edge.
-In most cases, edge nodes are running in private network, and are not directly accessible from cloud.
-YurtTunnel consists of cloud side `tunnel-server` and edge side `tunnel-agent`, which form a secure and reliable reverse tunnel.
-With this feature, it's easily to send operate instructions from cloud to edge, such as `kubectl exec`, `kubectl logs`.
+Raven builds VPN channels to ensure connectivity from cloud to edge or edge to edge include the host network and the container network in order to achieve cloud to edge and edge to edge network communication, which is mainly due to the network domain of the edge node is not in the same network plane as the network domain on the cloud, and the edge nodes are not exposed on the public network.
 
 ### OpenYurt Components
 
@@ -45,10 +42,6 @@ With this feature, it's easily to send operate instructions from cloud to edge, 
 - **YurtAppManager:**
   - YurtAppManager is application controller for managing cross region workloads. It consists of the management of Nodepools(node groups), YurtAppSet(previous named UnitedDeployment)(nodepool level workloads), YurtAppDaemon(nodepool level daemonset), and YurtIngress(nodepool level ingress).
   - Deployment pattern: Deployment in cloud nodes.
-
-- **YurtTunnel(Server/Agent):**
-  - YurtTunnel constructs a secure and reliable edge-tunnel reverse tunnel, for forwarding cloud to edge operation traffic.
-  - Deployment pattern: Deployment for YurtTunnel Server in cloud nodes, DaemonSet for YurtTunnel Agent in edge nodes.
 
 - **YurtDeviceController/YurtEdgeXManager:**
   - YurtDeviceController and YurtEdgeXManager manage edge devices in cloud native way, they combine EdgeX Foundry and OpenYurt seamlessly, providing IOT solutions in an easy, efficient way.
