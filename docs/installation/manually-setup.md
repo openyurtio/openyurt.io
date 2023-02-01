@@ -34,6 +34,8 @@ izwz9dohcv74iegqecp4axz labeled
   sed -i 's#^After=network-online.target firewalld.service$#After=network-online.target firewalld.service containerd.service#g' \
   /lib/systemd/system/docker.service
   ```
+* Domain Name resolution from pods on edge nodes will be handled by CoreDNS instance on master node or cloud node through VPN tunnel that provided by Raven, so some resolution latency or timeout will be caused by network. we recommend you to adjust `CoreDNS Deployment` according to [CoreDNS Adjustment](./coredns-prepare.md) tutorial if you care about latency or timeout.
+
 ## 3. Setup Control-Plane components of OpenYurt
 
 We recommend to install OpenYurt components with [Helm](https://helm.sh/), please make sure that [`helm CLI` has been installed](https://helm.sh/docs/intro/install/) properly before moving on. All the helm charts used in this tutorial can be found in [openyurt-helm repo](https://github.com/openyurtio/openyurt-helm).
