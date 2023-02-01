@@ -7,7 +7,7 @@ Welcome to the world of OpenYurt!
 
 **OpenYurt is the first edge computing platform that is non-intrusive to cloud-native systems in the industry**. It unifies the management of scattered massive edge heterogeneous resources (such as CDN sites, IoT all-in-one machines and other edge computing power) from the control side (located in the cloud or central server room, etc.).
 It helps users to easily complete large-scale application delivery, operation and maintenance, and control on massive edge resources. 
-OpenYurt has the following features:
+OpenYurt has the following characteristics:
 - Non-instrusive to Kubernetes
 
   In the cloud-edge scenario, users can follow up on new Kubernetes community releases or resolve CVEs in an inexpensive way, and easily share the technical dividends of the Kubernetes ecosystem.
@@ -16,6 +16,11 @@ OpenYurt has the following features:
 
   By building edge autonomy, cross-regional network communication, multi-regional application arrangement, application upgrade model, cross-platform (such as amd64, arm, arm64) edge resource management, cloud native device management and other capabilities, cloud-edge-device can work together efficiently.
 At the same time, users can get a consistent experience with the data center Kubernetes cluster.
+
+- Programmable resource access control
+
+  The programmable data filtering framework built into the YurtHub component can help users to carry out non-perception and on-demand transformation of the response data requested by the cloud, so as to meet the specific business requirements in the cloud-edge collaboration scenario. For example, routing of service topology,
+The self-adaptation of cloud access link, etc.
 
 - Declarative Device Management
 

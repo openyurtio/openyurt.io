@@ -8,14 +8,10 @@ OpenYurt的整体架构如下:
 
 其中蓝色框为原生Kubernetes组件，橙色框中组件为OpenYurt组件。
 
-
-
 ### 节点分类
 
 - Cloud Node：通过内网与Kubernetes Master连接，主要用于部署运行中心控制组件。节点Label: openyurt.io/is-edge-worker: false
 - Edge Node：通过公网与Kubernetes Master连接，一般和边缘生产环境距离较近，主要用于部署运行边缘业务容器。节点Label: openyurt.io/is-edge-worker: true
-
-
 
 ### 边缘访问云端Kube-apiserver的管控流量
 
