@@ -33,6 +33,7 @@ izwz9dohcv74iegqecp4axz labeled
    sed -i 's#^After=network-online.target firewalld.service$#After=network-online.target firewalld.service containerd.service#g' \
    /lib/systemd/system/docker.service
   ```
+3. 通过Raven提供的VPN隧道,边缘节点pods的域名解析将由主节点或云节点上的CoreDNS实例进行处理，因此可能引发解析延迟或者超时失败。如果您在意解析延迟或者超时失败，我们建议您根据[CoreDNS调整](./coredns-prepare.md)教程调整“CoreDNS部署”。
 
 ## 3 部署OpenYurt的Control-Plane组件
 
