@@ -1,130 +1,53 @@
----
+
 title: Prometheus
 ---
 
 ![system-architecture](../../../static/img/docs/core-concepts/prometheus.png)
 
-This document demonstrates how to scrape metrics from edge node through Yurt-Tunnel's DNS mode within an OpenYurt cluster.
+This document demonstrates how to scrape metrics from edge node through Raven within an OpenYurt cluster, you can refer to the [installation tutorial](../../installation/manually-setup.md) if Raven components are not deployed. Cloud and edge are usually in different network area, so the Raven project is needed to communicate across network area. Prometheus pull metrics of the resources and objects of the edge gateway node through the VPN built by raven agent, and the pull request of collecting non-gateway node metrics is forwarded by gateway node in the network area.
 
 ## Environment
 
-- OpenYurt v0.5.0+
+- OpenYurt v1.2+
 
-- CoreDNS v1.6.8+
+- Raven v0.3.0+
 
-- prometheus-operator
+- Prometheus
 
-If you don't have an OpenYurt on hand, you can use [yurtctl](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurtctl.md) to create one or convert from an exist Kubernetes cluster. Installation of prometheus-operator
-you can refer to [kube-prometheus](https://github.com/prometheus-operator/kube-prometheus#quickstart)。
+If you don't have an OpenYurt on hand, you can refer [installation tutorial](../../installation/summary.md) to create one or convert from an exist Kubernetes cluster.
 
-## 1.Modify CoreDNS config
+## Prometheus config
+Prometheus uses IP by default to access the metric addresses of the nodes, and the Raven project has implemented communication across network area, so using Prometheus on the OpenYurt project is consistent with native k8s.
 
-OpenYurt will create `yurt-tunnel-nodes` ConfigMap，which keeps track of nodename dns records of nodes.
-
-### 1.mount `yurt-tunnel-nodes` to CoreDNS
-
-```bash
-kubectl patch deployment coredns -n kube-system  -p '{"spec": {"template": {"spec": {"volumes": [{"configMap":{"name":"yurt-tunnel-nodes"},"name": "edge"}]}}}}'
-kubectl patch deployment coredns -n kube-system   -p '{"spec": { "template": { "spec": { "containers": [{"name":"coredns","volumeMounts": [{"mountPath": "/etc/edge", "name": "edge", "readOnly": true }]}]}}}}'
+### collect kubelet metrics
+The function to collect node metrics from kubelet can be added by modifying the configmap of prometheus. For instance, prometheus collects metrics for the node through the read-only port 10255 that kubelet listens on by the relabel configuration:
+```yaml
+- job_name: 'kubelet'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecure_skip_verify: true
+    authorization:
+      credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - source_labels: [__address__]
+        action: replace
+        target_label: __address__
+        regex: ([^:;]+):(\d+)
+        replacement: ${1}:10255
+      - source_labels: [__scheme__]
+        action: replace
+        target_label: __scheme__
+        regex: https
+        replacement: http
 ```
+- For more information about relabel configuration, refer to the following [prometheus_relabel_config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config).
 
-### 2.Modify CoreDNS config
+- Different components required different `sourceLabels`，refer to the following[kubernetes_sd_config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config).
 
-use [hosts](https://coredns.io/plugins/hosts/) plugin to load dns records in `yurt-tunnel-nodes` configmap.
-
-```bash
-$ kubectl edit configmap coredns -n kube-system
-...........
- Corefile: |
-    .:53 {
-        errors
-        health {
-           lameduck 5s
-        }
-        ready
-        hosts /etc/edge/tunnel-nodes {    # add hosts plugin
-            reload 300ms
-            fallthrough
-        }
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-           pods insecure
-           fallthrough in-addr.arpa ip6.arpa
-           ttl 30
-        }
-        prometheus :9153
-        forward . /etc/resolv.conf {
-           max_concurrent 1000
-        }
-        cache 30
-        loop
-        reload
-        loadbalance
-    }
-```
-
-### 3.Restart CoreDNS
-
-```bash
- kubectl patch deployment coredns -n kube-system -p '{"spec":{"template":{"spec":{"containers":[{"name":"coredns","env":[{"name":"RESTART","value":"'$(date +%s)'"}]}]}}}}'
-```
-
-## 2.Config Prometheus
-
-By default, prometheus scrape node metrics with node ip. With relabel functionality provided by prometheus, we can change node ip to node hostname. You can config scrape behavior by modify ServiceMonitor CR.
-
-- More about relabel config, please refer to [prometheus_relabel_config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config).
-
-- `sourceLabels` needed differs among components，please refer to[kubernetes_sd_config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config).
-
-### 收集kubelet的metrics
-
-Add relabel rule in kubelet ServiceMonitor，Use `__meta_kubernetes_endpoint_address_target_name` to replace node ip：
-
-```bash
-$ kubectl edit serviceMonitor kubelet -n monitoring
-spec:
-  endpoint:
-    ..........
-    relabelings:
-    - action: replace  # add relabel rule
-      regex: (.*);.*:(.*)
-      replacement: $1:$2
-      sourceLabels:
-      - __meta_kubernetes_endpoint_address_target_name
-      - __address__
-      targetLabel: __address__
-    ..........
-```
-
-### scape other metrics（take node-exporter as an example）
-
-`Yurt-tunnel` will only do forward for port 10250 and 10255, if you want to add forward for other ports, you can modify `yurt-tunnel-server-cfg` ConfigMap.
-For `node-exporter`， you may need to add `9100` to `https-proxy-ports`。If you want to add http forward, just modify `http-proxy-ports`.
-
-#### modify `yurt-tunnel-server-cfg`ConfigMap
-
-```bash
-kubectl patch configmap yurt-tunnel-server-cfg  -n kube-system  -p '{"data": {"https-proxy-ports":"9100"}}'
-```
-
-Add relabel rule in node-exporter ServiceMonitor，use `__meta_kubernetes_pod_node_name`to replace node ip：
-
-```bash
-$ kubectl edit servicemonitor  prom-kube-prometheus-stack-node-exporter
-spec:
- endpoint:
-   ......
-   relabelings:
-    - action: replace #add relabel rule
-      regex: (.*);.*:(.*)
-      replacement: $1:$2
-      sourceLabels:
-      - __meta_kubernetes_pod_node_name
-      - __address__
-      targetLabel: __address__
-    ........
-```
-
-## Reference
-
-[Openyurt Yurt-Tunnel DNS Mode](https://juejin.cn/post/7006898548415414279)
+Note: If you also use read-only port 10255, please note that you configure kubelet to enable listening on port 10255, otherwise an error like the one shown in the figure will occur
+![system-architecture](../../../static/img/docs/core-concepts/prometheus-test.png)
