@@ -2,7 +2,7 @@
 title: Prometheus收集边缘设备数据
 ---
 
-![system-architecture](../../../../../../static/img/docs/core-concepts/prometheus.png)
+![system-architecture](../../../../../../static/img/docs/core-concepts/prometheus-based-raven.png)
 
 本文档主要讲述如何在已有的OpenYurt集群上通过Raven实现Promethues对边缘端设备的metrics进行采集,如果未安装Raven组件请参考[安装教程](../../installation/manually-setup.md)。在边缘场景中，云、边往往处于不同的网络域内，因此需要Raven项目实现跨网络域通信。位于云端的Prometheus组件需要跨网络域拉取集群资源metrics，针对边缘的Gateway节点相关资源信息则通过VPN获取，针对边缘非Gateway节点则通过该网路域内Gateway节点转发拉取资源信息。
 
