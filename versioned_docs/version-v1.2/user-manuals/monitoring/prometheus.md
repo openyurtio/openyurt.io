@@ -1,7 +1,7 @@
 title: Prometheus
 ---
 
-![system-architecture](../../../../static/img/docs/core-concepts/prometheus.png)
+![system-architecture](../../../../static/img/docs/core-concepts/prometheus-based-raven.png)
 
 This document demonstrates how to scrape metrics from edge node through Raven within an OpenYurt cluster, you can refer to the [installation tutorial](../../installation/manually-setup.md) if Raven components are not deployed. Cloud and edge are usually in different network area, so the Raven project is needed to communicate across network area. Prometheus pull metrics of the resources and objects of the edge gateway node through the VPN built by raven agent, and the pull request of collecting non-gateway node metrics is forwarded by gateway node in the network area.
 
