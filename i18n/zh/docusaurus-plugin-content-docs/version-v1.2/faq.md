@@ -51,6 +51,13 @@ OpenYurt版本是v1.1.0以上时，推荐golang版本：v1.17及以上
 
 同时执行e2e检查时，需要提前先搭建基于KinD的OpenYurt集群，方法参照问题【如何在本地搭建一个开发测试用的OpenYurt集群环境】.
 
+** 6. dockerhub拉取OpenYurt组件镜像失败，如何解决 **
+
+以openyurt/yurthub:v1.2镜像为例，如果由于网络原因拉取失败，可以考虑从阿里云镜像仓库拉取：registry.cn-hangzhou.aliyuncs.com/openyurt/yurthub:v1.2
+其他组件镜像可以相同办法解决。
+
+另外镜像是支持的arch有amd64, arm, arm64，镜像拉取时容器runtime会自动根据主机arch拉取对应的镜像，并不需要对镜像做任何修改。
+
 ## ** Yurthub **
 
 ** 1. Yurthub数据缓存目录？**
@@ -101,23 +108,29 @@ node_yurthub_in_flight_requests_collector每一行代表一种类型请求，由
 - 查看/etc/kubernetes/cache/kube-proxy下对应endpointslice数据是否正确，不正确的情况下，重启kube-proxy看可以恢复
 - 查看yurthub的metrics，看kube-proxy list endpointslice请求是否结束(数量为0表示结束)，如果该list请求没有结束的话，说明yurthub中的service topology filter还没有ready，一般是因为yurt-app-manager组件没有部署，导致nodePool资源没有创建。
 
-** 7. Yurthub无法正常启动，日志显示在等待证书生成？**
+** 7. Yurthub无法正常启动，主机上也未发现Exited的Yurthub容器**
+
+- journalctl -u kubelet查看kubelet组件日志，发现有错误信息：`dial tcp 127.0.0.1:10261: connect: connection refused`，表示Yurthub未正常启动
+- docker ps -a查看主机上是否有Exited状态的Yurthub容器
+- 如果没有Exited状态的Yurthub容器，请在kubelet日志查看Yurthub无法启动原因
+
+** 8. Yurthub无法正常启动，日志显示在等待证书生成？**
    
 Yurthub需要的证书没有生成成功，可以通过下述方法来定位：
 - 对集群执行：kubectl get csr，查看相关节点的证书csr是否有生成
 - 如果csr未生成，一般是传入的bootstrap token是无效的token，清理节点后，使用有效bootstrap token再接入即可。
 - 如果csr已经生成，但是状态一直是pending状态，表示yurt-controller-manager一直无法approve该csr，一般是yurt-controller-manager和yurthub版本不一致引起的，升级到相应版本即可解决。
 
-** 8. 边缘节点上Yurthub缓存中的某个组件的meta data被删除了，如何恢复？**
+** 9. 边缘节点上Yurthub缓存中的某个组件的meta data被删除了，如何恢复？**
 
 节点和云端网络连接正常状态下，重建一下对应pod即可恢复相关缓存meta数据。
 
-** 9. 节点接入时，Yurthub正常启动成功，但是所有请求一直报证书错误？**
+** 10. 节点接入时，Yurthub正常启动成功，但是所有请求一直报证书错误？**
 
 这种情况可能是因为节点上有残留的Yurthub证书，导致Yurthub启动时复用了该证书，从而产生证书报错的问题。可以在/var/lib/yurthub/pki目录下执行ls -la看下各个文件的生成时间，看生成时间是否合理。
 同时在历史操作过的节点，重新接入集群时，建议先执行一次yurtadm reset，先清理一下节点上数据。
 
-** 10. 用户自己的pod经过Yurthub访问云端的kube-apiserver，但是边缘节点上没有该Pod的缓存数据？**
+** 11. 用户自己的pod经过Yurthub访问云端的kube-apiserver，但是边缘节点上没有该Pod的缓存数据？**
     
 Yurthub默认只会为kubelet，kube-proxy，coredns，flannel，tunnel-agent组件(通过http request heder中的User-Agent来确认)缓存数据，其他client(如client-A)的数据需要缓存，需要在kube-system/yurthub-cfg configmap中的cache_agents字段中增加：client-A，然后删除并重建该client-A Pod。
 同时cache_agents也支持通用配置符：*, 这样所有的clients的response都会自动被缓存，但是用户需要自行关注缓存对本地磁盘的占用状况。
