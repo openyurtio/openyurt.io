@@ -78,7 +78,7 @@ metadata:
 spec:
   version: hanoi
   poolname: $WORKER_NODEPOOL
-  additionalServices:
+  additinalservices:
   - metadata:
       name: edgex-device-virtual
     spec:
@@ -91,7 +91,7 @@ spec:
         protocol: TCP
         targetPort: 49990
         nodePort: 30090
-  additionalDeployments:
+  additinaldeployments:
   - metadata:
       name: edgex-device-virtual
     spec:
