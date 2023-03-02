@@ -67,6 +67,7 @@ module.exports = {
                 {
                     'Network': [
                         'user-manuals/network/raven',
+                        'user-manuals/network/bandwidth-reduction',
                         'user-manuals/network/edge-pod-network',
                         'user-manuals/network/service-topology',
                         'user-manuals/network/edge-ingress'
