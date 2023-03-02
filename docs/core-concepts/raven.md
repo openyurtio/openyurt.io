@@ -59,11 +59,11 @@ Advantages:
 
 ## 5. 未来计划
 
-- 云端支持LB的公网暴露方式 【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
-- 支持NAT穿越 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
-- 支持分布式路由决策 【[issue #14](https://github.com/openyurtio/raven/issues/14)】
-  - 路由路径的cost计算 
-  - 根据cost计算最短路径 
-  - 在路径更改期间保持网络连接处于active状态
+- Support SLB as public network exporter for gateway  【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
+- Support NAT traversal 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
+- Support distribute route path decision 【[issue #14](https://github.com/openyurtio/raven/issues/14)】
+  - route path cost evaluation
+  - shortest path decision 
+  - keep networking connection alive during paths change
 
-欢迎感兴趣的同学加入我们，贡献代码！！！
+Welcome interested students to join us and contribute code!!
