@@ -66,6 +66,7 @@
                 {
                     "Network": [
                         "version-v1.2/user-manuals/network/raven",
+                        "version-v1.2/user-manuals/network/bandwidth-reduction",
                         "version-v1.2/user-manuals/network/edge-pod-network",
                         "version-v1.2/user-manuals/network/service-topology",
                         "version-v1.2/user-manuals/network/edge-ingress"
