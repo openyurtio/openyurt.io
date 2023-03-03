@@ -61,7 +61,9 @@ module.exports = {
             items: [
                 {
                     'Autonomy': [
-                        'user-manuals/autonomy/node-autonomy',
+                        'user-manuals/autonomy/selfhealing-during-network-disconnection',
+                        'user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes',
+                        'user-manuals/autonomy/node-pod-binding'
                     ]
                 },
                 {
@@ -144,7 +146,7 @@ module.exports = {
                         "reference/yurtadm/yurtadm_init",
                         "reference/yurtadm/yurtadm_join",
                         "reference/yurtadm/yurtadm_reset",
-                        "reference/yurtadm/yurtadm_token",                        
+                        "reference/yurtadm/yurtadm_token",
                     ]
                 }
             ],
