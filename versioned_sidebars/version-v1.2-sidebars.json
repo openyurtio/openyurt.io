@@ -17,20 +17,20 @@
                         "version-v1.2/installation/summary",
                         {
                             "Install Control Plane Components": [
-                                "version-v1.2/installation/manually-setup",
-                                {
-                                    "OpenYurt Experience Center": [
-                                        "version-v1.2/installation/openyurt-experience-center/overview",
-                                        "version-v1.2/installation/openyurt-experience-center/user",
-                                        "version-v1.2/installation/openyurt-experience-center/web_console",
-                                        "version-v1.2/installation/openyurt-experience-center/kubeconfig"
-                                    ]
-                                }
+                                "version-v1.2/installation/manually-setup"
                             ]
                         },
                         "version-v1.2/installation/yurtadm-join"
                     ]
-                } 
+                },
+                {
+                    "OpenYurt Experience Center": [
+                        "version-v1.2/installation/openyurt-experience-center/overview",
+                        "version-v1.2/installation/openyurt-experience-center/user",
+                        "version-v1.2/installation/openyurt-experience-center/web_console",
+                        "version-v1.2/installation/openyurt-experience-center/kubeconfig"
+                    ]
+                }
             ]
         },
         {
