@@ -19,19 +19,19 @@ module.exports = {
                         {
                             "Install Control Plane Components": [
                                 "installation/manually-setup",
-                                {
-                                    "OpenYurt Experience Center": [
-                                        "installation/openyurt-experience-center/overview",
-                                        "installation/openyurt-experience-center/user",
-                                        "installation/openyurt-experience-center/web_console",
-                                        "installation/openyurt-experience-center/kubeconfig"
-                                    ]
-                                }
                             ]
                         },
                         "installation/yurtadm-join"
                     ]
-                } 
+                },
+                {
+                    "OpenYurt Experience Center": [
+                        "installation/openyurt-experience-center/overview",
+                        "installation/openyurt-experience-center/user",
+                        "installation/openyurt-experience-center/web_console",
+                        "installation/openyurt-experience-center/kubeconfig"
+                    ]
+                }
             ],
         },
         {

@@ -8,16 +8,10 @@ OpenYurt Cluster installation is divided into two parts: Install OpenYurt Contro
 
 ### Part 1: Install Control Plane Components
 
-For different situations, there are several ways to install OpenYurt Control Plane components:
+We recommend users to install Control Plane Components manually at present. and other solutions will be supported in the later version.
 
   - **[Manually Setup](./manually-setup.md)**
     - Recommend to use in a production environment
-    - Need to prepare a Kubernetes Control Plane
-  - **[OpenYurt Experience Center](./openyurt-experience-center/overview.md)**
-    - Use in a test environment
-    - Users can directly obtain a cluster(only include control plane components) with limited permissions after applying for an account on the webpage.
-  - **YurtCluster**
-    - Use in a test environment, and will be deprecated in the future.
     - Need to prepare a Kubernetes Control Plane
   
 ### Part 2: [Join Nodes](./yurtadm-join.md)
