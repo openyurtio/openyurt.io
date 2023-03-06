@@ -63,3 +63,12 @@ More discussions about Yurt-App-Manager please refer to the issues and pull requ
 - pull request 173： [[proposal\] add nodepool and YurtAppSet crd proposal](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/pull/173)
 
 
+## YurtAppDaemon
+
+In edge scenarios, edge nodes from the same region will be assigned to the same NodePool, at which point some system components, such as CoreDNS, will typically need to be deployed in NodePool dimension. When creating the NodePool, we want to create these system components automatically, without any manual operations.
+
+YurtAppDaemon ensures that all or some of the NodePools run replicas with a Deployment or StatefulSet template. As NodePools are created, these sub-Deployments or sub-StatefulSets are added to the cluster and the creation/updating of them are controlled by the YurtAppDaemon controller.
+
+![img](../../../static/img/yurt-app-daemon.png)
+
+For more intuitive operational experience, please refer to YurtAppDaemon [tutorial](../user-manuals/workload/yurt-app-daemon.md).
