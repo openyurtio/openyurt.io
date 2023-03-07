@@ -83,3 +83,14 @@ YurtAppSet 控制器可以提供一个模板来定义应用，并通过管理多
 - pull request 173： [[proposal\] add nodepool and uniteddployment crd proposal](https://link.zhihu.com/?target=https%3A//github.com/alibaba/openyurt/pull/173)
 
 
+## YurtAppDaemon
+
+在边缘场景中，来自相同区域的边缘节点将被分配到相同的NodePool，此时一些系统组件(如CoreDNS)通常需要部署在NodePool维度上。在创建NodePool时，我们希望自动创建这些系统组件，而不需要任何手动操作。
+
+YurtAppDaemon确保所有或部分nodepool运行带有Deployment或StatefulSet模板的副本。当创建nodepool时，这些子部署或子statefulset被添加到集群中，它们的创建/更新由YurtAppDaemon控制器控制。
+
+![img](../../../../../static/img/yurt-app-daemon.png)
+
+更多的信息，请参考 YurtAppDaemon [tutorial](../user-manuals/workload/yurt-app-daemon.md).
+
+
