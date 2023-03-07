@@ -76,6 +76,11 @@ module.exports = {
                     ]
                 },
                 {
+                    'Resource Access Control': [
+                        'user-manuals/resource-access-control/resource-access-control',
+                    ]
+                },
+                {
                     'Storage': [
                         'user-manuals/storage/edge-local-storage',
                     ]
