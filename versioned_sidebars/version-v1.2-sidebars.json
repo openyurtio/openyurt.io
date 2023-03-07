@@ -1,4 +1,3 @@
-
 {
     "version-v1.2/docs": [
         {
@@ -50,7 +49,6 @@
                         "version-v1.2/core-concepts/yurt-device-controller"
                     ]
                 }
-
             ]
         },
         {
@@ -60,7 +58,9 @@
             "items": [
                 {
                     "Autonomy": [
-                        "version-v1.2/user-manuals/autonomy/node-autonomy"
+                        "version-v1.2/user-manuals/autonomy/selfhealing-during-network-disconnection",
+                        "version-v1.2/user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes",
+                        "version-v1.2/user-manuals/autonomy/node-pod-binding"
                     ]
                 },
                 {
