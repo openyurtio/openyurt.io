@@ -49,6 +49,9 @@
   "sidebar.docs.category.Network": {
     "message": "边缘网络"
   },
+  "sidebar.docs.category.Resource Access Control": {
+    "message": "可编程的资源访问控制"
+  },
   "sidebar.docs.category.Storage": {
     "message": "边缘存储"
   },

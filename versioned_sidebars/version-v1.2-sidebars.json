@@ -73,6 +73,11 @@
                     ]
                 },
                 {
+                    "Resource Access Control": [
+                        "version-v1.2/user-manuals/resource-access-control/resource-access-control"
+                    ]
+                },
+                {
                     "Storage": [
                         "version-v1.2/user-manuals/storage/edge-local-storage"
                     ]
