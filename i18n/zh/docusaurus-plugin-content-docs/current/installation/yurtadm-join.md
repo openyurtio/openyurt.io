@@ -46,6 +46,10 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 - kubelet
 - kube-proxy
 
+`yurtadm join`的过程中，将会拉取经过特殊修改的cni二进制文件，修改的内容可以参考[链接](../user-manuals/network/edge-pod-network.md)。如果你想要使用预先准备好的cni二进制文件，你应该将它们放置在目录`/opt/cni/bin`下，接着在使用`yurtadm join`时添加`--reuse-cni-bin=true`参数即可。
+
+你也可以将`kubelet`和`kubeadm`组件提前预置在PATH环境变量中。不过对于`kubelet`和`kubeadm`的版本有一些限制，`yurtadm`会检查组件的`major version`和`minor version`是否与集群Kubernetes版本相同（这遵循semver规范）。
+
 ### 1.2 yurtadm reset
 
 当需要删除使用 `yurtadm join` 加入的节点时，可以使用 `yurtadm reset`。下面是详细步骤：
