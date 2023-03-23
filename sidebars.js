@@ -157,8 +157,16 @@ module.exports = {
             ],
         },
         {
-            type: 'doc',
-            id: 'faq'
+            type: 'category',
+            label: 'FAQ',
+            collapsed: true,
+            items: [
+                'faq/yurthub',
+                'faq/yurtadm',
+                'faq/yurt-tunnel',
+                'faq/coredns',
+                'faq/prometheus',
+            ],
         },
     ],
 };

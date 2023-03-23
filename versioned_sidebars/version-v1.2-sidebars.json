@@ -155,8 +155,16 @@
             ]
         },
         {
-            "type": "doc",
-            "id": "version-v1.2/faq"
+            "type": "category",
+            "label": "FAQ",
+            "collapsed": true,
+            "items": [
+                "version-v1.2/faq/yurthub",
+                "version-v1.2/faq/yurtadm",
+                "version-v1.2/faq/yurt-tunnel",
+                "version-v1.2/faq/coredns",
+                "version-v1.2/faq/prometheus"
+            ]
         }
     ]
 }
