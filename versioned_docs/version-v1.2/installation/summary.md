@@ -4,7 +4,7 @@ title: Summary
 
 OpenYurt Cluster installation is divided into two parts: Install OpenYurt Control Plane components and join nodes.
 
-> *Some common problems you may encounter have been listed in the [FAQ](../faq.md).*
+> *Some common problems you may encounter have been listed in the [FAQ](../faq/yurthub.md).*
 
 ### Part 1: Install Control Plane Components
 
