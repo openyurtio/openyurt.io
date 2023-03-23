@@ -47,7 +47,7 @@ With the increasing geographical distribution and the differentiated requirement
 
 - Except for the names, nodeselectors and replicas, other configuration differences for multiple deployments of the same application are relatively small.
 
-YurtAppSet (previous UnitedDeployment) capibility is provided by the Yurt-App-Manager by default. Through Kubernetes CRD resource, it uniformly manages deployments with create/update/delete operations.
+YurtAppSet (previous UnitedDeployment) capability is provided by the Yurt-App-Manager by default. Through Kubernetes CRD resource, it uniformly manages deployments with create/update/delete operations.
 
 ![img](../../static/img/nodepool3.png)
 
