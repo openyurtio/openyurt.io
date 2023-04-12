@@ -236,7 +236,7 @@ spec:
             - args:
               - -conf
               - /etc/coredns/Corefile
-              image: k8s.gcr.io/coredns:1.6.7
+              image: registry.k8s.io/coredns:1.6.7
               imagePullPolicy: IfNotPresent
               name: coredns
               resources:
@@ -252,7 +252,7 @@ spec:
                   - NET_BIND_SERVICE
                   drop:
                   - all
-                readOnlyRootFilesystem: true        
+                readOnlyRootFilesystem: true
               livenessProbe:
                 failureThreshold: 5
                 httpGet:
@@ -262,7 +262,7 @@ spec:
                 initialDelaySeconds: 60
                 periodSeconds: 10
                 successThreshold: 1
-                timeoutSeconds: 5  
+                timeoutSeconds: 5
               volumeMounts:
               - mountPath: /etc/coredns
                 name: config-volume
@@ -303,7 +303,7 @@ spec:
   selector:
     k8s-app: kube-dns
   sessionAffinity: None
-  type: ClusterIP   
+  type: ClusterIP
 ---
 apiVersion: v1
 data:
@@ -385,5 +385,4 @@ subjects:
 
 
 EOF
-``` 
-
+```

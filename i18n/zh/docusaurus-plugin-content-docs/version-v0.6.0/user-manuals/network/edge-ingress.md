@@ -34,9 +34,9 @@ YurtIngress opeator负责将nginx ingress controller编排到需要启用边缘I
             - name: pool01
             - name: pool03
 
-默认为每个节点池创建的nginx ingress控制器副本数为1  
-默认的ingress控制器docker image为：k8s.gcr.io/ingress-nginx/controller:v0.48.1  
-默认的生成ingress控制器webhook证书的docker image为：k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.48.1
+默认为每个节点池创建的nginx ingress控制器副本数为1
+默认的ingress控制器docker image为：registry.k8s.io/ingress-nginx/controller:v0.48.1
+默认的生成ingress控制器webhook证书的docker image为：registry.k8s.io/ingress-nginx/kube-webhook-certgen:v0.48.1
 
 1.2）. 如果用户不想使用默认的配置，而是想对节点池做一些个性化配置，可以如下定义CR:
 
@@ -46,15 +46,15 @@ YurtIngress opeator负责将nginx ingress controller编排到需要启用边缘I
         name: yurtingress-test
       spec:
           ingress_controller_replicas_per_pool: 2
-          ingress_controller_image: k8s.gcr.io/ingress-nginx/controller:v0.49.0
-          ingress_webhook_certgen_image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.49.0
+          ingress_controller_image: registry.k8s.io/ingress-nginx/controller:v0.49.0
+          ingress_webhook_certgen_image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v0.49.0
           pools:
             - name: pool01
               ingress_ips:
                 - xxx.xxx.xxx.xxx
             - name: pool03
 
-其中：  
+其中：
 `igress_controller_replicas_per_pool`/`ingress_controller_image`/`ingress_webhook_certgen_image`可供用户自定义相关默认配置，
 `ingress_ips` 代表如果用户想通过externalIPs的方式为某个特定的节点池对外暴露nginx ingress控制器服务的公网IP地址。
 
@@ -67,7 +67,7 @@ b). 在spec中，“ingress_controller_replicas_per_pool”表示部署在每个
 
 c). 在spec中，“pools”表示要在其上开启ingress功能的节点池列表，目前支持节点池名及针对该节点池的ingress服务公网IP配置。
 
-2). 部署YurtIngress CR yaml文件：  
+2). 部署YurtIngress CR yaml文件：
     假定CR文件名为yurtingress-test.yaml：
 
     #kubectl apply -f yurtingress-test.yaml
@@ -194,7 +194,7 @@ a). 由哪个节点池提供ingress功能是由ingress class决定的，因此�
 
 b). 不同K8S版本的ingress CR定义可能不同，您需要确保ingress CR的定义与集群K8S版本匹配。
 
-2). 部署ingress规则yaml文件:  
+2). 部署ingress规则yaml文件:
     假定yaml文件名为ingress-myapp.yaml：
 
       #kubectl apply -f ingress-myapp.yaml

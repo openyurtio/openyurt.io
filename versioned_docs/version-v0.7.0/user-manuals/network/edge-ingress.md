@@ -20,7 +20,7 @@ YurtIngress operator is responsible for orchestrating multi ingress controllers 
 Suppose you have created 4 NodePools in your OpenYurt cluster: pool01, pool02, pool03, pool04, and you want to
 enable edge ingress feature on pool01 and pool03, you can create the YurtIngress CR as below:
 
-1). Create the YurtIngress CR yaml file:  
+1). Create the YurtIngress CR yaml file:
 
 1.1). A simple CR definition with some default configurations:
 
@@ -33,8 +33,8 @@ enable edge ingress feature on pool01 and pool03, you can create the YurtIngress
             - name: pool01
             - name: pool03
 
-The default nginx ingress controller replicas per pool is 1.  
-The default nginx ingress controller image is controller:v0.48.1 from dockerhub.  
+The default nginx ingress controller replicas per pool is 1.
+The default nginx ingress controller image is controller:v0.48.1 from dockerhub.
 The default nginx ingress webhook certgen image is kube-webhook-certgen:v0.48.1 from dockerhub.
 
 1.2). If users want to make personalized configurations about the default options, the YurtIngress CR can be defined as below:
@@ -45,8 +45,8 @@ The default nginx ingress webhook certgen image is kube-webhook-certgen:v0.48.1 
         name: yurtingress-test
       spec:
           ingress_controller_replicas_per_pool: 2
-          ingress_controller_image: k8s.gcr.io/ingress-nginx/controller:v0.49.0
-          ingress_webhook_certgen_image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v0.49.0
+          ingress_controller_image: registry.k8s.io/ingress-nginx/controller:v0.49.0
+          ingress_webhook_certgen_image: registry.k8s.io/ingress-nginx/kube-webhook-certgen:v0.49.0
           pools:
             - name: pool01
               ingress_ips:
@@ -67,7 +67,7 @@ c). In spec, the "pools" represents the pools list on which you want to enable i
 Currently it supports the pool name and the nginx ingress controller service externalIPs.
 
 
-2). Apply the YurtIngress CR yaml file:  
+2). Apply the YurtIngress CR yaml file:
     Assume the file name is yurtingress-test.yaml:
 
     #kubectl apply -f yurtingress-test.yaml
@@ -172,7 +172,7 @@ Suppose your app workload is deployed to several NodePools and it exposes a glob
 
 If you want to access the service provided by pool01:
 
-1). Create the ingress rule yaml file:  
+1). Create the ingress rule yaml file:
 
       apiVersion: extensions/v1beta1
       kind: Ingress
@@ -197,7 +197,7 @@ a). Ingress class decides which NodePool to provide the ingress capability, so y
 b). The ingress CR definition may be different for different K8S versions, so you need ensure the CR definition matches with your cluster K8S version.
 
 
-2). Apply the ingress rule yaml file:  
+2). Apply the ingress rule yaml file:
     Assume the file name is ingress-myapp.yaml:
 
       #kubectl apply -f ingress-myapp.yaml

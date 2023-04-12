@@ -21,8 +21,8 @@ Many approaches of building OpenYurt have been provided in the [Makefile](https:
 make release WHAT="${components[@]}" ARCH="${archs[@]}" REGION="${your_region}"
 ```
 
-`WHAT` represents components that you want to build, as mentioned at the beginning of the artical.  
-`ARCH` represents archtectures of target platforms, including `amd64`, `arm` and `arm64`.  
+`WHAT` represents components that you want to build, as mentioned at the beginning of the artical.
+`ARCH` represents archtectures of target platforms, including `amd64`, `arm` and `arm64`.
 `REGION` will affect the `GOPROXY` when compiling the code. Currently, `cn` and `us` are supported, representing using  `GOPROXY=https://goproxy.cn` and `GOPROXY=https://proxy.golang.org` respectively. Its default value is `us`. It's recommanded that developers in China should always set `REGION=cn` explicitly to ensure the successful build.
 
 eg.
@@ -64,7 +64,7 @@ Because there's no make command on Windows(if you don't have Cygwin), we have to
 $Env:GOOS = $Env:target_os
 $Env:GOARCH = $Env:target_arch
 $Env:CGO_ENABLED = 0
-$Env:GOLDFLAGS = "-s -w 
+$Env:GOLDFLAGS = "-s -w
 -X github.com/openyurtio/openyurt/pkg/projectinfo.projectPrefix=yurt
 -X github.com/openyurtio/openyurt/pkg/projectinfo.labelPrefix=openyurt.io
 -X github.com/openyurtio/openyurt/pkg/projectinfo.gitVersion=$(git describe --abbrev=0)
@@ -81,7 +81,7 @@ go build -ldflags=$Env:GOLDFLAGS cmd/yurtctl/yurtctl.go
 
 ### Build images manually
 
-In this section, we can find the dockerfile for each component. It will help you use `docker build` to build images. Here's the table giving base images `yurtctl` and `yurt-node-servant` will use.  
+In this section, we can find the dockerfile for each component. It will help you use `docker build` to build images. Here's the table giving base images `yurtctl` and `yurt-node-servant` will use.
 
 | Arch  | Base Image         |
 | ----- | ------------------ |
@@ -110,7 +110,7 @@ ADD yurt-node-servant /usr/local/bin/node-servant
 Other components use the different base image. We use `${arch}` to represent the target arch(including amd64, arm and arm64), `${component}` to represent the component to built(as mentioned at the beginning of this artical). Then the dockerfile is as follows:
 
 ```dockerfile
-FROM k8s.gcr.io/debian-iptables-${arch}:v11.0.2
+FROM registry.k8s.io/debian-iptables-${arch}:v11.0.2
 COPY ${component} /usr/local/bin/${component}
 ENTRYPOINT ["/usr/local/bin/${component}"]
 ```
@@ -177,18 +177,18 @@ $ ./_output/bin/linux/amd64/yurt-e2e-test --kubeconfig=$HOME/.kube/config  --rep
 
 3) If you want to test yurt node autonomy on aliyun ecs or aliyun ens with binary of yurt-e2e-test, TBD.
 
-Note:  
+Note:
 The path of yurt-e2e-test binary depends on the platform of your local host.
 
 Finally, you can check test result in stdout or in file yurt-e2e-test-report_01.xml(specified by the `--report-dir` option).
 
 ## Troubleshooting
 
-1. "go: github.com...unknown revision xxx" occurs during build  
+1. "go: github.com...unknown revision xxx" occurs during build
    It's often caused for too low git version on your host. You can try to update git.
 
-2. "unsupported GOOS/GOARCH pair xxx/xxx" occurs during compilation  
+2. "unsupported GOOS/GOARCH pair xxx/xxx" occurs during compilation
    Not all GOOS/GOARCH pairs are supported by go, such as go1.17.3 cannot support windows/arm64. You can check all supported pairs through `go tool dist list`.
 
-3. "cannot execute binary file: Exec format error" occurs when running binaries built on other platform.  
+3. "cannot execute binary file: Exec format error" occurs when running binaries built on other platform.
    It's often caused by an unsuccessful cross compilation, and the OS cannot recoginze the file format. When you run cross compilation on Windows, please ensure that you run it as an administractor.

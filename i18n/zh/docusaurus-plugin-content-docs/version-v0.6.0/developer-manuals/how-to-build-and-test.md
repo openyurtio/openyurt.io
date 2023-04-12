@@ -9,7 +9,7 @@ OpenYurt主仓库（[openyurtio/openyurt](https://github.com/openyurtio/openyurt
 3. yurt-tunnel-server
 4. yurt-tunnel-agent
 5. yurtctl
-6. yurt-node-servant  
+6. yurt-node-servant
 
 本文主要介绍了在完成对上述组件的开发后，如何进行编译源码、打包镜像、运行组件和测试验证等工作。
 
@@ -57,14 +57,14 @@ GOOS=${target_os} GOARCH=${target_arch} CGO_ENABLED=0 make build WHAT=yurtctl
 
 由于在Windows上通常没有make命令（如果你没有用Cygwin的话），需要自己执行`go build`，powershell中执行方法如下（以管理员权限运行）：
 
-1. 设置环境变量  
+1. 设置环境变量
    在运行前需要设置环境变量`target_os`和`target_arch`，设为需要的操作系统和架构。
 
 ```powershell
 $Env:GOOS = $Env:target_os
 $Env:GOARCH = $Env:target_arch
 $Env:CGO_ENABLED = 0
-$Env:GOLDFLAGS = "-s -w 
+$Env:GOLDFLAGS = "-s -w
 -X github.com/openyurtio/openyurt/pkg/projectinfo.projectPrefix=yurt
 -X github.com/openyurtio/openyurt/pkg/projectinfo.labelPrefix=openyurt.io
 -X github.com/openyurtio/openyurt/pkg/projectinfo.gitVersion=$(git describe --abbrev=0)
@@ -72,7 +72,7 @@ $Env:GOLDFLAGS = "-s -w
 -X github.com/openyurtio/openyurt/pkg/projectinfo.buildDate=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 ```
 
-2. 使用go build进行编译  
+2. 使用go build进行编译
    运行go build命令进行编译，这里需要加上`-ldflags=$Env:GOLDFLAGS`选项，还可以通过-o来调整编译好的yurtctl的保存位置。
 
 ```powershell
@@ -81,7 +81,7 @@ go build -ldflags=$Env:GOLDFLAGS cmd/yurtctl/yurtctl.go
 
 ### 手动打包镜像
 
-本节描述各个组件的dockerfile，便于通过`docker build`命令来手动打包组件镜像，下面是yurtctl和yurt-node-servant的架构与基础镜像之间的关系表。  
+本节描述各个组件的dockerfile，便于通过`docker build`命令来手动打包组件镜像，下面是yurtctl和yurt-node-servant的架构与基础镜像之间的关系表。
 
 | 架构  | 基础镜像           |
 | ----- | ------------------ |
@@ -112,7 +112,7 @@ ADD yurt-node-servant /usr/local/bin/node-servant
 其他组件的基础镜像和上述两个不同。其中arch为架构名称，包括amd64，arm和arm64；component表示组件名称，包括yurthub，yurt-controller-manager，yurt-tunnel-server和yurt-tunnel-agent。
 
 ```dockerfile
-FROM k8s.gcr.io/debian-iptables-${arch}:v11.0.2
+FROM registry.k8s.io/debian-iptables-${arch}:v11.0.2
 COPY ${component} /usr/local/bin/${component}
 ENTRYPOINT ["/usr/local/bin/${component}"]
 ```
@@ -183,11 +183,11 @@ $ ./_output/bin/linux/amd64/yurt-e2e-test --kubeconfig=$HOME/.kube/config  --rep
 
 ## 常见问题
 
-1. 编译时出现"go: github.com...unknown revision xxx"  
+1. 编译时出现"go: github.com...unknown revision xxx"
    通常是git的版本过低造成的，可以尝试升级git版本。
 
-2. 编译时出现"unsupported GOOS/GOARCH pair xxx/xxx"  
+2. 编译时出现"unsupported GOOS/GOARCH pair xxx/xxx"
    go不能支持所有的GOOS/GOARCH组合，如go1.17.3不支持windows/arm64。可以通过`go tool dist list`来查看支持的GOOS/GOARCH组合。
 
-3. 运行交叉编译的可执行二进制文件时出现"cannot execute binary file: Exec format error"  
+3. 运行交叉编译的可执行二进制文件时出现"cannot execute binary file: Exec format error"
    通常是没有成功完成交叉编译，导致运行平台与当前平台不同，无法识别文件格式。在Windows上进行交叉编译尤其需要注意开启管理员权限。
