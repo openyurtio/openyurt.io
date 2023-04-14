@@ -80,3 +80,15 @@ yurthub默认只会为kubelet，kube-proxy，coredns，flannel，tunnel-agent组
 
 首先社区提供的镜像都有经过trivy的安全扫描，用户可以放心使用。由于yurthub采用static pod模式部署，因此无法通过imagePullSecrets方式来支持私有镜像仓库。
 用户需要提前在机器上配置runtime来支持私有镜像仓库。如Containerd runtime私有仓库配置，可以参照：https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials
+
+** 13. 组件已经通过yurthub访问云端kube-apiserver，但是边缘节点上的缓存目录中找不到相关的缓存数据**
+
+为减轻本地磁盘缓存负载，yurthub默认只缓存组件[`kubelet`, `kube-proxy`, `flannel`, `coredns`, `yurt-tunnel-agent`, `yurthub`, `leader-yurthub`](https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L84)从云端获取的元数据。
+如果其他组件的元数据也需要缓存，开启方法如下：
+- 确保该组件发起的HTTP请求Header中带有`User-Agent`信息，yurthub将根据`User-Agent header`中第一个`/`前面的内容来确定缓存目录中的{componentName}。当`User-Agent`为空时，组件的元数据将无法被缓存
+- 手动配置`configmap kube-system/yurt-hub-cfg`的`cache_agents`字段添加{componentName}。
+- 当`cache_agents: "*"`时，表示所有组件(必须带有User-Agent header)从云端获取的元数据都将被缓存。由于不少组件有大量的list/watch请求，全部缓存将对本地磁盘带来压力，因此需谨慎配置为`*`。
+- 配置多个组件使用`,`分隔，例如两个组件的`User-Agent header`分别为`foo/v1.0.0`和`bar123/v1.0.0`，配置信息如下:
+```
+   cache_agents: "foo, bar123"
+```

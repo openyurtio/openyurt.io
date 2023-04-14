@@ -82,3 +82,15 @@ At the same time, cache_agents also supports general configuration symbols: *, s
 
 First of all, the images provided by the community have passed `trivy` security scan, and users can use them with confidence. Since yurthub is deployed in static pod mode, it cannot support private image registry through imagePullSecrets.
 Users need to configure the runtime on the node in advance to support private image registry. For example, Containerd runtime private image registry configuration, you can refer to: https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials
+
+** 13. The component has accessed the cloud kube-apiserver through yurthub, but the relevant cache data cannot be found in the cache directory on the edge node**
+
+To reduce the local disk cache load, yurthub only caches components by default [`kubelet`, `kube-proxy`, `flannel`, `coredns`, `yurt-tunnel-agent`, `yurthub`, `leader-yurthub`]( https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L84) metadata obtained from the cloud.
+If the metadata of other components also needs to be cached, enable way is as follows:
+- Make sure that the HTTP request header sent by this component contains `User-Agent` information, and yurthub will determine the {componentName} in the cache directory according to the content before the first `/` in the `User-Agent header`. Component metadata will not be cached when `User-Agent` is empty
+- Manually configure the `cache_agents` field of `configmap kube-system/yurt-hub-cfg` to add {componentName}.
+- When `cache_agents: "*"`, it means that all components (must have User-Agent header) get metadata from the cloud will be cached. Since many components have a large number of list/watch requests, all caches will put pressure on the local disk, so it is necessary to configure `*` carefully.
+- Configure multiple components separated by `,`. For example, the `User-Agent header` of the two components is `foo/v1.0.0` and `bar123/v1.0.0` respectively. The configuration information is as follows:
+```
+    cache_agents: "foo, bar123"
+```
