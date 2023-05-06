@@ -7,8 +7,9 @@ title: 资源和系统需求
 
 ## 生产可用的系统和平台
 * CentOS 7.4及以上 (amd64、arm64)
-* Ubuntu 18.04及以上的LTS版本 (amd64、arm64)
+* Ubuntu 18.04及以上的版本 (amd64、arm64)
 * Fedora 31 (amd64)
 * Debian 9.1 (amd64)
+* Raspbian、Raspberry Pi OS, 内核版本4.19及以上 (arm64)
 
 其他的系统和平台可能也是生产可用的，但我们没有在生产环境做过验证，欢迎补充。
