@@ -11,5 +11,6 @@ Any less in development environment is ok but will leave little room for your wo
 * Ubuntu 18.04 LTS+ (amd64 and arm64)
 * Fedora 31 (amd64)
 * Debian 9.1 (amd64)
+* Raspbian、Raspberry Pi OS, kernel version 4.19+ (arm64)
 
 Other platforms may work well but are not tested in our production environment. Supplements to the list are welcome.
