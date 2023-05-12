@@ -6,40 +6,40 @@ title: DaemonSet 升级模型
 
 在边缘化场景下，原生 DaemonSet 升级模型无法满足用户现有需求。在云边网络断连的情况下，DaemonSet 升级流程可能被阻塞。除此之外，原生升级模型并未提供相应的升级操作接口，节点上用户无法自主控制应用升级。
 
-为了解决上述问题，我们对原生 DaemonSet 升级模型进行扩展，新增自定义控制器`daemonPodUpdater-controller`，提供 Auto 与 OTA 两种升级模型。
-- Auto 模型：解决云边断连时，节点`Not-Ready`导致的 DaemonSet 升级阻塞问题，在升级过程中会忽略`Not-Ready`节点，从而保证升级流程的顺利完成，并且在节点状态从`Not-Ready`转变为`Ready`后，自动完成 DaemonSet 应用的升级。
+为了解决上述问题，我们对原生 DaemonSet 升级模型进行扩展，新增自定义控制器`daemonPodUpdater-controller`，提供 AdvancedRollingUpdate 与 OTA 两种升级模型。
+- AdvancedRollingUpdate 模型：解决云边断连时，节点`Not-Ready`导致的 DaemonSet 升级阻塞问题，在升级过程中会忽略`Not-Ready`节点，从而保证升级流程的顺利完成，并且在节点状态从`Not-Ready`转变为`Ready`后，自动完成 DaemonSet 应用的升级。
 - OTA 模型：新增 Pod status condition `PodNeedUpgrade`来表明更新可用信息。YurtHub OTA 升级组件可以通过该 condition 判断 DaemonSet 应用是否存在新版本。
 
 ## 配置
 ```yaml
-# auto 或 ota 升级模型配置文件示例
+# AdvancedRollingUpdate 或 OTA 升级模型配置文件示例
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   # ···
   annotations:
-    # 该注解是使用 auto 或者 ota 升级模型的前提条件之一，目前支持的配置值为"auto" 或者 "ota"。
-    apps.openyurt.io/update-strategy: ota
-    # 该注解用于滚动更新时设置最大不可用 pod 数量，仅在 auto 模式下起作用。
+    # 该注解是使用 AdvancedRollingUpdate 或者 OTA 升级模型的前提条件之一，目前支持的配置值为"AdvancedRollingUpdate" 或者 "OTA"。
+    apps.openyurt.io/update-strategy: AdvancedRollingUpdate
+    # 该注解用于滚动更新时设置最大不可用 pod 数量，仅在 AdvancedRollingUpdate 模式下起作用。
     # 该注解支持的配置值与原生 DaemonSet 配置中 maxUnavailable 相同，默认值为10%。
     apps.openyurt.io/max-unavailable: 30%
   # ···
 spec:
   # ···
-  # 使用 auto 或者 ota 升级模型的另一个前提条件是将 updateStrategy 设置为 OnDelete。
+  # 使用 AdvancedRollingUpdate 或者 OTA 升级模型的另一个前提条件是将 updateStrategy 设置为 OnDelete。
   updateStrategy:
     type: OnDelete
   # ···
 ```
-总的来说，如果你希望使用 auto 或者 ota 升级模型，那么你需要将注解 `apps.openyurt.io/update-strategy` 设置为 "auto" 或者 "ota", 并且将 `.spec.updateStrategy.type` 设置为 "OnDelete"。
+总的来说，如果你希望使用 AdvancedRollingUpdate 或者 OTA 升级模型，那么你需要将注解 `apps.openyurt.io/update-strategy` 设置为 "AdvancedRollingUpdate" 或者 "OTA", 并且将 `.spec.updateStrategy.type` 设置为 "OnDelete"。
 
 
 ## 用户使用：
 
 ### 1）安装Yurt-Controller-Manager组件
-`daemonPodUpdater`控制器集成于`Yurt-Controller-Manager`组件，使用 Auto 或 OTA 升级模型前需要安装部署`Yurt-Controller-Manager`，相关操作可以参照[部署OpenYurt组件](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
+`daemonPodUpdater`控制器集成于`Yurt-Controller-Manager`组件，使用 AdvancedRollingUpdate 或 OTA 升级模型前需要安装部署`Yurt-Controller-Manager`，相关操作可以参照[部署OpenYurt组件](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
 
-### 2）使用Auto升级模型
+### 2）使用 AdvancedRollingUpdate 升级模型
 - 创建 daemonset 实例
 ```shell
 cat <<EOF | kubectl apply -f -
@@ -48,7 +48,7 @@ kind: DaemonSet
 metadata:
   name: nginx-daemonset
   annotations:
-    apps.openyurt.io/update-strategy: auto
+    apps.openyurt.io/update-strategy: AdvancedRollingUpdate
 spec:
   selector:
     matchLabels:
@@ -145,7 +145,7 @@ Containers:
 ***
 ```
 
-### 3）OTA升级模型
+### 3）OTA 升级模型
 
 #### OTA 升级接口
 YurtHub 提供了两个 OTA 升级相关的 REST APIs。
@@ -166,7 +166,7 @@ kind: DaemonSet
 metadata:
   name: nginx-daemonset
   annotations:
-    apps.openyurt.io/update-strategy: ota
+    apps.openyurt.io/update-strategy: OTA
 spec:
   selector:
     matchLabels:
@@ -222,7 +222,7 @@ Conditions:
 ***
 ```
 
-- 进入节点`openyurt-e2e-test-worker2`，执行OTA升级
+- 进入节点`openyurt-e2e-test-worker2`，执行 OTA 升级
 ```shell
 # Kind 集群中需要先进入边缘节点
 $ docker exec -it openyurt-e2e-test-worker2 /bin/bash
@@ -232,9 +232,9 @@ $ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daem
 Start updating pod default/nginx-daemonset-bwzss
 ```
 
-- 检查OTA升级结果, 节点`openyurt-e2e-test-worker2`上pod `nginx-daemonset-bwzss`已经被删除，新创建 pod 为 `nginx-daemonset-vrvhn`
+- 检查 OTA 升级结果, 节点`openyurt-e2e-test-worker2`上pod `nginx-daemonset-bwzss`已经被删除，新创建 pod 为 `nginx-daemonset-vrvhn`
 ```shell
-# 检查OTA升级结果
+# 检查 OTA 升级结果
 $ kubectl get pods -o wide | grep nginx-daemonset
 nginx-daemonset-ppf9p   1/1     Running   0          15m   10.244.1.4   openyurt-e2e-test-worker    <none>           <none>
 nginx-daemonset-rgp9h   1/1     Running   0          15m   10.244.2.4   openyurt-e2e-test-worker3   <none>           <none>

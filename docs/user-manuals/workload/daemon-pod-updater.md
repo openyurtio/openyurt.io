@@ -6,40 +6,40 @@ title: DaemonSet Upgrade Model
 
 In edge scenarios, the native DaemonSet upgrade model does not perfectly satisfy existing requirements. In the case of cloud-edge network disconnection, DaemonSet upgrade process may be blocked. In addition, the native upgrade model does not provide any upgrade operation API, and users cannot control the application upgrade on their own.
 
-In order to address the above problems, we extend the native DaemonSet upgrade model by adding a custom controller `daemonPodUpdater-controller`, providing Auto and OTA two upgrade model.
-- Auto: Solve the DaemonSet upgrade process blocking problem which caused by node `Not-Ready` when the cloud-edge is disconnected. During auto upgrade, `not-ready` nodes will be ignored. And when `Not-Ready` nodes turn to `Ready`, upgrade process will be completed automatically.
+In order to address the above problems, we extend the native DaemonSet upgrade model by adding a custom controller `daemonPodUpdater-controller`, providing AdvancedRollingUpdate and OTA two upgrade model.
+- AdvancedRollingUpdate: Solve the DaemonSet upgrade process blocking problem which caused by node `Not-Ready` when the cloud-edge is disconnected. During AdvancedRollingUpdate upgrade, `not-ready` nodes will be ignored. And when `Not-Ready` nodes turn to `Ready`, upgrade process will be completed automatically.
 - OTA: Add pod status condition `PodNeedUpgrade` which indicates the upgrade availability information. YurtHub OTA component can use this condition to determine if a new version of DaemonSet application exists.
 
 ## Configuration
 ```yaml
-# example configuration for auto or ota upgrade
+# example configuration for AdvancedRollingUpdate or OTA upgrade
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   # ···
   annotations:
-    # This annotation is the first prerequisite for using auto or ota upgrade
-    # and the only valid values are "auto" or "ota".
-    apps.openyurt.io/update-strategy: ota
-    # This annotation is used for rolling update and only works in auto mode.
+    # This annotation is the first prerequisite for using AdvancedRollingUpdate or OTA upgrade
+    # and the only valid values are "AdvancedRollingUpdate" or "OTA".
+    apps.openyurt.io/update-strategy: OTA
+    # This annotation is used for rolling update and only works in AdvancedRollingUpdate mode.
     # The supported value is the same with native DaemonSet maxUnavailable, default to 10%.
     apps.openyurt.io/max-unavailable: 30%
   # ···
 spec:
   # ···
-  # Set updateStrategy to "OnDelete" is another prerequisite for using auto or ota upgrade.
+  # Set updateStrategy to "OnDelete" is another prerequisite for using AdvancedRollingUpdate or OTA upgrade.
   updateStrategy:
     type: OnDelete
   # ···
 ```
-In short, if you wish to use Auto or OTA upgrade, you need to set annotation `apps.openyurt.io/update-strategy` to "auto" or "ota" and set `.spec.updateStrategy.type` to "OnDelete".
+In short, if you wish to use AdvancedRollingUpdate or OTA upgrade, you need to set annotation `apps.openyurt.io/update-strategy` to "AdvancedRollingUpdate" or "OTA" and set `.spec.updateStrategy.type` to "OnDelete".
 
 ## Usage：
 
 ### 1）Install Yurt-Controller-Manager Components
-`daemonPodUpdater-controller` is integrated in `Yurt-Controller-Manager`, and it needs to be installed before using Auto or OTA Upgrade Model, you can refer to [Deploying OpenYurt Components](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
+`daemonPodUpdater-controller` is integrated in `Yurt-Controller-Manager`, and it needs to be installed before using AdvancedRollingUpdate or OTA Upgrade Model, you can refer to [Deploying OpenYurt Components](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
 
-### 2）Auto Upgrade Model
+### 2）AdvancedRollingUpdate Upgrade Model
 - Create daemonset instance
 ```shell
 cat <<EOF | kubectl apply -f -
@@ -48,7 +48,7 @@ kind: DaemonSet
 metadata:
   name: nginx-daemonset
   annotations:
-    apps.openyurt.io/update-strategy: auto
+    apps.openyurt.io/update-strategy: AdvancedRollingUpdate
 spec:
   selector:
     matchLabels:
@@ -167,7 +167,7 @@ kind: DaemonSet
 metadata:
   name: nginx-daemonset
   annotations:
-    apps.openyurt.io/update-strategy: ota
+    apps.openyurt.io/update-strategy: OTA
 spec:
   selector:
     matchLabels:
