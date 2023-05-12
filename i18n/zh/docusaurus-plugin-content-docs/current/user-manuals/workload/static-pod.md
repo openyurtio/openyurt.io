@@ -19,10 +19,10 @@ metadata:
 spec:
   # static pod 配置文件名称
   staticPodManifest: xxx
-  # 升级策略，支持 auto 与 ota 升级方式
+  # 升级策略，支持 AdvancedRollingUpdate 与 OTA 升级方式
   upgradeStrategy:
-    type: auto
-    # auto 升级方式可以设置滚动更新最大不可用数量，默认值为 10%
+    type: AdvancedRollingUpdate
+    # AdvancedRollingUpdate 升级方式可以设置滚动更新最大不可用数量，默认值为 10%
     # maxUnavailable: 3
   # static pod 模板配置
   template:
@@ -66,7 +66,7 @@ metadata:
 spec:
   staticPodManifest: nginx
   upgradeStrategy:
-    type: auto
+    type: AdvancedRollingUpdate
     maxUnavailable: 3
   template:
     metadata:
@@ -80,10 +80,10 @@ EOF
 
 ### 4) 静态 pod 升级
 
-通过 `StaticPod` 资源可以轻松实现对静态 pod 的管理，其中就包括升级静态 pod。 `StaticPod` 支持两种升级方式，分别为 `auto` 模式与 `ota` 模式。
-简单来说，`auto` 模式实现了跃过 `not-ready` 节点的滚动更新升级能力； `ota` 模式则支持用户自主控制升级流程。 两种模式的详细介绍参见 [DaemonSet 升级模型](https://openyurt.io/docs/user-manuals/workload/daemon-pod-updater/#background)
+通过 `StaticPod` 资源可以轻松实现对静态 pod 的管理，其中就包括升级静态 pod。 `StaticPod` 支持两种升级方式，分别为 `AdvancedRollingUpdate` 模式与 `OTA` 模式。
+简单来说，`AdvancedRollingUpdate` 模式实现了跃过 `not-ready` 节点的滚动更新升级能力； `OTA` 模式则支持用户自主控制升级流程。 两种模式的详细介绍参见 [DaemonSet 升级模型](https://openyurt.io/docs/user-manuals/workload/daemon-pod-updater/#background)
 
-#### Auto 升级
+#### AdvancedRollingUpdate 升级
 - 升级之前查看集群中的静态 pod
 ``` shell
 $ kubectl get pods | grep nginx
@@ -141,7 +141,7 @@ Containers:
 ···
 ```
 
-#### OTA升级
+#### OTA 升级
 
 1. OTA 升级接口
 

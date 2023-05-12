@@ -25,10 +25,10 @@ metadata:
 spec:
   # static pod configuration file name
   staticPodManifest: xxx
-  # Upgrade strategy, supporting auto and ota upgrade modes
+  # Upgrade strategy, supporting AdvancedRollingUpdate and OTA upgrade modes
   upgradeStrategy:
-    type: auto
-    # For auto upgrade mode, set the maximum unavailable count during rolling update, default is 10%
+    type: AdvancedRollingUpdate
+    # For AdvancedRollingUpdate upgrade mode, set the maximum unavailable count during rolling update, default is 10%
     # maxUnavailable: 3
   # static pod template
   template:
@@ -74,7 +74,7 @@ metadata:
 spec:
   staticPodManifest: nginx
   upgradeStrategy:
-    type: auto
+    type: AdvancedRollingUpdate
     maxUnavailable: 3
   template:
     metadata:
@@ -89,11 +89,11 @@ EOF
 ### 4) Upgrade
 
 We can easily manage static pods with `StaticPod` resource, including upgrading static pods. 
-`StaticPod` supports two upgrade modes, `auto` and `ota`. 
-Simply, `auto` mode offers rolling update that skips `not-ready` nodes; 
-`ota` mode allows users to control the upgrade process. Detailed introductions of the two modes can be found in [DaemonSet Upgrade Model](https://openyurt.io/docs/user-manuals/workload/daemon-pod-updater/#background).
+`StaticPod` supports two upgrade modes, `AdvancedRollingUpdate` and `OTA`. 
+Simply, `AdvancedRollingUpdate` mode offers rolling update that skips `not-ready` nodes; 
+`OTA` mode allows users to control the upgrade process. Detailed introductions of the two modes can be found in [DaemonSet Upgrade Model](https://openyurt.io/docs/user-manuals/workload/daemon-pod-updater/#background).
 
-#### Auto Upgrade
+#### AdvancedRollingUpdate Upgrade
 - Check the static pods in the cluster before upgrade
 ``` shell
 $ kubectl get pods | grep nginx
