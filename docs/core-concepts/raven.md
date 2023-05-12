@@ -57,7 +57,7 @@ Advantages:
 | v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico|
 | v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding |
 
-## 5. 未来计划
+## 5. future plan
 
 - Support SLB as public network exporter for gateway  【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
 - Support NAT traversal 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 

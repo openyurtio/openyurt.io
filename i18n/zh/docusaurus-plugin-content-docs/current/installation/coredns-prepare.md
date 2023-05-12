@@ -1,12 +1,10 @@
 ---
-title: OpenYurt 安装相关Kubernetes配置调整
+title: CoreDNS 安装相关配置调整
 ---
-## 1. CoreDNS调整
-
+## 1.背景说明
 一般场景下，CoreDNS是以Deployment形式部署，在云边协同场景下，通过Raven提供的VPN隧道，域名解析请求跨`NodePool`可能会带来延迟或者超时失败。因此也推荐使用`Daemonset`或者`YurtAppDaemon`形式来部署CoreDNS，同时kube-dns service流量拓扑配置成NodePool/Hostname, 从而解决域名解析延迟问题。
 
-### 1.1 CoreDNS 支持服务流量拓扑
-
+### 2 CoreDNS 支持服务流量拓扑
 增加annotation，利用OpenYurt中Yurthub的边缘数据过滤机制实现服务流量拓扑能力，确保节点上的域名解析请求只会发给同一节点池内的CoreDNS。
 
 ```shell
@@ -51,7 +49,7 @@ spec:
   type: ClusterIP
 ```
 
-### 1.2 CoreDNS DaemonSet部署
+### 3 CoreDNS DaemonSet部署
 
 如果CoreDNS原本使用DaemonSet部署，可以手工进行如下调整(CoreDNS的镜像可调整为自己的版本)：
 
@@ -146,11 +144,10 @@ spec:
         name: config-volume
 ```
 
-### 1.3 减少CoreDNS Deployment 副本数
+### 4 减少CoreDNS Deployment 副本数
 
 如果k8s不是用Deployment部署，可以不进行操作。
 
 ```shell
 kubectl scale --replicas=0 deployment/coredns -n kube-system
 ```
-

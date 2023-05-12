@@ -1,12 +1,11 @@
 ---
-title: OpenYurt Precondition
+title:  CoreDNS Precondition
 ---
 
-## 1. CoreDNS Adjustment
-
+## 1.Background
 In general, CoreDNS uses deployment as workload. But in cloud-edge scenario, based on VPN tunnel that provided by Raven, domain name resolution cross `NodePool` will cause some latency, so we also recommend end users to use `Daemonset` or `YurtAppDaemon` to deploy CoreDNS. At the same time, we should also set the topologyKeys of kube-dns service as NodePool or HostName.
 
-### 1.1 Configure CoreDNS Service
+## 2 Configure CoreDNS Service
 
 Add annotation to coredns service, which will make sure domain name resolution can be handled by CoreDNS instance in the same NodePool.
 
@@ -51,7 +50,7 @@ spec:
   type: ClusterIP
 ```
 
-### 2.2 Use CoreDNS DaemonSet
+### 3 Use CoreDNS DaemonSet
 
 The original CoreDNS is deployed by `DaemonSet`, please modify the settings manually (the CoreDNS image version can be adjusted to demand).
 
@@ -146,7 +145,7 @@ spec:
         name: config-volume
 ```
 
-### 1.3 Scale Down CoreDNS Deployment Replicas
+### 4 Scale Down CoreDNS Deployment Replicas
 
 Only support when CoreDNS is deployed by deployment workload.
 
