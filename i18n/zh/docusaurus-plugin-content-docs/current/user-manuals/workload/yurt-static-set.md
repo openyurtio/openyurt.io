@@ -1,5 +1,5 @@
 ---
-title: StaticPod
+title: YurtStaticSet
 ---
 
 ## 背景介绍
@@ -7,13 +7,13 @@ title: StaticPod
 静态 pod 是 K8s 中一种特殊的 pod，它由 Kubelet 直接进行管理。静态 pod 也常用于云边协同的场景中，比如一些 AI 相关的业务。 在 OpenYurt 中，核心组件
 `YurtHub` 就是通过静态 pod 进行部署的。静态 pod 一般通过 `/etc/kubernetes/manifests` 目录下的配置文件进行创建，通过人工手动替换/修改配置文件完成升级，这个过程中 Kubelet
 直接负责了静态 pod 的创建、删除任务。由于边缘侧设备数量多、位置分布分散等特点，若通过人工完成云边协同场景下静态 pod 的部署、升级等工作，势必会带来沉重的操作负担与失误风险。
-因此，OpenYurt 新增 CRD `StaticPod` 来增强对于静态 pod 的管理，通过的控制器提供了滚动更新、OTA 升级等能力。
+因此，OpenYurt 新增 CRD `YurtStaticSet` 来增强对于静态 pod 的管理，通过的控制器提供了滚动更新、OTA 升级等能力。
 
 ## 配置
 
 ```yaml
 apiVersion: apps.openyurt.io/v1alpha1
-kind: StaticPod
+kind: YurtStaticSet
 metadata:
   # ···
 spec:
@@ -37,7 +37,7 @@ static-pod 控制器集成于 Yurt-Manager 组件，使用前需要安装部署Y
 
 ### 2） 创建 static pod
 
-`StaticPod` Operator 不负责静态 pod 初始的部署，部署静态节点需手动完成或者通过 `yurtadm` 工具实现。作为示例，本文通过 `Kind` 创建一个具有三个工作节点的集群，并且每个节点上手动部署静态 pod。
+`YurtStaticSet` Operator 不负责静态 pod 初始的部署，部署静态节点需手动完成或者通过 `yurtadm` 工具实现。作为示例，本文通过 `Kind` 创建一个具有三个工作节点的集群，并且每个节点上手动部署静态 pod。
 
 ``` yaml
 cat >  nginx.yaml << EOF
@@ -53,14 +53,14 @@ EOF
 ```
 
 
-### 3）部署 `StaticPod` CR
+### 3）部署 `YurtStaticSet` CR
 
-`StaticPod` 资源通过 `namespace/name` 与静态 pod 对应。 因此，我们创建一个 `namespace:default, name:nginx` 的CR实例接管该静态 pod。
+`YurtStaticSet` 资源通过 `namespace/name` 与静态 pod 对应。 因此，我们创建一个 `namespace:default, name:nginx` 的CR实例接管该静态 pod。
 
 ``` yaml
 cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
-kind: StaticPod
+kind: YurtStaticSet
 metadata:
   name: nginx
 spec:
@@ -80,7 +80,7 @@ EOF
 
 ### 4) 静态 pod 升级
 
-通过 `StaticPod` 资源可以轻松实现对静态 pod 的管理，其中就包括升级静态 pod。 `StaticPod` 支持两种升级方式，分别为 `AdvancedRollingUpdate` 模式与 `OTA` 模式。
+通过 `YurtStaticSet` 资源可以轻松实现对静态 pod 的管理，其中就包括升级静态 pod。 `YurtStaticSet` 支持两种升级方式，分别为 `AdvancedRollingUpdate` 模式与 `OTA` 模式。
 简单来说，`AdvancedRollingUpdate` 模式实现了跃过 `not-ready` 节点的滚动更新升级能力； `OTA` 模式则支持用户自主控制升级流程。 两种模式的详细介绍参见 [DaemonSet 升级模型](https://openyurt.io/docs/user-manuals/workload/daemon-pod-updater/#background)
 
 #### AdvancedRollingUpdate 升级
@@ -104,10 +104,10 @@ Containers:
 ···
 ```
 
-- 修改 `StaticPod` spec，将容器镜像从 nginx:1.19.1 升级版本至 nginx:1.19.2
+- 修改 `YurtStaticSet` spec，将容器镜像从 nginx:1.19.1 升级版本至 nginx:1.19.2
 ``` yaml
 apiVersion: apps.openyurt.io/v1alpha1
-kind: StaticPod
+kind: YurtStaticSet
 metadata:
   name: nginx
 spec:
@@ -119,12 +119,12 @@ spec:
 
 ```
 
-- 查看资源状态, 可以看到三个静态 pods 均升级完成。 `TOTALNUMBER` 代表 `StaticPod nginx` 在该集群中匹配多少对应的静态 pods， `READYNUMBER` 代表就绪 pods 的数量，`UPGRADEDNUMBER` 表示多少 pods 已经升级至最新版本。
+- 查看资源状态, 可以看到三个静态 pods 均升级完成。 `TOTAL` 代表 `YurtStaticSet nginx` 在该集群中匹配多少对应的静态 pods， `READY` 代表就绪 pods 的数量，`UPGRADED` 表示多少 pods 已经升级至最新版本。
 ``` shell
-$ kubectl get staticpods nginx
+$ kubectl get yurtstaticsets nginx
 
-NAME    AGE     TOTALNUMBER   READYNUMBER   UPGRADEDNUMBER
-nginx   4m20s   3             3             3
+NAME    AGE     TOTAL   READY   UPGRADED
+nginx   4m20s   3       3       3
 ```
 
 - 查看集群中相应的静态 pods

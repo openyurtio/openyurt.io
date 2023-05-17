@@ -87,11 +87,11 @@ module.exports = {
                 },
                 {
                     'Workload': [
-                        'user-manuals/workload/static-pod',
                         'user-manuals/workload/daemon-pod-updater',
                         'user-manuals/workload/node-pool-management',
                         'user-manuals/workload/yurt-app-set',
                         'user-manuals/workload/yurt-app-daemon',
+                        'user-manuals/workload/yurt-static-set',
                     ]
                 },
                 {
