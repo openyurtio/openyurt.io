@@ -2,11 +2,11 @@
 title: Manually Setup
 ---
 
-This tutorial shows how to setup OpenYurt cluster manually. We assume you already have a Kubernetes cluster setup properly. If you want to create an OpenYurt cluster from scratch, please refer to [yurtadm docs](./yurtadm-init.md).
+This tutorial shows how to setup OpenYurt control plane components manually. We assume you already have a Kubernetes control plane setup properly.
 
 ## 1. Precondition
 
-Make sure you already have a Kubernetes cluster with at least one node. We recommend to create your Kubernetes cluster with [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) tool.
+Make sure you already have a Kubernetes control plane with at least one node. We recommend to create your Kubernetes cluster with [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/) tool.
 
 ```bash
 $ kubectl get nodes
@@ -14,19 +14,7 @@ NAME                      STATUS   ROLES                  AGE     VERSION
 izwz9dohcv74iegqecp4axz   Ready    control-plane,master   6d1h    v1.22.11
 ```
 
-### 1.1 Label cloud nodes
-
-When disconnected from the apiserver, only the pod running on the autonomous edge node will
-be prevented from being evicted from nodes. Therefore, we first need to divide nodes into two categories, the cloud node
-and the edge node, by using label `openyurt.io/is-edge-worker`.
-we will use node `izwz9dohcv74iegqecp4axz` as the cloud node. We label the cloud node with value `false`,
-
-```bash
-$ kubectl label node izwz9dohcv74iegqecp4axz openyurt.io/is-edge-worker=false
-izwz9dohcv74iegqecp4axz labeled
-```
-
-## 2.  OpenYurt Setup Pre-requirement
+## 2. Prerequisites for installing the OpenYurt control plane
 * The IP addresses of all nodes in the cluster must be different if Raven enables node forwarding
 * You must make the following adjustments if using docker as container runtime, which is mainly to avoid docker modifying the iptables forward chain and damaged the node forward.
   ```bash
@@ -35,23 +23,40 @@ izwz9dohcv74iegqecp4axz labeled
   /lib/systemd/system/docker.service
   ```
 * Domain Name resolution from pods on edge nodes will be handled by CoreDNS instance on master node or cloud node through VPN tunnel that provided by Raven, so some resolution latency or timeout will be caused by network. we recommend you to adjust `CoreDNS Deployment` according to [CoreDNS Adjustment](./coredns-prepare.md) tutorial if you care about latency or timeout.
+* We recommend installing OpenYurt components via [Helm](https://helm.sh/), please make sure [helm CLI](https://helm.sh/docs/intro/install/) is installed properly before proceeding.
 
-## 3. Setup Control-Plane components of OpenYurt
+## 3. Install OpenYurt control plane components
 
-We recommend to install OpenYurt components with [Helm](https://helm.sh/), please make sure that [`helm CLI` has been installed](https://helm.sh/docs/intro/install/) properly before moving on. All the helm charts used in this tutorial can be found in [openyurt-helm repo](https://github.com/openyurtio/openyurt-helm).
-Yurt-Manager is similar to Kube-Controller-Manager, which contains multiple OpenYurt controllers and webhooks, which contain controllers for cross-network domain、edge autonomy、device manager and iot controllers, etc., can be installed through Helm
+All the helm charts used in this tutorial can be found in [openyurt-helm repo](https://github.com/openyurtio/openyurt-helm).
+
+### 3.1 Install yurt-manager
+
+yurt-manager should be started before joining the node via the yurtadm command, because the yurthub component on the node depends on yurt-manager to approve csr.
+So please ensure that the yurt-manager component is running on the master node or any other node that does not have a yurthub component.
 ```bash
-helm upgrade --install openyurt -n kube-system openyurt/openyurt
+helm upgrade --install yurt-manager -n kube-system openyurt/yurt-manager
 ```
 
-Ensure that the pod and service configurations of the yurt control-plane component have been created successfully:
-
+Ensure that the pod and service configurations of the yurt-manager component have been created successfully:
 ```bash
 kubectl get pod -n kube-system | grep yurt-manager
 kubectl get svc -n kube-system | grep yurt-manager
 ```
 
-## 4. Setup Cross-Network-Domain Communication components of OpenYurt
+### 3.2 Install yurthub artifacts
+
+The yurthub artifacts include the yurtstaticset template, as well as the yurthub-related configmap. When installing the yurthub artifacts, we need to set the `kubernetesServerAddr` field to the Kubernetes server address(use `kubectl config view` to find).
+Take the Kubernetes server address of `https://1.2.3.4:6443` as an example.
+```bash
+helm upgrade --install yurt-hub -n kube-system --set kubernetesServerAddr=https://1.2.3.4:6443 openyurt/yurthub
+```
+
+Ensure yurthub yurtstaticset and yurthub cloud yurtstaticset have been created successfully:
+```
+kubectl get yss -n kube-system
+```
+
+### 3.3 Install raven component
 
 [Raven](../core-concepts/raven.md) provides network communication capabilities when the cloud and the edge are in different network areas， which include two components raven-controller-manager and raven-agent.
 ```bash
@@ -63,6 +68,6 @@ Ensure that the pod of the raven agent component have been created successfully:
 kubectl get pod -n kube-system | grep raven-agent
 ```
 
-## 5. Attention
+## 4. Attention
 
 The above operation is only for the Master node, if there are other nodes in the cluster, additional adjustment is needed, the operation method can be referred to [Install OpenYurt Node on Existing K8s Nodes](./yurtadm-join.md#2-install-openyurt-node-components).
