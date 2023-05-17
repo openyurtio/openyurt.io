@@ -1,5 +1,5 @@
 ---
-title:  CoreDNS Precondition
+title:  CoreDNS Adjustment
 ---
 
 ## 1.Background
