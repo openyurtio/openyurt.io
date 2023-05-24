@@ -49,6 +49,7 @@ module.exports = {
                         'core-concepts/yurt-controller-manager',
                         'core-concepts/node-resource-manager',
                         'core-concepts/yurt-device-controller',
+                        'core-concepts/yurt-coordinator',
                     ]
                 }
 
