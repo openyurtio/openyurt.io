@@ -48,7 +48,7 @@ kubectl get svc -n kube-system | grep yurt-manager
 yurthub相关配置包括yurtstaticset模板，以及yurthub相关的ConfigMap和ClusterRole。同时在安装yurthub配置时，我们需要将`kubernetesServerAddr`字段设置为Kubernetes服务器地址（使用`kubectl config view`来查找）。
 以Kubernetes服务器地址`https://1.2.3.4:6443`为例。
 ```bash
-helm upgrade --install yurt-hub -n kube-system --set kubernetesServerAddr https://1.2.3.4:6443 openyurt/yurthub
+helm upgrade --install yurt-hub -n kube-system --set kubernetesServerAddr=https://1.2.3.4:6443 openyurt/yurthub
 ```
 
 确保yurthub yurtstaticset和yurthub cloud yurtstaticset已经成功创建：
