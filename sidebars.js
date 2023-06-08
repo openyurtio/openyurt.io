@@ -152,6 +152,8 @@ module.exports = {
                         "reference/yurtadm/yurtadm_docs",
                         "reference/yurtadm/yurtadm_init",
                         "reference/yurtadm/yurtadm_join",
+                        "reference/yurtadm/yurtadm_renew_certificate",
+                        "reference/yurtadm/yurtadm_renew",
                         "reference/yurtadm/yurtadm_reset",
                         "reference/yurtadm/yurtadm_token",
                     ]
