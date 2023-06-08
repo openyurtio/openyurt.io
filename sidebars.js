@@ -45,6 +45,7 @@ module.exports = {
                         'core-concepts/raven',
                         'core-concepts/yurthub',
                         'core-concepts/yurttunnel',
+                        'core-concepts/yurt-manager',
                         'core-concepts/yurt-app-manager',
                         'core-concepts/yurt-controller-manager',
                         'core-concepts/node-resource-manager',

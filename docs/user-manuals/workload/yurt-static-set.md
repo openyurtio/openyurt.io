@@ -5,13 +5,13 @@ title: YurtStaticSet
 ## Background
 
 Static pod is a special type of pod in Kubernetes, which is managed directly by Kubelet. 
-Static pods are often used in edge-cloud collaboration scenarios, such as in some AI-related applications. 
-In OpenYurt, the core component, `YurtHub`, is deployed using static pod. 
+Static pods are often used in cloud-edge collaboration scenarios, such as in some AI-related applications.
+In OpenYurt, the core component, `YurtHub`, is deployed using static pod.
 Static pods are typically created through configuration files located in `/etc/kubernetes/manifests` directory, 
-and upgrades are performed by manually replacing or modifying these configuration files. 
-During this process, Kubelet directly handles the creation and deletion of Static pods. 
+and upgrades are performed by manually replacing or modifying these configuration files.
+During this process, Kubelet directly handles the creation and deletion of Static pods.
 However, due to the large quantity and dispersed nature of edge devices, deploying and upgrading Static pods manually 
-in edge-cloud collaboration scenarios can lead to significant operational burdens and risks of mistakes. 
+in cloud-edge collaboration scenarios can lead to significant operational burdens and risks of mistakes.
 Therefore, OpenYurt has introduced a new Custom Resource Definition (CRD), `YurtStaticSet`, to enhance the management of Static pods. 
 It provides capabilities such as rolling update and Over-The-Air (OTA) upgrade through a custom controller.
 
