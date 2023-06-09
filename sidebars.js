@@ -44,16 +44,12 @@ module.exports = {
                     'Components': [
                         'core-concepts/raven',
                         'core-concepts/yurthub',
-                        'core-concepts/yurttunnel',
                         'core-concepts/yurt-manager',
-                        'core-concepts/yurt-app-manager',
-                        'core-concepts/yurt-controller-manager',
                         'core-concepts/node-resource-manager',
                         'core-concepts/yurt-device-controller',
                         'core-concepts/yurt-coordinator',
                     ]
                 }
-
             ],
         },
         {
@@ -73,8 +69,7 @@ module.exports = {
                         'user-manuals/network/raven',
                         'user-manuals/network/bandwidth-reduction',
                         'user-manuals/network/edge-pod-network',
-                        'user-manuals/network/service-topology',
-                        'user-manuals/network/edge-ingress'
+                        'user-manuals/network/service-topology'
                     ]
                 },
                 {

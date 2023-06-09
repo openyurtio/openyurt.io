@@ -25,23 +25,21 @@ Raven builds VPN channels to ensure connectivity from cloud to edge or edge to e
 
 ### OpenYurt Components
 
-- **Raven-Controller-Manager/Raven:**
+- **Raven:**
   - Raven is component of the OpenYurt to enhance cluster networking capabilities. This enhancement is focused on edge-edge and edge-cloud communication in OpenYurt.
     In short, it will provide layer 3 network connectivity among pods in different physical regions, as there are in one vanilla Kubernetes cluster.
-  - Deployment pattern: Deployment for Raven-Controller-Manager in cloud nodes, DaemonSet for Raven in all nodes.
+  - Deployment pattern: DaemonSet for Raven in all nodes.
 
 - **YurtHub:**
-  - YurtHub is a sidecar in node level, it performs the role of traffic proxy between kube nodes and kube-apiserver.
+  - YurtHub is a sidecar in node level, it performs the role of requests proxy between worker nodes and kube-apiserver.
     It has two running modes: edge and cloud. In edge mode, it will cache the data returned from cloud, and store in local disk.
   - Deployment pattern: Static pod in each node.
 
-- **YurtControllerManager：**
-  - YurtControllerManager is centralized controller, which consists of NodeLifeCycle Controller(for not evicting pods in autonomy nodes) and YurtCSRController(for approval of edge certificates).
-  - Deployment pattern: Deployment in cloud nodes.
-
-- **YurtAppManager:**
-  - YurtAppManager is application controller for managing cross region workloads. It consists of the management of Nodepools(node groups), YurtAppSet(previous named UnitedDeployment)(nodepool level workloads), YurtAppDaemon(nodepool level daemonset), and YurtIngress(nodepool level ingress).
-  - Deployment pattern: Deployment in cloud nodes.
+- **Yurt-Manager：**
+  - The Yurt-Manager component consists of several controllers and webhooks, which are used to provide abilities to ensure that Kubernetes can work as it would in a normal data center
+    in a cloud-edge collaboration scenario.
+  - Deployment pattern: The Yurt-Manager component is recommended to co-located with Kubernetes control plane components such as Kube-Controller-Manager. and Yurt-Manager is deployed as a `Deployment`, usually consists of
+    two instances, one leader and one backup.
 
 - **YurtDeviceController/YurtEdgeXManager:**
   - YurtDeviceController and YurtEdgeXManager manage edge devices in cloud native way, they combine EdgeX Foundry and OpenYurt seamlessly, providing IOT solutions in an easy, efficient way.

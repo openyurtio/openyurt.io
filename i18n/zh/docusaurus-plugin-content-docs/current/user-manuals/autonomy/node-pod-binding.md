@@ -12,40 +12,21 @@ title: 业务与节点绑定
 
 1. **修改节点 Annotation**
 
-用户可以通过给 Node 添加 Annotation，开启绑定功能，节点上的所有Pod都将绑定到该节点上，不会受云边网络的影响。
+用户可以通过给 Node 添加 Annotation: `apps.openyurt.io/binding=true`(node.beta.openyurt.io/autonomy已废弃)，开启绑定功能，节点上的所有Pod都将绑定到该节点上，不会受云边网络的影响。
 
 ```bash
 # node1 开启节点绑定
-kubectl annotate nodes node1 node.beta.openyurt.io/autonomy=true
+kubectl annotate nodes node1 apps.openyurt.io/binding=true
 ```
 
 通过以下两种方式的命令，关闭节点绑定。
 
 ```bash
 # 通过删除 annotation 关闭绑定功能
-kubectl annotate nodes node1 node.beta.openyurt.io/autonomy-
+kubectl annotate nodes node1 apps.openyurt.io/binding-
 
-# 通过修改 node.beta.openyurt.io/autonomy 值为 false 关闭节点绑定功能
-kubectl annotate --overwrite nodes node1 node.beta.openyurt.io/autonomy=false
-```
-
-2. **修改Pod Annotation**
-
-用户也可以通过给 Pod 添加 Annotation，开启绑定功能，该Pod将绑定到节点上，不会受云边网络的影响（也可以通过修改Deployment里的`Deployment.Spec.Template.Annotations`字段，使所有Pod都开启绑定）。
-
-```bash
-# pod1 开启绑定
-kubectl annotate pods pod1 apps.openyurt.io/binding=true
-```
-
-通过以下两种方式的命令，关闭绑定。
-
-```bash
-# 通过删除 annotation 关闭绑定
-kubectl annotate pods pod1 apps.openyurt.io/binding-
-
-# 通过修改 node.beta.openyurt.io/autonomy 值为 false 关闭绑定
-kubectl annotate --overwrite pods pod1 apps.openyurt.io/binding=false
+# 通过修改 apps.openyurt.io/binding 值为 false 关闭节点绑定功能
+kubectl annotate --overwrite nodes node1 apps.openyurt.io/binding=false
 ```
 
 ## 注意事项

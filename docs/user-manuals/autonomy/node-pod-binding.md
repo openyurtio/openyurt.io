@@ -12,42 +12,24 @@ Users can enable/disable binding feature by following steps.
 
 - **Add Binding Annotation to Node**
 
-Users can add binding annotation to nodes to enable the Edge Binding feature, and all Pods on the node will be bound to that node and will not be affected by the cloud-edge network.
+Users can add binding annotation: `apps.openyurt.io/binding=true`(node.beta.openyurt.io/autonomy=true is deprecated) to nodes to enable the Edge Binding feature, and all Pods on the node will be bound to that node and will not be affected by the cloud-edge network.
 
 ```bash
 # enable Edge Binding on node1
-kubectl annotate nodes node1 node.beta.openyurt.io/autonomy=true
+kubectl annotate nodes node1 apps.openyurt.io/binding=true
 ```
 
 There're following two ways to disable the Edge Binding of node.
 
 ```bash
 # remove the binding annotation
-kubectl annotate nodes node1 node.beta.openyurt.io/autonomy-
+kubectl annotate nodes node1 apps.openyurt.io/binding-
 # set the value of binding annotation as false
-kubectl annotate --overwrite nodes node1 node.beta.openyurt.io/autonomy=false
-```
-
-- **Add Binding Annotation to Pod**
-
-Users can also by adding the Annotation to the Pod to enable binding (or modify the `Deployment.Spec.Template.Annotations` field, all Pods will be affected), the Pod will be bound to the node, not affected by cloud edge network.
-
-```bash
-# pod1 enable Binding
-kubectl annotate pods pod1 apps.openyurt.io/binding=true
-```
-
-There're following two ways to disable Binding.
-
-```bash
-# remove the binding annotation
-kubectl annotate pods pod1 apps.openyurt.io/binding-
-# set the value of binding annotation as false
-kubectl annotate --overwrite pods pod1 apps.openyurt.io/binding=false
+kubectl annotate --overwrite nodes node1 apps.openyurt.io/binding=false
 ```
 
 ## Note
 
-- Edge Node After the node binding function is enabled,  pods on edge nodes will not be expelled, no matter the node NotReady caused by cloud edge network disconnection or node fault.
+- Edge Node After the node binding function is enabled,  pods on edge nodes will not be evicted, no matter the node NotReady caused by cloud edge network disconnection or node fault.
 - Node binding is not recommended for cloud nodes. If enabled, pods cannot be evicted and rescheduled when the cloud node is NotReady.
-- After OpenYurt version 1.2.0, if a Pool-Coordinator is enabled, edge nodes can maintain the Ready state even when the cloud edge network is disconnected using the heartbeat proxy mechanism. In this case, the node binding capability ensures that NotReady service Pods will not be expelled even if the node fails.
+- After OpenYurt version 1.2.0, if a Pool-Coordinator is enabled, edge nodes can maintain the Ready state even when the cloud edge network is disconnected using the heartbeat proxy mechanism. In this case, the node binding capability ensures that NotReady service Pods will not be evicted even if the node fails.
