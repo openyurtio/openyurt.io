@@ -85,16 +85,7 @@ The Cloud Request Processing Module is made of the following components:
    takes the responsibility of establishing the connection between `YurtHub` and `Kube-APIServer`. It will send requests from pods and `Kubelet` to the cloud. `Load Balancer` supports multiple Kube-APIServer addresses, and use Round-Robin or Priority mode to do the load balance. It uses `Data Filtering Framework` to process responses and `Storage Manager` to cache resources in responses.
 
 - **Data Filtering Framework**
-   takes the responsibility of filtering data to extend the capability of `YurtHub`. Currently, three filters are included.
-
-  - MasterService Filter：
-  enable users to seamlessly migrate pods which uses InClusterConfig to the edge side without modification.
-  
-  - ServiceTopology Filter：
-  provide the capability of traffic closure, limiting the endpoints in the same nodepool as the node.
-
-  - DiscardCloudService Filter：
-  ensure that client at the edge side uses public network to reach the endpoints of cloud service instead of the PodIP when the cloud and edge are in the separated network.
+   takes the responsibility of filtering data to extend the capability of `YurtHub`. Please refer to the link for detailed design: [resource-access-control](../user-manuals/resource-access-control/resource-access-control.md)
 
 - **GC Manager**
    Each time when `YurtHub` restarts, it will recycle pod resources in the cache which does not exist any more at the cloud. During the runtime, it will periodically recycle cached event resources of `kubelet` and `kube-proxy` .

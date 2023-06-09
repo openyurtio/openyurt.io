@@ -87,12 +87,7 @@ YurtHub 既可以运行在云端节点上，也可以运行在边缘节点上。
    同时，LB 模块还负责对请求的响应消息进行处理以及本地缓存，其中对响应消息的处理调用了 Data Filtering Framework 模块，本地缓存调用了 Storage Manager 模块。
 
 - **Data Filtering Framework**
-    对请求响应消息进行数据过滤处理，以扩展 YurtHub 的能力。目前包含了三个过滤器：
-
-  - MasterService Filter：提供了使用 InClusterConfig 的业务 Pod 零修改就可以运行在边缘环境的能力。
-  - ServiceTopology Filter：提供了流量闭环的能力，将服务访问的后端限制在节点所在的 NodePool 中。
-
-  - DiscardCloudService Filter：当云端与边缘位于不同网络平面时，边缘通过公网访问而不是 PodIP 访问后端服务，以确保边缘能够正确访问。
+    对请求响应消息进行数据过滤处理，以扩展 YurtHub 的能力。详细设计请参照链接: [可编程资源访问控制](../user-manuals/resource-access-control/resource-access-control.md)
 
 - **GC Manager**
    在 YurtHub 每次重启时，将节点上存储的并且云端已经不存在的 Pod 资源进行回收。之后每隔一定时间对节点上缓存的 kubelet、kube-proxy event 资源进行回收删除操作。
