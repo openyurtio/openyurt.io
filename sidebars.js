@@ -147,7 +147,6 @@ module.exports = {
                         "reference/yurtadm/yurtadm_completion_powershell",
                         "reference/yurtadm/yurtadm_completion_zsh",
                         "reference/yurtadm/yurtadm_docs",
-                        "reference/yurtadm/yurtadm_init",
                         "reference/yurtadm/yurtadm_join",
                         "reference/yurtadm/yurtadm_renew_certificate",
                         "reference/yurtadm/yurtadm_renew",
