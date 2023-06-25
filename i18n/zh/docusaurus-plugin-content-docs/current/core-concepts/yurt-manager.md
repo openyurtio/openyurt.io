@@ -41,12 +41,13 @@ ravenl3 控制器负责监控节点和服务，自动创建和更新 L3 路由�
 
 ### 1.6 nodepool 控制器/webhook
 
-NodePool 根据特定的节点属性（如地区、CPU架构、云提供商等）将节点池的概念进行抽象化，以便在池级别统一管理节点。
+NodePool 根据特定节点属性（例如地区、CPU 架构、云提供商等）将节点池的概念进行抽象，从而实现在池级别统一管理节点。
 
-我们习惯于通过不同的 Kubernetes 标签对节点进行分组和管理，但随着节点和标签数量的增加，节点的操作和维护（如批量配置调度策略、污点等）将变得越来越复杂，如下图所示：
+我们习惯于使用各种 Kubernetes 标签对节点进行分组和管理。然而，随着节点和标签数量的增加，节点的操作和维护（例如调度策略、污点等的批量配置）变得越来越复杂，如下图所示：
+
 ![img](../../../../../static/img/nodepool1.png)
 
-nodepool 控制器/webhook 可以从节点池的角度管理不同边缘区域中的节点，如下图所示：
+nodepool 控制器/webhook 可以从节点池的角度管理不同边缘地区的节点，如下图所示：
 
 ![img](../../../../../static/img/nodepool2.png)
 
@@ -57,31 +58,25 @@ poolcoordinatorcert 控制器负责为 pool-coordinator 组件准备证书和 ku
 ### 1.8 servicetopology 控制器
 
 servicetopology 控制器用于协助 YurtHub 中的 [servicetopology filter](../user-manuals/resource-access-control/resource-access-control.md) 为集群提供服务拓扑路由功能。
-当服务的拓扑注释被修改时，servicetopology 控制器会更新相应的Endpoints和 EndpointSlices，从而触发节点端的服务拓扑更新。
+当Service的拓扑Annotation被修改时，servicetopology 控制器会更新相应的Endpoints和 EndpointSlices，从而触发节点端YurtHub中的服务拓扑更新。
 
 ### 1.9 yurtstaticset controller/webhook
 
 由于边缘设备数量庞大且分布式，手动部署和升级云边协作场景中的静态 Pod 可能导致操作挑战和错误风险增加。为解决这个问题，OpenYurt 引入了名为 YurtStaticSet 的新自定义资源定义（CRD），以改进静态 Pod 的管理。
-yurtstaticset 控制器/webhook为静态 Pod 提供了诸如 AdvancedRollingUpdate 和 Over-The-Air（OTA）升级功能。
+yurtstaticset 控制器/webhook为静态 Pod 提供了 AdvancedRollingUpdate 和 Over-The-Air（OTA）升级功能。
 
 ### 1.10 yurtappset 控制器/webhook
 
-随着边缘应用程序地理分布越来越广泛，需求日益多样化，管理其运行和维护变得越来越复杂。例如：
+在原生 Kubernetes 中，管理多个节点池中相同类型的应用程序需要为每个节点池创建一个 Deployment，这将导致较高的管理成本和潜在的错误风险。为了解决这个问题，YurtAppSet CRD 提供了一个定义应用程序模板（支持 Deployment 和 StatefulSet），并负责管理多个节点池中的工作负载。
 
-- 升级镜像需要逐个修改部署。
-- 需要定义部署的命名规则以指示相同的应用程序。
-- 对于同一应用程序的多个部署，除名称、节点选择器和副本外，其他配置差异相对较小。
+YurtAppSet 需要用户通过配置其 Spec.Topology 字段来明确指定需要将工作负载部署到哪些节点池。这种方法简化了应用程序部署和管理过程，使得在多节点池环境中进行应用扩展、升级和维护变得更加容易。通过使用 YurtAppSet，用户可以集中管理多个节点池的应用部署，从而降低管理复杂性和潜在的错误风险。
 
-YurtAppSet CRD 提供了一个定义应用程序的模板，并管理多个工作负载以支持各种区域。YurtAppSet 中的工作负载针对一个节点池进行部署，目前支持的类型有 StatefulSet 和 Deployment。
-yurtappset 控制器/webhook根据 YurtAppSet 中的Pool配置创建子工作负载，每个资源具有期望数量的 Pod 副本。
-
-使用单个 YurtAppSet 实例，您可以自动维护多个 Deployment 或 StatefulSet 配置，同时保留不同池的差异化配置，例如副本。
-
-![img](../../../../../static/img/nodepool3.png)
+![img](../../../../../static/img/docs/core-concepts/yurtappset.png)
 
 ### 1.11 yurtappdaemon 控制器/webhook
 
-在边缘场景中，同一区域的边缘节点通常分配到同一个 NodePool。某些系统组件（如 CoreDNS）通常需要在 NodePool 级别进行部署。创建 NodePool 时，目标是自动生成这些系统组件，而无需手动操作。
-yurtappdaemon 控制器/webhook确保所有或部分 NodePools 使用 Deployment 模板（当前不支持 StatefulSet）运行副本。创建 NodePools 时，这些子部署会被添加到集群中，由 yurtappdaemon 控制器管理其创建和更新。
+在原生 Kubernetes 中，DaemonSet 用于在每个节点上运行一个守护 Pod。当节点被添加或删除时，相应节点上的守护 Pod 会被自动创建或移除。然而，当工作负载需要根据节点池的创建和移除自动调整时，DaemonSet 无法满足我们的需求。
 
-![img](../../../../../static/img/yurt-app-daemon.png)
+YurtAppDaemon 旨在确保在所有节点池或通过 Spec.NodePoolSelector 选定的节点池中自动部署模板(Spec.WorkloadTemplate)中指定的工作负载。当集群中新增或移除节点池时，YurtAppDaemon 控制器和 Webhook 会为相应的节点池创建或移除工作负载，从而确保符合要求的节点池中始终存在预期的 Pods。
+
+![img](../../../../../static/img/docs/core-concepts/yurtappdaemon.png)

@@ -36,8 +36,9 @@ In short, if you wish to use AdvancedRollingUpdate or OTA upgrade, you need to s
 
 ## Usage：
 
-### 1）Install Yurt-Controller-Manager Components
-`daemonPodUpdater-controller` is integrated in `Yurt-Controller-Manager`, and it needs to be installed before using AdvancedRollingUpdate or OTA Upgrade Model, you can refer to [Deploying OpenYurt Components](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
+### 1）Install Yurt-Manager Component
+
+`daemonpodupdater controller` is integrated within `Yurt-Manager` component, and it needs to be installed before using AdvancedRollingUpdate or OTA Upgrade Model, you can refer to [Deploy OpenYurt](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components) for detailed operations.
 
 ### 2）AdvancedRollingUpdate Upgrade Model
 - Create daemonset instance

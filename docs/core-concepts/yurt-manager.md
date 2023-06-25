@@ -47,13 +47,13 @@ which facilitates Level3 network connectivity among pods located in different ph
 
 ### 1.6 `nodepool` controller/webhook
 
-NodePool abstracts out the concept of node pool according to specific node attributes, such as region, CPU architecture, cloud provider, etc., so that nodes can be managed unitedly at a pool level.
+NodePool abstracts the concept of a node pool based on specific node attributes, such as region, CPU architecture, cloud provider, and more, allowing for unified management of nodes at the pool level.
 
-We are used to grouping and managing the nodes by different Kubernetes Labels, but with the increase of nodes and labels' quantity, the operation and maintenance of nodes (such as batch configuration about scheduling policies, taints, etc.) will become more and more complex, as shown in the following figure:
+We are accustomed to grouping and managing nodes using various Kubernetes Labels. However, as the number of nodes and labels increases, the operation and maintenance of nodes (e.g., batch configuration of scheduling policies, taints, etc.) become increasingly complex, as illustrated in the following figure:
 
 ![img](../../static/img/nodepool1.png)
 
-`nodepool` controller/webhook can manage the nodes in different edge regions from the perspective of node pool,  as shown in the following figure:
+The `nodepool controller/webhook can` manage nodes across different edge regions from the perspective of a node pool, as depicted in the subsequent figure:
 
 ![img](../../static/img/nodepool2.png)
 
@@ -73,21 +73,16 @@ To address this issue, OpenYurt has introduced a new Custom Resource Definition 
 
 ### 1.10 `yurtappset` controller/webhook
 
-As edge applications become increasingly geographically distributed and their requirements diversify, managing their operation and maintenance grows more complex. For instance:
+In native Kubernetes, managing the same type of applications across multiple nodepools requires creating a Deployment for each node pool, leading to higher management costs and potential risks of errors. To address this issue, the YurtAppSet CRD provides a way to define an application template (supporting both Deployment and StatefulSet) and is responsible for managing workloads across multiple nodepools.
 
-- Upgrading the image requires modifying each deployment individually.
-- A naming rule for deployments must be defined to indicate the same application.
-- Apart from names, node selectors, and replicas, other configuration differences for multiple deployments of the same application are relatively minor.
+YurtAppSet requires users to explicitly specify the node pools to which the workloads should be deployed by configuring its `Spec.Topology` field. This approach simplifies the application deployment and management process, making it easier to scale, upgrade, and maintain applications in a multiple nodepools environment. By using YurtAppSet, users can centrally manage application deployments across multiple nodepools, thereby reducing management complexity and potential risks of errors.
 
-`YurtAppSet` CRD offers a template for defining applications and manages multiple workloads to support various regions. Workloads in YurtAppSet are deployed for a pool, with StatefulSet and Deployment being the currently supported types.
-`yurtappset` controller/webhook creates child workloads based on the pool configurations in YurtAppSet, with each resource having a desired number of Pod replicas.
-Using a single YurtAppSet instance, you can automatically maintain multiple Deployment or StatefulSet configurations while retaining differentiated configurations for different pools, such as replicas.
-
-![img](../../static/img/nodepool3.png)
+![img](../../static/img/docs/core-concepts/yurtappset.png)
 
 ### 1.11 `yurtappdaemon` controller/webhook
 
-In edge scenarios, edge nodes from the same region are typically assigned to the same NodePool. Some system components, like CoreDNS, usually need to be deployed at the NodePool level. When creating a NodePool, the goal is to automatically generate these system components without requiring manual operations.
-The yurtappdaemon controller/webhook ensures that all or a subset of NodePools run replicas using a Deployment template (StatefulSet is not currently supported). As NodePools are created, these sub-Deployments are added to the cluster, with their creation and updates managed by the yurtappdaemon controller.
+In native Kubernetes, DaemonSet is used to run a daemon Pod on each node. When a node is added or removed, the corresponding daemon Pod on that node is automatically created or removed. However, when workloads need to be adjusted automatically based on the creation and removal of nodepools, DaemonSet cannot meet our needs.
 
-![img](../../static/img/yurt-app-daemon.png)
+YurtAppDaemon aims to ensure that workloads specified in the template (Spec.WorkloadTemplate) are automatically deployed in all nodepools or those selected by `Spec.NodePoolSelector`. When a nodepool is added or removed from the cluster, the YurtAppDaemon controller and Webhook create or remove workloads for the corresponding nodepool, ensuring that the required nodepools always contain the expected Pods.
+
+![img](../../static/img/docs/core-concepts/yurtappdaemon.png)

@@ -36,8 +36,8 @@ spec:
 
 ## 用户使用：
 
-### 1）安装Yurt-Controller-Manager组件
-`daemonPodUpdater`控制器集成于`Yurt-Controller-Manager`组件，使用 AdvancedRollingUpdate 或 OTA 升级模型前需要安装部署`Yurt-Controller-Manager`，相关操作可以参照[部署OpenYurt组件](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
+### 1）安装Yurt-Manager组件
+`daemonpodupdater`控制器集成于`Yurt-Manager`组件，使用 AdvancedRollingUpdate 或 OTA 升级模型前需要安装部署`Yurt-Manager`，相关操作可以参照[部署OpenYurt组件](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components)
 
 ### 2）使用 AdvancedRollingUpdate 升级模型
 - 创建 daemonset 实例

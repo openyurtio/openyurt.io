@@ -27,7 +27,13 @@ izwz9dohcv74iegqecp4axz   Ready    control-plane,master   6d1h    v1.22.11
 
 ## 3. Install OpenYurt control plane components
 
-All the helm charts used in this tutorial can be found in [openyurt-helm repo](https://github.com/openyurtio/openyurt-helm).
+All the helm charts used in this tutorial can be found in [openyurt-helm repo](https://github.com/openyurtio/openyurt-helm).please add the repo as follows:
+
+```bash
+helm repo add openyurt https://openyurtio.github.io/openyurt-helm
+```
+
+You can then run `helm search repo openyurt` to see the charts.
 
 ### 3.1 Install yurt-manager
 
