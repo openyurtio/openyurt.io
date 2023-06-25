@@ -2,24 +2,12 @@
 title: Node Pool Management
 ---
 
-### 
+### 1）Install Yurt-Manager Component
 
-### 1）Install Yurt-App-Manager Components
+`nodepool controller` is integrated within `Yurt-Manager` component, and it needs to be installed before using NodePool,
+you can refer to [Deploy OpenYurt](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components) for detailed operations.
 
-```shell
-$ cd  yurt-app-manager
-$ kubectl apply -f config/setup/all_in_one.yaml
-```
-
-Check whether all the Yurt-App-Manager components are installed successfully:
-
-```shell
-$ kubectl get pod -n kube-system |grep yurt-app-manager
-```
-
-
-
-### 2）Example of Nodepool usage
+### 2）Example of Node Pool usage
 
 - Create a nodepool
 

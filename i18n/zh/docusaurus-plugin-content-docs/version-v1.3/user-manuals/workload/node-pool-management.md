@@ -2,22 +2,9 @@
 title: 节点池管理
 ---
 
-### 
+### 1）安装 Yurt-Manager 组件
 
-### 1）安装Yurt-App-Manager组件
-
-```shell
-$ cd  yurt-app-manager
-$ kubectl apply -f config/setup/all_in_one.yaml
-```
-
-等待Yurt-App-Manager组件安装成功，验证
-
-```shell
-$ kubectl get pod -n kube-system |grep yurt-app-manager
-```
-
-
+nodepool controller 集成在 Yurt-Manager 组件中，使用 NodePool 之前需要先安装它，您可以参考 【部署 OpenYurt](https://openyurt.io/docs/installation/manually-setup/#32-setup-openyurtopenyurt-components) 了解详细操作。
 
 ### 2）节点池使用Example
 

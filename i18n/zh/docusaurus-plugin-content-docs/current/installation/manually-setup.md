@@ -28,7 +28,13 @@ izwz9dohcv74iegqecp4axz   Ready    control-plane,master   6d1h    v1.22.11
 
 ## 3 部署OpenYurt的控制面组件
 
-接下来要用到的所有helm charts都可以在[openyurt-helm 仓库](https://github.com/openyurtio/openyurt-helm)中找到。
+接下来要用到的所有helm charts都可以在[openyurt-helm 仓库](https://github.com/openyurtio/openyurt-helm)中找到。请按照以下方式添加仓库：
+
+```bash
+helm repo add openyurt https://openyurtio.github.io/openyurt-helm
+```
+
+您可以运行 `helm search repo openyurt` 来查看这些helm charts，并且我们建议使用最新版本.
 
 ### 3.1 安装yurt-manager
 
