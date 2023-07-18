@@ -9,12 +9,20 @@
   dependencies:
     "@algolia/autocomplete-shared" "1.7.4"
 
-"@algolia/autocomplete-core@1.8.2":
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-core/-/autocomplete-core-1.8.2.tgz#8d758c8652742e2761450d2b615a841fca24e10e"
-  integrity sha512-mTeshsyFhAqw/ebqNsQpMtbnjr+qVOSKXArEj4K0d7sqc8It1XD0gkASwecm9mF/jlOQ4Z9RNg1HbdA8JPdRwQ==
+"@algolia/autocomplete-core@1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-core/-/autocomplete-core-1.9.3.tgz#1d56482a768c33aae0868c8533049e02e8961be7"
+  integrity sha512-009HdfugtGCdC4JdXUbVJClA0q0zh24yyePn+KUGk3rP7j8FEe/m5Yo/z65gn6nP/cM39PxpzqKrL7A6fP6PPw==
   dependencies:
-    "@algolia/autocomplete-shared" "1.8.2"
+    "@algolia/autocomplete-plugin-algolia-insights" "1.9.3"
+    "@algolia/autocomplete-shared" "1.9.3"
+
+"@algolia/autocomplete-plugin-algolia-insights@1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-plugin-algolia-insights/-/autocomplete-plugin-algolia-insights-1.9.3.tgz#9b7f8641052c8ead6d66c1623d444cbe19dde587"
+  integrity sha512-a/yTUkcO/Vyy+JffmAnTWbr4/90cLzw+CC3bRbhnULr/EM0fGNvM13oQQ14f2moLMcVDyAx/leczLlAOovhSZg==
+  dependencies:
+    "@algolia/autocomplete-shared" "1.9.3"
 
 "@algolia/autocomplete-preset-algolia@1.7.4":
   version "1.7.4"
@@ -23,22 +31,22 @@
   dependencies:
     "@algolia/autocomplete-shared" "1.7.4"
 
-"@algolia/autocomplete-preset-algolia@1.8.2":
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-preset-algolia/-/autocomplete-preset-algolia-1.8.2.tgz#706e87f94c5f198c0e90502b97af09adeeddcc79"
-  integrity sha512-J0oTx4me6ZM9kIKPuL3lyU3aB8DEvpVvR6xWmHVROx5rOYJGQcZsdG4ozxwcOyiiu3qxMkIbzntnV1S1VWD8yA==
+"@algolia/autocomplete-preset-algolia@1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-preset-algolia/-/autocomplete-preset-algolia-1.9.3.tgz#64cca4a4304cfcad2cf730e83067e0c1b2f485da"
+  integrity sha512-d4qlt6YmrLMYy95n5TB52wtNDr6EgAIPH81dvvvW8UmuWRgxEtY0NJiPwl/h95JtG2vmRM804M0DSwMCNZlzRA==
   dependencies:
-    "@algolia/autocomplete-shared" "1.8.2"
+    "@algolia/autocomplete-shared" "1.9.3"
 
 "@algolia/autocomplete-shared@1.7.4":
   version "1.7.4"
   resolved "https://registry.npmjs.org/@algolia/autocomplete-shared/-/autocomplete-shared-1.7.4.tgz"
   integrity sha512-2VGCk7I9tA9Ge73Km99+Qg87w0wzW4tgUruvWAn/gfey1ZXgmxZtyIRBebk35R1O8TbK77wujVtCnpsGpRy1kg==
 
-"@algolia/autocomplete-shared@1.8.2":
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-shared/-/autocomplete-shared-1.8.2.tgz#e6972df5c6935a241f16e4909aa82902338e029d"
-  integrity sha512-b6Z/X4MczChMcfhk6kfRmBzPgjoPzuS9KGR4AFsiLulLNRAAqhP+xZTKtMnZGhLuc61I20d5WqlId02AZvcO6g==
+"@algolia/autocomplete-shared@1.9.3":
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/@algolia/autocomplete-shared/-/autocomplete-shared-1.9.3.tgz#2e22e830d36f0a9cf2c0ccd3c7f6d59435b77dfa"
+  integrity sha512-Wnm9E4Ye6Rl6sTTqjoymD+l8DjSTHsHboVRYrKgEt8Q7UHm9nYbqhN/i0fhUYA3OAEH7WA8x3jfpnmJm3rKvaQ==
 
 "@algolia/cache-browser-local-storage@4.14.2":
   version "4.14.2"
@@ -1591,10 +1599,10 @@
   resolved "https://registry.npmjs.org/@docsearch/css/-/css-3.3.2.tgz"
   integrity sha512-dctFYiwbvDZkksMlsmc7pj6W6By/EjnVXJq5TEPd05MwQe+dcdHJgaIn1c8wfsucxHpIsdrUcgSkACHCq6aIhw==
 
-"@docsearch/css@3.3.4":
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.3.4.tgz#533719eac0aa3934318074e7e981e633727ad2fd"
-  integrity sha512-vDwCDoVXDgopw/hvr0zEADew2wWaGP8Qq0Bxhgii1Ewz2t4fQeyJwIRN/mWADeLFYPVkpz8TpEbxya/i6Tm0WA==
+"@docsearch/css@3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.5.1.tgz#4adf9884735bbfea621c3716e80ea97baa419b73"
+  integrity sha512-2Pu9HDg/uP/IT10rbQ+4OrTQuxIWdKVUEdcw9/w7kZJv9NeHS6skJx1xuRiFyoGKwAzcHXnLp7csE99sj+O1YA==
 
 "@docsearch/react@^3.1.1":
   version "3.3.2"
@@ -1606,14 +1614,14 @@
     "@docsearch/css" "3.3.2"
     algoliasearch "^4.0.0"
 
-"@docsearch/react@^3.3.4":
-  version "3.3.4"
-  resolved "https://registry.yarnpkg.com/@docsearch/react/-/react-3.3.4.tgz#d49cf9e5d939145c9fe688113c5bdf41975d8ae7"
-  integrity sha512-aeOf1WC5zMzBEi2SI6WWznOmIo9rnpN4p7a3zHXxowVciqlI4HsZGtOR9nFOufLeolv7HibwLlaM0oyUqJxasw==
+"@docsearch/react@^3.5.1":
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/@docsearch/react/-/react-3.5.1.tgz#35f4a75f948211d8bb6830d2147c575f96a85274"
+  integrity sha512-t5mEODdLzZq4PTFAm/dvqcvZFdPDMdfPE5rJS5SC8OUq9mPzxEy6b+9THIqNM9P0ocCb4UC5jqBrxKclnuIbzQ==
   dependencies:
-    "@algolia/autocomplete-core" "1.8.2"
-    "@algolia/autocomplete-preset-algolia" "1.8.2"
-    "@docsearch/css" "3.3.4"
+    "@algolia/autocomplete-core" "1.9.3"
+    "@algolia/autocomplete-preset-algolia" "1.9.3"
+    "@docsearch/css" "3.5.1"
     algoliasearch "^4.0.0"
 
 "@docusaurus/core@2.4.1":
@@ -3932,10 +3940,10 @@ docusaurus-plugin-image-zoom@^0.1.4:
   dependencies:
     medium-zoom "^1.0.6"
 
-docusaurus-plugin-sass@^0.2.3:
-  version "0.2.3"
-  resolved "https://registry.npmjs.org/docusaurus-plugin-sass/-/docusaurus-plugin-sass-0.2.3.tgz"
-  integrity sha512-FbaE06K8NF8SPUYTwiG+83/jkXrwHJ/Afjqz3SUIGon6QvFwSSoKOcoxGQmUBnjTOk+deUONDx8jNWsegFJcBQ==
+docusaurus-plugin-sass@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-sass/-/docusaurus-plugin-sass-0.2.4.tgz#a9e95b08a35df977b7a782329db7483917c8e617"
+  integrity sha512-r9bLXW6X2z64bzQUQZB1SxmNlGvSO9swTFALgiMjr/1O4FRDti6BseU4Sw2mlZkYvVQTq8cJMJIP6w7z/5We8Q==
   dependencies:
     sass-loader "^10.1.1"
 
@@ -6994,10 +7002,10 @@ sass-loader@^10.1.1:
     schema-utils "^3.0.0"
     semver "^7.3.2"
 
-sass@^1.62.1:
-  version "1.62.1"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.62.1.tgz#caa8d6bf098935bc92fc73fa169fb3790cacd029"
-  integrity sha512-NHpxIzN29MXvWiuswfc1W3I0N8SXBd8UR26WntmDlRYf0bSADnwnOjsyMZ3lMezSlArD33Vs3YFhp7dWvL770A==
+sass@^1.63.6:
+  version "1.63.6"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.63.6.tgz#481610e612902e0c31c46b46cf2dad66943283ea"
+  integrity sha512-MJuxGMHzaOW7ipp+1KdELtqKbfAWbH7OLIdoSMnVe3EXPMTmxTmlaZDCTsgIpPCs3w99lLo9/zDKkOrJuT5byw==
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
     immutable "^4.0.0"
