@@ -3,7 +3,7 @@ title: 云原生管理端设备
 ---
 
 
-本文档主要讲述如何在已有的OpenYurt集群上安装Yurt-Device-Controller 和 Yurt-EdgeX-Manager组件，并通过部署虚拟端设备来展示如何通过云原生的方式管理边缘端设备。
+本文档主要讲述如何在已有的OpenYurt集群上安装YurtIoTDock，并通过部署虚拟端设备来展示如何通过云原生的方式管理边缘端设备。
 
 对于有兴趣的读者，可以去相关的github仓库参考本文使用组件的具体实现：[Yurt-Device-Controller](https://github.com/openyurtio/yurt-device-controller) 
 和 [Yurt-EdgeX-Manager](https://github.com/openyurtio/yurt-edgex-manager)
@@ -13,276 +13,100 @@ title: 云原生管理端设备
 
 # 环境要求
 
-- OpenYurt v0.5.0+
-- 安装了 [Yurt-app-manager](https://github.com/openyurtio/yurt-app-manager) 组件
+- OpenYurt v1.4.0+
+- 安装了 [Yurt-Manager](https://github.com/openyurtio/yurt-app-manager) 组件
 
 - 与master不在同一局域网下的节点都需要部署coreDNS pod
 - 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/service-topology.md)
 
 
 
-# 1. 安装yurt-edgex-manager并创建一个EdgeX实例
-
-安装部署yurt-edgex-manager
-
-
+# 1. 创建节点池
+首先标记节点来区分云端和边缘端，标记openyurt-worker节点为云端节点，标记openyurt-worker2节点为边缘节点
 ```powershell
-# 如果期望部署edgex的节点是arm64架构，则使用以下的yaml文件
-# kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
-
-# 检查状态
-$ kubectl get pods -n edgex-system |grep edgex
-edgex-controller-manager-6c99fd9f9f-b9nnk   2/2     Running   0          6d22h
+# 将openyurt-worker标记为云端节点
+$ kubectl label node openyurt-worker openyurt.io/is-edge-worker="false"
+# 将openyurt-worker2标记为边缘节点
+$ kubectl label node openyurt-worker2 openyurt.io/is-edge-worker="true"
 ```
 
-创建一个hangzhou边缘节点池，并将边缘节点加入到hangzhou节点池
+创建一个beijing云端节点池，将云端节点(openyurt-worker)加入到beijing节点池
+
+```powershell
+# 创建beijing节点池
+$ cat <<EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1beta1
+kind: NodePool
+metadata:
+  name: beijing
+spec:
+  type: Cloud
+EOF
+
+# 将云端节点加入北京节点池
+$ kubectl label node openyurt-worker apps.openyurt.io/desired-nodepool=beijing
+
+# 检查节点池状态
+$ kubectl get nodepool
+NAME       TYPE    READYNODES   NOTREADYNODES   AGE
+beijing    Cloud   1            0               4m22s
+```
+
+创建一个shanghai边缘节点池，并将边缘节点加入到shanghai节点池
 
 
 
 ```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
-
-# 创建hangzhou节点池
+# 创建shanghai节点池
 $ cat <<EOF | kubectl apply -f -
 apiVersion: apps.openyurt.io/v1alpha1
 kind: NodePool
 metadata:
-  name: $WORKER_NODEPOOL
+  name: shanghai
 spec:
   type: Edge
 EOF
 
-# 将边缘节点加入hangzhou节点池
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool=hangzhou
+# 将边缘节点加入shanghai节点池
+$ kubectl label node openyurt-worker2 apps.openyurt.io/desired-nodepool=shanghai
 
 # 检查节点池状态
 $ kubectl get nodepool
-NAME      TYPE   READYNODES   NOTREADYNODES   AGE
-hangzhou   Edge   0            1               6d22h
+NAME       TYPE    READYNODES   NOTREADYNODES   AGE
+beijing    Cloud   1            0               4m22s
+shanghai   Edge    1            0               3m39s
 ```
 
-在hangzhou节点池中创建edgex foundry实例，并在edgex中部署虚拟设备edgex-device-virtual
+# 2. 在节点池内创建IoT系统PlatformAdmin
+
+配置好使用EdgeX版本，选择在shanghai节点池中创建
 
 ```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-# 如果部署节点是arm64，则改为"edgexfoundry/docker-device-virtual-go-arm64:1.3.0"
-$ export VIRTUAL_DEVICE_IMAGE="edgexfoundry/docker-device-virtual-go:1.3.0"
-
+# 在节点池shanghai中创建minnesota版本的EdgeX
 $ cat <<EOF | kubectl apply -f -
-apiVersion: device.openyurt.io/v1alpha1
-kind: EdgeX
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
 metadata:
-  name: edgex-sample-$WORKER_NODEPOOL
+  name: edgex-sample
 spec:
-  version: hanoi
-  poolname: $WORKER_NODEPOOL
-  additinalservices:
-  - metadata:
-      name: edgex-device-virtual
-    spec:
-      type: NodePort
-      selector:
-        app: edgex-device-virtual
-      ports:
-      - name: http
-        port: 49990
-        protocol: TCP
-        targetPort: 49990
-        nodePort: 30090
-  additinaldeployments:
-  - metadata:
-      name: edgex-device-virtual
-    spec:
-      selector:
-        matchLabels:
-          app: edgex-device-virtual
-      template:
-        metadata:
-          labels:
-            app: edgex-device-virtual
-        spec:
-          hostname: edgex-device-virtual
-          containers:
-          - name: edgex-device-virtual
-            image: $VIRTUAL_DEVICE_IMAGE
-            imagePullPolicy: IfNotPresent
-            ports:
-            - name: http
-              protocol: TCP
-              containerPort: 49990
-            envFrom:
-            - configMapRef:
-                name: common-variables
-            env:
-              - name: Service_Host
-                value: "edgex-device-virtual"
+  version: minnesota
+  poolName: shanghai
 EOF
+
+# 检查部署情况
+$ kubectl get po
+NAME                                                              READY   STATUS    RESTARTS        AGE
+edgex-app-rules-engine-shanghai-8tnnj-65db7c5c46-bst8b            1/1     Running   0               3m54s
+edgex-core-command-shanghai-6q8zr-6d88f9f66b-5qtsp                1/1     Running   1 (2m44s ago)   3m55s
+edgex-core-common-config-bootstrapper-shanghai-whtmd-74ddctldvb   1/1     Running   0               3m54s
+edgex-core-consul-shanghai-972wx-796f644c7f-tnspb                 1/1     Running   0               3m55s
+edgex-core-data-shanghai-r6c2g-7879ffb76-zzhfb                    1/1     Running   1 (2m23s ago)   3m55s
+edgex-core-metadata-shanghai-5qdcn-549bf54564-cpzdf               1/1     Running   0               3m55s
+edgex-device-rest-shanghai-ncdzs-6ccf98ddfb-zbzrj                 1/1     Running   1 (2m32s ago)   3m55s
+edgex-device-virtual-shanghai-9tz4g-d6cc8d9c-8j9v5                1/1     Running   0               3m54s
+edgex-kuiper-shanghai-c26wk-65cf99c6fc-wgs6r                      1/1     Running   0               3m54s
+edgex-redis-shanghai-ztpbz-5655bb88dd-6hzfs                       1/1     Running   0               3m54s
+edgex-support-notifications-shanghai-59qt8-6695cb4bc8-8sln5       1/1     Running   0               3m53s
+edgex-support-scheduler-shanghai-kd665-5599dcc995-gpz7j           1/1     Running   0               3m53s
+edgex-ui-go-shanghai-b67c6-5f85b98658-568lk                       1/1     Running   0               3m55s
 ```
-
-检查edgex-foundry的部署状态
-
-```powershell
-$ kubectl get edgex
-NAME                    READY   SERVICE   READYSERVICE   DEPLOYMENT   READYDEPLOYMENT
-edgex-sample-hangzhou   true    9         9              9            9
-```
-
-# 2. 安装并部署yurt-device-controller
-
-安装yurt-device-controller 相关的CRD
-
-
-
-```powershell
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-```
-
-使用YurtAppSet在hanghzou节点池中部署一个yurt-device-controller实例
-
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
-kind: YurtAppSet
-metadata:
-  labels:
-    controller-tools.k8s.io: "1.0"
-  name: yurt-device-controller
-spec:
-  selector:
-    matchLabels:
-      app: yurt-device-controller
-  workloadTemplate:
-    deploymentTemplate:
-      metadata:
-        labels:
-          app: yurt-device-controller
-      spec:
-        template:
-          metadata:
-            labels:
-              app: yurt-device-controller
-              control-plane: controller-manager
-          spec:
-            containers:
-            - args:
-              - --health-probe-bind-address=:8081
-              - --metrics-bind-address=127.0.0.1:8080
-              - --leader-elect=false
-              command:
-              - /yurt-device-controller
-              image: openyurt/yurt-device-controller:latest
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                httpGet:
-                  path: /healthz
-                  port: 8081
-                initialDelaySeconds: 15
-                periodSeconds: 20
-              name: manager
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 8081
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 30Mi
-                requests:
-                  cpu: 100m
-                  memory: 20Mi
-              securityContext:
-                allowPrivilegeEscalation: false
-            securityContext:
-              runAsUser: 65532
-            terminationGracePeriodSeconds: 10
-  topology:
-    pools:
-    - name: $WORKER_NODEPOOL
-      nodeSelectorTerm:
-        matchExpressions:
-        - key: apps.openyurt.io/nodepool
-          operator: In
-          values:
-          - $WORKER_NODEPOOL
-      replicas: 1
-      tolerations:
-      - effect: NoSchedule
-        key: apps.openyurt.io/example
-        operator: Exists
-  revisionHistoryLimit: 5
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: default-cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: default
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: ""
----
-EOF
-```
-
-检查yurt-device-controller是否部署成功
-
-```powershell
-$ kubectl get pod |grep yurt-device-controller
-yurt-device-controller-beijing-sf7xz-79c9cbf4b7-mbfds             1/1     Running   0          6d22h
-```
-
-# 3. 查看同步上来设备相关信息
-
-可以通过以下命令查看同步上来设备相关信息
-
-
-
-```powershell
-$ kubectl get device
-$ kubectl get deviceservice
-$ kubectl get deviceprofile
-```
-
-# 4. 卸载相关组件并清理环境
-
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
-
-# 1.1 删除所有device, deviceservice, deviceprofile资源
-$ kubectl delete device --all
-$ kubectl delete deviceprofile --all
-$ kubectl delete deviceservice --all
-
-# 1.2 删除部署的yurt-device-controller
-$ kubectl delete yurtappset yurt-device-controller
-$ kubectl delete clusterrolebinding default-cluster-admin
-
-# 1.3 删除device, deviceservice, deviceprofile资源相关的crd
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-
-# 2.1 删除所有edgex实例
-$ kubectl delete edgex --all
-
-# 2.2 卸载yurt-edgex-manager
-# 如果使用的arm64版本的，使用以下命令
-# kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
-
-# （以下步骤可选）
-# 3.1 将边缘节点移除hangzhou节点池
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool-
-# 3.2 删除hangzhou节点池
-$ kubectl delete nodepool $WORKER_NODEPOOL
-```
-
-
-
