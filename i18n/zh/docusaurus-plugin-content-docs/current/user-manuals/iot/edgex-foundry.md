@@ -3,25 +3,25 @@ title: 云原生管理端设备
 ---
 
 
-本文档主要讲述如何在已有的OpenYurt集群上安装YurtIoTDock，并通过部署虚拟端设备来展示如何通过云原生的方式管理边缘端设备。
+本文档主要讲述如何在已有的OpenYurt集群上使用PlatformAdmin部署EdgeX系统和YurtIoTDock组件。
+在 OpenYurt v1.4 版本中，我们升级了原来的 yurt-edgex-manager 和 yurt-device-controller 组件。前者已经内置于 yurt-manager 中，用户可以通过编写 Yaml 文件来创建 PlatformAdmin 资源，简单几行配置就可以往节点池内构建一套完整的 EdgeX 系统；后者更名为 yurt-iot-dock ，会在 PlatformAdmin 创建时自动下发到边缘侧，实现帮助用户一键实现端设备托管的能力。
 
-对于有兴趣的读者，可以去相关的github仓库参考本文使用组件的具体实现：[Yurt-Device-Controller](https://github.com/openyurtio/yurt-device-controller) 
-和 [Yurt-EdgeX-Manager](https://github.com/openyurtio/yurt-edgex-manager)
+
 
 如果你还没有OpenYurt集群，你可以使用 [yurtctl工具](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurtctl.md) 
 来初始化一个OpenYurt集群或将一个Kubernetes集群转换为OpenYurt集群。
 
-# 环境要求
+## 环境要求
 
 - OpenYurt v1.4.0+
-- 安装了 [Yurt-Manager](https://github.com/openyurtio/yurt-app-manager) 组件
+- 安装了`Yurt-Manager`组件
 
 - 与master不在同一局域网下的节点都需要部署coreDNS pod
 - 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/service-topology.md)
 
 
 
-# 1. 创建节点池
+## 1. 创建节点池
 首先标记节点来区分云端和边缘端，标记openyurt-worker节点为云端节点，标记openyurt-worker2节点为边缘节点
 ```powershell
 # 将openyurt-worker标记为云端节点
@@ -77,7 +77,7 @@ beijing    Cloud   1            0               4m22s
 shanghai   Edge    1            0               3m39s
 ```
 
-# 2. 在节点池内创建IoT系统PlatformAdmin
+## 2. 在节点池内创建IoT系统PlatformAdmin
 
 配置好使用EdgeX版本，选择在shanghai节点池中创建
 
