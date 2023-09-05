@@ -46,7 +46,7 @@ module.exports = {
                         'core-concepts/yurthub',
                         'core-concepts/yurt-manager',
                         'core-concepts/node-resource-manager',
-                        'core-concepts/yurt-device-controller',
+                        'core-concepts/yurt-iot-dock',
                         'core-concepts/yurt-coordinator',
                     ]
                 }
@@ -152,6 +152,9 @@ module.exports = {
                         "reference/yurtadm/yurtadm_renew",
                         "reference/yurtadm/yurtadm_reset",
                         "reference/yurtadm/yurtadm_token",
+                    ],
+                    'iot': [
+                        "reference/iot/components",
                     ]
                 }
             ],
