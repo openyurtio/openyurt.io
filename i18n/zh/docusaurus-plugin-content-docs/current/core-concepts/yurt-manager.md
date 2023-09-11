@@ -80,3 +80,13 @@ YurtAppSet 需要用户通过配置其 Spec.Topology 字段来明确指定需要
 YurtAppDaemon 旨在确保在所有节点池或通过 Spec.NodePoolSelector 选定的节点池中自动部署模板(Spec.WorkloadTemplate)中指定的工作负载。当集群中新增或移除节点池时，YurtAppDaemon 控制器和 Webhook 会为相应的节点池创建或移除工作负载，从而确保符合要求的节点池中始终存在预期的 Pods。
 
 ![img](../../../../../static/img/docs/core-concepts/yurtappdaemon.png)
+
+### 1.12 platformadmin 控制器/webhook
+
+PlatformAdmin 从之前版本的 EdgeX CRD 演进而来，是边缘设备管理平台的抽象，用户只需要输入设置接入的平台、需要部署的 NodePool 的名字、需要部署的版本等等，就可以在节点池部署一套边缘设备管理平台。
+
+platformadmin-controller集成在yurt-manager中，负责将PlatformAdmin CR解析为对应的configmap、service和yurtappset，从而实现边缘设备管理平台的部署。
+
+同时，它也负责将yurt-iot-dock下发到对应的节点池，以实现边缘端设备同步，且用户可以通过PlatformAdmin CR的components字段来选择需要部署的edgex可选组件，**这一部分请参考[云原生管理端设备章节](../user-manuals/iot/edgex-foundry.md)**。
+
+![img](../../../../../static/img/docs/core-concepts/platform-adminv1.4.0.png)

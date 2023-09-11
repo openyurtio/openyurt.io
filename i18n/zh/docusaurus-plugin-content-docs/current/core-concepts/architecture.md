@@ -26,24 +26,16 @@ Edge Node上的Kubelet, kube-proxy, Flannel以及其他云原生组件访问云�
 - **YurtHub:**
   - 节点维度的SideCar，节点上组件和kube-apiserver之间的流量代理，有边缘(edge)和云端(cloud)两种运行模式。其中边缘YurtHub会缓存云端返回的数据。
   - 部署形态：以Static Pod形态运行在每个节点上。
-
 - **Raven:**
   - 构建云边VPN访问通道，实现云边、边边网络互通，其中RavenControllerManager组件协调Gateway节点,以及RavenAgent组件负责构建VPN以及路由管理。
   - 部署形态：RavenControllerManager以Deployment形态部署在Cloud Node或Master Node上，Raven Agent以DaemonSet部署在所有节点上。
-  - 
 - **Yurt-Manager：**
   - Yurt-Manager 组件由多个控制器和 webhook 组成，用于确保 Kubernetes 在云边协同场景下像在正常数据中心一样工作。
   - 部署形态：建议将 Yurt-Manager 组件与 Kubernetes 控制平面组件（如 Kube-Controller-Manager）共同定位。Yurt-Manager 作为一个 Deployment 部署，通常包括两个实例，一个master和一个slave。
-
-- **YurtDeviceController/YurtEdgeXManager:**
-  - 用于边缘IOT解决方案的非侵入融合，通过云原生模式管控边缘设备。目前EdgeX Foundry已经无缝集成到OpenYurt架构中。
-  - YurtEdgeXManager以Deployment形态部署在Cloud Node上，YurtDeviceController以YurtAppSet(之前名为UnitedDeployment)形态部署在Edge Node上，每个NodePool上部署一套YurtDeviceController。
-
+- **YurtIoTDock:**
+  - 曾经的YurtDeviceController组件，现在已经集成到OpenYurt主仓库中，无需单独安装。
+  - 用于边缘IOT解决方案的非侵入融合，通过云原生模式管控边缘设备。OpenYurt通过该组件将EdgeX Foundry无缝集成到云原生架构中。
+  - 部署形态：用户可以通过PlatformAdmin CR将YurtIoTDock部署在边缘侧，YurtIoTDock启动后开始将边缘设备信息同步到对应的Device、DeviceService、DeviceProfile。
 - **Pool-Coordinator:**
   - 在节点池内提供KV数据存储(仅存储在内存中)和分布式锁等能力，供YurtHub选举产生Leader，从而实现心跳代理，云边流量复用，节点池内运维监控等能力。
   - 以YurtAppDaemon形态部署，会确保每个边缘节点池中有一个实例。
-
-
-
-
-

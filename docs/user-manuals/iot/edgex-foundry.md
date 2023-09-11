@@ -2,302 +2,247 @@
 title: EdgeX Foundry
 ---
 
-This document demonstrates how to install Yurt-Device-Controller,Yurt-EdgeX-Manager, and manage edge leaf devices via cloud native style based on virtual devices.
+This document mainly describes how to deploy the EdgeX system and YurtIoTDock component on an existing OpenYurt cluster using PlatformAdmin.
 
-For more details about these two components, please refer to [Yurt-Device-Controller](https://github.com/openyurtio/yurt-device-controller), [Yurt-EdgeX-Manager](https://github.com/openyurtio/yurt-edgex-manager)
+In OpenYurt v1.4, we have upgraded the original yurt-edgex-manager and yurt-device-controller components. The former is now built-in within yurt-manager, allowing users to create PlatformAdmin resources by writing YAML files. With just a few lines of configuration, a complete EdgeX system can be built within the node pool. The latter has been renamed as yurt-iot-dock and will be automatically deployed to the edge side when PlatformAdmin is created. This facilitates the one-click management of edge devices for users.
 
-If you don't have an OpenYurt on hand, you can use [yurtctl](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurtctl.md) to create one or convert from an exist Kubernetes cluster.
+If you don't have an OpenYurt cluster yet, you can use the yurtadm tool to initialize an OpenYurt cluster or convert an existing Kubernetes cluster into an OpenYurt cluster.
 
-# Environment
+## Environment
 
-- OpenYurt v0.5.0+
-- You should first install [Yurt-app-manager](https://github.com/openyurtio/yurt-app-manager).
-
-- Deploy CoreDNS for every edge node
+- OpenYurt v1.4.0+
+- You should first install `yurt-manager`
+- Nodes outside the same local network as the master node need to deploy a coreDNS pod.
 - Set ServiceTopology to `kubernetes.io/hostname` for CoreDNS service. For details, please refer to [ServiceTopology](https://openyurt.io/docs/user-manuals/network/service-topology)
 
-# 1. install yurt-edgex-manager and create an EdgeX insatnce
+## Device platform management
 
-install yurt-edgex-manager
+### 1. Create Node Pool
 
-```bash
-$ kubectl apply -f https://github.com/openyurtio/yurt-edgex-manager/releases/download/v0.2.0/yurt-edgex-manager.yaml
+First, create two nodepools: one is a cloud nodepool named "beijing", and the other is an edge nodepool named "hangzhou".
 
-# check status of yurt-edgex-manager
-$ kubectl get pods -n edgex-system |grep edgex
-edgex-controller-manager-6c99fd9f9f-b9nnk   2/2     Running   0          6d22h
-```
-
-Create a nodepool named hangzhou, join node into this nodepool.
-
-```bash
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
-
-# create nodepool hangzhou
-$ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+```shell
+# Create beijing nodepool
+cat << EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
-  name: $WORKER_NODEPOOL
+  name: beijing
+spec:
+  type: Cloud
+EOF
+
+# Create hangzhou nodepool
+cat << EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1beta1
+kind: NodePool
+metadata:
+  name: hangzhou
 spec:
   type: Edge
 EOF
-
-# join edge node into nodepool hangzhou
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool=hangzhou
-
-# check node status
-$ kubectl get nodepool
-NAME      TYPE   READYNODES   NOTREADYNODES   AGE
-hangzhou   Edge   0            1               6d22h
 ```
 
-create EdgeX Foundry instance in nodepool hangzhou and deploy [edgex-device-virtual](https://github.com/edgexfoundry/device-virtual-go)
+Next, add the specified nodes to their respective node pools. Label the node "openyurt-worker" as a cloud node, and label the node "openyurt-worker2" as an edge node.
+
+```shell
+# Mark "openyurt-worker" as a cloud node
+kubectl label node openyurt-worker apps.openyurt.io/nodepool=beijing
+# Mark "openyurt-worker2" as an edge node
+kubectl label node openyurt-worker2 apps.openyurt.io/nodepool=hangzhou
+```
+
+Finally, check the status of the nodepools to ensure they are in a healthy state.
+
+```shell
+# Check the status of the nodepools
+kubectl get np
+NAME       TYPE    READYNODES   NOTREADYNODES   AGE
+beijing    Cloud   1            0               4d18h
+hangzhou   Edge    1            0               4d18h
+```
+
+### 2. Create the IoT system PlatformAdmin within the node pool
+
+Configure the use of the EdgeX version and select to create it within the "hangzhou" nodepool.
+
+```shell
+# Create an EdgeX deployment of the "Minnesota" version within the "hangzhou" node pool
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
+metadata:
+  name: edgex-sample
+spec:
+  version: minnesota
+  poolName: hangzhou
+EOF
+
+# Verify the deployment status to ensure everything is set up correctly
+kubectl get po
+NAME                                                              READY   STATUS    RESTARTS   AGE
+edgex-core-command-hangzhou-4j6pz-8668ff94d7-hqw2r                1/1     Running   0          61s
+edgex-core-common-config-bootstrapper-hangzhou-jnw2q-57bd99xr9p   1/1     Running   0          61s
+edgex-core-consul-hangzhou-6p9tj-798489c647-6xz4m                 1/1     Running   0          61s
+edgex-core-metadata-hangzhou-6l7v5-6f964fc4f-67f9p                1/1     Running   0          61s
+edgex-redis-hangzhou-cwgsw-5c7d7fc478-fsgp9                       1/1     Running   0          61s
+```
+
+### 3. Deploy optional components
+
+In the current version (v1.4.0) of PlatformAdmin, you can use the "components" field to deploy optional components with a single command. Below is an example of deploying "yurt-iot-dock," "edgex-device-virtual," and "edgex-device-rest" using the "components" field:
+
+```shell
+# Add the "components" field on top of the previously deployed PlatformAdmin
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
+metadata:
+  name: edgex-sample
+spec:
+  version: minnesota
+  poolName: hangzhou
+  components:
+  - name: yurt-iot-dock
+  - name: edgex-device-virtual
+  - name: edgex-device-rest
+EOF
+
+# You can see that the optional components have been deployed
+kubectl get po
+NAME                                                              READY   STATUS    RESTARTS   AGE
+edgex-core-command-hangzhou-cwgs2-77bb5d9cdd-zp89r                1/1     Running   0          20m
+edgex-core-common-config-bootstrapper-hangzhou-bqhnb-57bd9c4q5q   1/1     Running   0          20m
+edgex-core-consul-hangzhou-5rl7c-66dbc9c7d7-dqvm8                 1/1     Running   0          20m
+edgex-core-metadata-hangzhou-srpff-dd6c6f9cb-2cj9k                1/1     Running   0          20m
+edgex-device-rest-hangzhou-v7p99-7b8bb4f5d4-kz8sq                 1/1     Running   0          7m49s
+edgex-device-virtual-hangzhou-ssz59-796f948c69-5k4tc              1/1     Running   0          7m49s
+edgex-redis-hangzhou-bk5g5-5fbdf6fffb-cmf6d                       1/1     Running   0          20m
+yurt-iot-dock-hangzhou-56f98-8549f848f5-v2pjn                     1/1     Running   0          7m49s
+```
+
+### 4. Modify component configuration
+
+PlatformAdmin provides advanced users with an entry point for custom configurations. All configurations of PlatformAdmin are controlled by a configmap named "platformadmin-framework". By modifying the values of this configmap, users can modify the configuration of each component. Here is an example of the "platformadmin-framework" configmap:
 
 ```yaml
-apiVersion: device.openyurt.io/v1alpha1
-kind: EdgeX
-metadata:
-  name: edgex-sample-beijing
-spec:
-  version: jakarta
-  poolname: hangzhou
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    org.edgexfoundry.service: edgex-device-virtual
-  name: edgex-device-virtual
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      org.edgexfoundry.service: edgex-device-virtual
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        org.edgexfoundry.service: edgex-device-virtual
-    spec:
-      hostname: edgex-device-virtual
-      nodeSelector:
-        apps.openyurt.io/nodepool: hangzhou
-      containers:
-      - name: edgex-device-virtual
-        image: openyurt/device-virtual:2.1.0
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 59900
-          name: "tcp-59900"
-          protocol: TCP
-        env:
-        - name: MESSAGEQUEUE_HOST
-          value: edgex-redis
-        - name: SERVICE_HOST
-          value: edgex-device-virtual
-        envFrom:
-        - configMapRef:
-            name: common-variables
-        startupProbe:
-          tcpSocket:
-            port: 59900
-          periodSeconds: 1
-          failureThreshold: 120
-        livenessProbe:
-          tcpSocket:
-            port: 59900
-      restartPolicy: Always
----
 apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    org.edgexfoundry.service: edgex-device-virtual
-  name: edgex-device-virtual
-spec:
-  ports:
-  - name: "tcp-59900"
-    port: 59900
-    protocol: TCP
-    targetPort: 59900
-  selector:
-    org.edgexfoundry.service: edgex-device-virtual
-  type: NodePort
-```
-
-check EdgeX instance status
-
-```bash
-$ kubectl get edgex
-NAME                    READY   SERVICE   READYSERVICE   DEPLOYMENT   READYDEPLOYMENT
-edgex-sample-hangzhou   true    9         9              9            9
-```
-
-# 2. install yurt-device-controller
-
-install CRDs of yurt-device-controller
-
-```bash
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-```
-
-use UnitedDeployment to deploy yurt-device-controller instance in nodepool hangzhou. It should be pointed out that we use cluster-admin ClusterRole just for demo purpose
-
-```yaml
-apiVersion: apps.openyurt.io/v1alpha1
-kind: UnitedDeployment
-metadata:
-  labels:
-    controller-tools.k8s.io: "1.0"
-  name: ud-device
-  namespace: default
-spec:
-  selector:
-    matchLabels:
-      app: ud-device
-  topology:
-    pools:
-      - name: hangzhou
-        nodeSelectorTerm:
-          matchExpressions:
-            - key: apps.openyurt.io/nodepool
-              operator: In
-              values:
-                - hangzhou
-        replicas: 1
-        tolerations:
-          - operator: Exists
-  workloadTemplate:
-    deploymentTemplate:
-      metadata:
-        creationTimestamp: null
-        labels:
-          app: ud-device
-      spec:
+data:
+  framework: |
+    components:
+    - deployment:
         selector:
           matchLabels:
-            app: ud-device
+            app: edgex-core-command
         strategy: {}
         template:
           metadata:
             creationTimestamp: null
             labels:
-              app: ud-device
-              control-plane: controller-manager
+              app: edgex-core-command
           spec:
             containers:
-              - args:
-                  - --health-probe-bind-address=:8081
-                  - --metrics-bind-address=127.0.0.1:8080
-                  - --leader-elect=false
-                  - --namespace=default
-                  - --v=5
-                command:
-                  - /yurt-device-controller
-                image: openyurt/yurt-device-controller:v0.2.0
-                imagePullPolicy: IfNotPresent
-                livenessProbe:
-                  failureThreshold: 3
-                  httpGet:
-                    path: /healthz
-                    port: 8081
-                    scheme: HTTP
-                  initialDelaySeconds: 15
-                  periodSeconds: 20
-                  successThreshold: 1
-                  timeoutSeconds: 1
-                name: manager
-                readinessProbe:
-                  failureThreshold: 3
-                  httpGet:
-                    path: /readyz
-                    port: 8081
-                    scheme: HTTP
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  successThreshold: 1
-                  timeoutSeconds: 1
-                resources:
-                  limits:
-                    cpu: 100m
-                    memory: 512Mi
-                  requests:
-                    cpu: 100m
-                    memory: 512Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-            dnsPolicy: ClusterFirst
-            restartPolicy: Always
-            securityContext:
-              runAsUser: 65532
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+            - env:
+              - name: SERVICE_HOST
+                value: edgex-core-command
+              - name: EXTERNALMQTT_URL
+                value: tcp://edgex-mqtt-broker:1883
+              envFrom:
+              - configMapRef:
+                  name: common-variables
+              image: openyurt/core-command:3.0.0
+              imagePullPolicy: IfNotPresent
+              name: edgex-core-command
+              ports:
+              - containerPort: 59882
+                name: tcp-59882
+                protocol: TCP
+              resources: {}
+            hostname: edgex-core-command
+      name: edgex-core-command
+      service:
+        ports:
+        - name: tcp-59882
+          port: 59882
+          protocol: TCP
+          targetPort: 59882
+        selector:
+          app: edgex-core-command
+...
+```
+
+### 5. Add components manually
+
+Considering that some users may need to add their own custom components or modify existing components, the component mechanism of PlatformAdmin also supports adding new components. To add a new component, please follow these steps:
+
+#### Configure PlatformAdmin
+
+Add the name of the component you want to add to the "components" field in PlatformAdmin. For example, if we want to add a component named "nginx-demo."
+
+```shell
+# Add nginx-demo in components
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
 metadata:
-  name: ud-rolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: default
-    namespace: default
+  name: edgex-sample
+spec:
+  version: minnesota
+  poolName: hangzhou
+  components:
+  - name: yurt-iot-dock
+  - name: edgex-device-virtual
+  - name: edgex-device-rest
+  - name: nginx-demo
+EOF
 ```
 
-check whether yurt-device-controller has been deployed successful
+#### Edit PlatformAdminFramework
 
-```bash
-$ kubectl get pod |grep yurt-device-controller
-yurt-device-controller-xxxxxx-sf7xz-79c9cbf4b7-mbfds             1/1     Running   0          6d22h
+Since the AutoCollector does not collect a standard configuration file for the "nginx-demo" component, there is no corresponding configuration in the platformadmin-framework. In this case, users can manually add this component.
+
+```yaml
+# Modify the contents of the configmap using kubectl edit
+kubectl edit cm platformadmin-framework
+
+# Added deployment and service for nginx-demo
+apiVersion: v1
+data:
+  framework: |
+    components:
+    - deployment:
+        selector:
+          matchLabels:
+            app: nginx-demo
+        strategy: {}
+        template:
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: nginx-demo
+          spec:
+            containers:
+            - image: nginx
+              imagePullPolicy: IfNotPresent
+              name: nginx-demo
+              ports:
+              - containerPort: 80
+                name: nginx
+                protocol: TCP
+              resources: {}
+            hostname: nginx-demo
+      name: nginx-demo
+      service:
+        ports:
+        - name: nginx
+          port: 80
+          protocol: TCP
+          targetPort: 80
+        selector:
+          app: nginx-demo
+...
 ```
 
-# 3. Check virtual devices synced from EdgeX
-The device-virtual-go driver will automatically create and register 5 virtual devices of different kinds upon start, yurt-device-controller will then sync them to OpenYurt. You can use kubectl to check it:
+## End device management
 
-```bash
-$ kubectl get device
-NAME                                     NODEPOOL   SYNCED   AGE
-hangzhou-random-binary-device            hangzhou   true     19h
-hangzhou-random-boolean-device           hangzhou   true     19h
-hangzhou-random-float-device             hangzhou   true     19h
-hangzhou-random-integer-device           hangzhou   true     19h
-hangzhou-random-unsignedinteger-device   hangzhou   true     19h
-```
-
-# 4. Uninstall and cleanup
-
-```bash
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
-
-# 1.1 delete all device, deviceservice, deviceprofile资源
-$ kubectl delete device --all
-$ kubectl delete deviceprofile --all
-$ kubectl delete deviceservice --all
-
-# 1.2 uninstall yurt-device-controller
-$ kubectl delete uniteddeployment yurt-device-controller
-$ kubectl delete clusterrolebinding ud-rolebinding
-
-# 1.3 delete CRDs of yurt-device-controller
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-
-# 2.1 delete EdgeX instance
-$ kubectl delete edgex --all
-
-# 2.2 uninstall yurt-edgex-manager
-$ kubectl delete -f https://github.com/openyurtio/yurt-edgex-manager/releases/download/v0.2.0/yurt-edgex-manager.yaml
-
-# （optional）
-# 3.1 remove node from nodepool
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool-
-# 3.2 delete nodepool
-$ kubectl delete nodepool $WORKER_NODEPOOL
-```
-
-
-
+ TODO: Introduce the end device management function of yurt-iot-dock

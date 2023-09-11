@@ -2,287 +2,320 @@
 title: 云原生管理端设备
 ---
 
+本文档主要讲述如何在已有的OpenYurt集群上使用PlatformAdmin部署EdgeX系统和YurtIoTDock组件。
+在 OpenYurt v1.4 版本中，我们升级了原来的 yurt-edgex-manager 和 yurt-device-controller 组件。前者已经内置于 yurt-manager 中，用户可以通过编写 Yaml 文件来创建 PlatformAdmin 资源，简单几行配置就可以往节点池内构建一套完整的 EdgeX 系统；后者更名为 yurt-iot-dock ，会在 PlatformAdmin 创建时自动下发到边缘侧，实现帮助用户一键实现端设备托管的能力。
 
-本文档主要讲述如何在已有的OpenYurt集群上安装Yurt-Device-Controller 和 Yurt-EdgeX-Manager组件，并通过部署虚拟端设备来展示如何通过云原生的方式管理边缘端设备。
+如果你还没有OpenYurt集群，你可以使用yurtadm工具来初始化一个OpenYurt集群或将一个Kubernetes集群转换为OpenYurt集群。
 
-对于有兴趣的读者，可以去相关的github仓库参考本文使用组件的具体实现：[Yurt-Device-Controller](https://github.com/openyurtio/yurt-device-controller) 
-和 [Yurt-EdgeX-Manager](https://github.com/openyurtio/yurt-edgex-manager)
+## 环境要求
 
-如果你还没有OpenYurt集群，你可以使用 [yurtctl工具](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/yurtctl.md) 
-来初始化一个OpenYurt集群或将一个Kubernetes集群转换为OpenYurt集群。
-
-# 环境要求
-
-- OpenYurt v0.5.0+
-- 安装了 [Yurt-app-manager](https://github.com/openyurtio/yurt-app-manager) 组件
+- OpenYurt v1.4.0+
+- 安装了`yurt-manager`组件
 
 - 与master不在同一局域网下的节点都需要部署coreDNS pod
 - 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/service-topology.md)
 
+## 端设备平台管理
 
+### 1. 创建节点池
 
-# 1. 安装yurt-edgex-manager并创建一个EdgeX实例
+首先创建两个节点池，一个是名为beijing的云端节点池，一个是名为hangzhou的边缘节点池。
 
-安装部署yurt-edgex-manager
-
-
-```powershell
-# 如果期望部署edgex的节点是arm64架构，则使用以下的yaml文件
-# kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
-
-# 检查状态
-$ kubectl get pods -n edgex-system |grep edgex
-edgex-controller-manager-6c99fd9f9f-b9nnk   2/2     Running   0          6d22h
-```
-
-创建一个hangzhou边缘节点池，并将边缘节点加入到hangzhou节点池
-
-
-
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
-
-# 创建hangzhou节点池
-$ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+```shell
+# 创建beijing节点池
+cat << EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
-  name: $WORKER_NODEPOOL
+  name: beijing
+spec:
+  type: Cloud
+EOF
+
+# 创建hangzhou节点池
+cat << EOF | kubectl apply -f -
+apiVersion: apps.openyurt.io/v1beta1
+kind: NodePool
+metadata:
+  name: hangzhou
 spec:
   type: Edge
 EOF
+```
 
-# 将边缘节点加入hangzhou节点池
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool=hangzhou
+然后将指定的节点加入节点池，标记openyurt-worker节点为云端节点，标记openyurt-worker2节点为边缘节点
 
+```shell
+# 将openyurt-worker标记为云端节点
+kubectl label node openyurt-worker apps.openyurt.io/nodepool=beijing
+# 将openyurt-worker2标记为边缘节点
+kubectl label node openyurt-worker2 apps.openyurt.io/nodepool=hangzhou
+```
+
+最后检查节点池状态，确保节点池状态正常
+
+```shell
 # 检查节点池状态
-$ kubectl get nodepool
-NAME      TYPE   READYNODES   NOTREADYNODES   AGE
-hangzhou   Edge   0            1               6d22h
+kubectl get np
+NAME       TYPE    READYNODES   NOTREADYNODES   AGE
+beijing    Cloud   1            0               4d18h
+hangzhou   Edge    1            0               4d18h
 ```
 
-在hangzhou节点池中创建edgex foundry实例，并在edgex中部署虚拟设备edgex-device-virtual
+### 2. 在节点池内创建IoT系统PlatformAdmin
 
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-# 如果部署节点是arm64，则改为"edgexfoundry/docker-device-virtual-go-arm64:1.3.0"
-$ export VIRTUAL_DEVICE_IMAGE="edgexfoundry/docker-device-virtual-go:1.3.0"
+配置好使用EdgeX版本，选择在hangzhou节点池中创建
 
-$ cat <<EOF | kubectl apply -f -
-apiVersion: device.openyurt.io/v1alpha1
-kind: EdgeX
+```shell
+# 在节点池hangzhou中创建minnesota版本的EdgeX
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
 metadata:
-  name: edgex-sample-$WORKER_NODEPOOL
+  name: edgex-sample
 spec:
-  version: hanoi
-  poolname: $WORKER_NODEPOOL
-  additinalservices:
-  - metadata:
-      name: edgex-device-virtual
-    spec:
-      type: NodePort
-      selector:
-        app: edgex-device-virtual
-      ports:
-      - name: http
-        port: 49990
-        protocol: TCP
-        targetPort: 49990
-        nodePort: 30090
-  additinaldeployments:
-  - metadata:
-      name: edgex-device-virtual
-    spec:
-      selector:
-        matchLabels:
-          app: edgex-device-virtual
-      template:
-        metadata:
-          labels:
-            app: edgex-device-virtual
-        spec:
-          hostname: edgex-device-virtual
-          containers:
-          - name: edgex-device-virtual
-            image: $VIRTUAL_DEVICE_IMAGE
-            imagePullPolicy: IfNotPresent
-            ports:
-            - name: http
-              protocol: TCP
-              containerPort: 49990
-            envFrom:
-            - configMapRef:
-                name: common-variables
-            env:
-              - name: Service_Host
-                value: "edgex-device-virtual"
+  version: minnesota
+  poolName: hangzhou
 EOF
+
+# 检查部署情况
+kubectl get po
+NAME                                                              READY   STATUS    RESTARTS   AGE
+edgex-core-command-hangzhou-4j6pz-8668ff94d7-hqw2r                1/1     Running   0          61s
+edgex-core-common-config-bootstrapper-hangzhou-jnw2q-57bd99xr9p   1/1     Running   0          61s
+edgex-core-consul-hangzhou-6p9tj-798489c647-6xz4m                 1/1     Running   0          61s
+edgex-core-metadata-hangzhou-6l7v5-6f964fc4f-67f9p                1/1     Running   0          61s
+edgex-redis-hangzhou-cwgsw-5c7d7fc478-fsgp9                       1/1     Running   0          61s
 ```
 
-检查edgex-foundry的部署状态
+### 3. 部署可选组件
 
-```powershell
-$ kubectl get edgex
-NAME                    READY   SERVICE   READYSERVICE   DEPLOYMENT   READYDEPLOYMENT
-edgex-sample-hangzhou   true    9         9              9            9
-```
+目前v1.4.0的PlatformAdmin支持通过components字段一键部署可选组件，下面是通过components字段部署yurt-iot-dock、edgex-device-virtual、edgex-device-rest的例子
 
-# 2. 安装并部署yurt-device-controller
-
-安装yurt-device-controller 相关的CRD
-
-
-
-```powershell
-$ kubectl apply -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-```
-
-使用YurtAppSet在hanghzou节点池中部署一个yurt-device-controller实例
-
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
-kind: YurtAppSet
+```shell
+# 在刚才部署的PlatformAdmin之上增加components字段
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
 metadata:
-  labels:
-    controller-tools.k8s.io: "1.0"
-  name: yurt-device-controller
+  name: edgex-sample
 spec:
-  selector:
-    matchLabels:
-      app: yurt-device-controller
-  workloadTemplate:
-    deploymentTemplate:
-      metadata:
-        labels:
-          app: yurt-device-controller
-      spec:
+  version: minnesota
+  poolName: hangzhou
+  components:
+  - name: yurt-iot-dock
+  - name: edgex-device-virtual
+  - name: edgex-device-rest
+EOF
+
+# 可以看到可选的components已经部署起来了
+kubectl get po
+NAME                                                              READY   STATUS    RESTARTS   AGE
+edgex-core-command-hangzhou-cwgs2-77bb5d9cdd-zp89r                1/1     Running   0          20m
+edgex-core-common-config-bootstrapper-hangzhou-bqhnb-57bd9c4q5q   1/1     Running   0          20m
+edgex-core-consul-hangzhou-5rl7c-66dbc9c7d7-dqvm8                 1/1     Running   0          20m
+edgex-core-metadata-hangzhou-srpff-dd6c6f9cb-2cj9k                1/1     Running   0          20m
+edgex-device-rest-hangzhou-v7p99-7b8bb4f5d4-kz8sq                 1/1     Running   0          7m49s
+edgex-device-virtual-hangzhou-ssz59-796f948c69-5k4tc              1/1     Running   0          7m49s
+edgex-redis-hangzhou-bk5g5-5fbdf6fffb-cmf6d                       1/1     Running   0          20m
+yurt-iot-dock-hangzhou-56f98-8549f848f5-v2pjn                     1/1     Running   0          7m49s
+```
+
+### 4. 修改组件配置
+
+PlatfromAdmin给高阶用户提供了自定义配置的入口，所有PlatformAdmin的配置都通过一个名为platformadmin-framework的configmap控制，通过修改这个configmap的值用户可以修改每个组件的配置，下面是platformadmin-framework的一个例子
+
+```yaml
+apiVersion: v1
+data:
+  framework: |
+    components:
+    - deployment:
+        selector:
+          matchLabels:
+            app: edgex-core-command
+        strategy: {}
         template:
           metadata:
+            creationTimestamp: null
             labels:
-              app: yurt-device-controller
-              control-plane: controller-manager
+              app: edgex-core-command
           spec:
             containers:
-            - args:
-              - --health-probe-bind-address=:8081
-              - --metrics-bind-address=127.0.0.1:8080
-              - --leader-elect=false
-              command:
-              - /yurt-device-controller
-              image: openyurt/yurt-device-controller:latest
+            - env:
+              - name: SERVICE_HOST
+                value: edgex-core-command
+              - name: EXTERNALMQTT_URL
+                value: tcp://edgex-mqtt-broker:1883
+              envFrom:
+              - configMapRef:
+                  name: common-variables
+              image: openyurt/core-command:3.0.0
               imagePullPolicy: IfNotPresent
-              livenessProbe:
-                httpGet:
-                  path: /healthz
-                  port: 8081
-                initialDelaySeconds: 15
-                periodSeconds: 20
-              name: manager
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 8081
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  cpu: 100m
-                  memory: 30Mi
-                requests:
-                  cpu: 100m
-                  memory: 20Mi
-              securityContext:
-                allowPrivilegeEscalation: false
-            securityContext:
-              runAsUser: 65532
-            terminationGracePeriodSeconds: 10
-  topology:
-    pools:
-    - name: $WORKER_NODEPOOL
-      nodeSelectorTerm:
-        matchExpressions:
-        - key: apps.openyurt.io/nodepool
-          operator: In
-          values:
-          - $WORKER_NODEPOOL
-      replicas: 1
-      tolerations:
-      - effect: NoSchedule
-        key: apps.openyurt.io/example
-        operator: Exists
-  revisionHistoryLimit: 5
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
+              name: edgex-core-command
+              ports:
+              - containerPort: 59882
+                name: tcp-59882
+                protocol: TCP
+              resources: {}
+            hostname: edgex-core-command
+      name: edgex-core-command
+      service:
+        ports:
+        - name: tcp-59882
+          port: 59882
+          protocol: TCP
+          targetPort: 59882
+        selector:
+          app: edgex-core-command
+...
+```
+
+### 5. 手动添加组件
+
+考虑到某些用户可能需要新增一些自己编写或修改的组件，PlatformAdmin的component机制也支持用户新增组件。新增组件需要遵守如下步骤：
+
+#### 配置PlatformAdmin
+
+在PlatformAdmin的components字段中加入需要新增的组件的名字，比如我们想要增加一个名为nginx-demo的组件
+
+```shell
+# 在components字段中增加nginx-demo
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
 metadata:
-  name: default-cluster-admin
-subjects:
-- kind: ServiceAccount
-  name: default
-  namespace: default
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: ""
----
+  name: edgex-sample
+spec:
+  version: minnesota
+  poolName: hangzhou
+  components:
+  - name: yurt-iot-dock
+  - name: edgex-device-virtual
+  - name: edgex-device-rest
+  - name: nginx-demo
 EOF
 ```
 
-检查yurt-device-controller是否部署成功
+#### 填写PlatformAdminFramework
 
-```powershell
-$ kubectl get pod |grep yurt-device-controller
-yurt-device-controller-beijing-sf7xz-79c9cbf4b7-mbfds             1/1     Running   0          6d22h
+由于AutoCollector收集的标准配置文件并不存在nginx-demo这个组件，所以platformadmin-framework中并没有对应的配置，这时用户可以手动增加这个组件
+
+```yaml
+# 使用kubectl edit修改configmap中的内容
+kubectl edit cm platformadmin-framework
+
+# 新增nginx-demo配套的deployment和service
+apiVersion: v1
+data:
+  framework: |
+    components:
+    - deployment:
+        selector:
+          matchLabels:
+            app: nginx-demo
+        strategy: {}
+        template:
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: nginx-demo
+          spec:
+            containers:
+            - image: nginx
+              imagePullPolicy: IfNotPresent
+              name: nginx-demo
+              ports:
+              - containerPort: 80
+                name: nginx
+                protocol: TCP
+              resources: {}
+            hostname: nginx-demo
+      name: nginx-demo
+      service:
+        ports:
+        - name: nginx
+          port: 80
+          protocol: TCP
+          targetPort: 80
+        selector:
+          app: nginx-demo
+...
 ```
 
-# 3. 查看同步上来设备相关信息
+保存退出后可以看到nginx-demo这个组件已经被部署起来了
 
-可以通过以下命令查看同步上来设备相关信息
+```shell
+# deployment成功创建，pod已经成功部署
+kubectl get po
+NAME                                                              READY   STATUS    RESTARTS   AGE
+edgex-core-command-hangzhou-2mvhc-77bb5d9cdd-7xtgp                1/1     Running   0          4m17s
+edgex-core-common-config-bootstrapper-hangzhou-tp2qc-57bd9cpj8p   1/1     Running   0          4m17s
+edgex-core-consul-hangzhou-hhnvv-66dbc9c7d7-cp5c9                 1/1     Running   0          4m17s
+edgex-core-metadata-hangzhou-pd9b2-dd6c6f9cb-xzx45                1/1     Running   0          4m17s
+edgex-device-rest-hangzhou-l55qd-7b8bb4f5d4-s7pw6                 1/1     Running   0          4m17s
+edgex-device-virtual-hangzhou-ftrg9-796f948c69-rfpnk              1/1     Running   0          4m17s
+edgex-redis-hangzhou-9hnpn-5fbdf6fffb-vzh5k                       1/1     Running   0          4m17s
+nginx-demo-hangzhou-p5p2k-5cd7c897d6-49ss9                        1/1     Running   0          108s
+yurt-iot-dock-hangzhou-gg85j-8549f848f5-sbhmk                     1/1     Running   0          4m17s
 
-
-
-```powershell
-$ kubectl get device
-$ kubectl get deviceservice
-$ kubectl get deviceprofile
+# 对应的service也成功创建
+kubectl get svc
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
+edgex-core-command     ClusterIP   10.96.146.121   <none>        59882/TCP   4m54s
+edgex-core-consul      ClusterIP   10.96.39.123    <none>        8500/TCP    4m54s
+edgex-core-metadata    ClusterIP   10.96.58.12     <none>        59881/TCP   4m54s
+edgex-device-rest      ClusterIP   10.96.39.152    <none>        59986/TCP   4m54s
+edgex-device-virtual   ClusterIP   10.96.165.130   <none>        59900/TCP   4m54s
+edgex-redis            ClusterIP   10.96.159.68    <none>        6379/TCP    4m54s
+kubernetes             ClusterIP   10.96.0.1       <none>        443/TCP     8d
+nginx-demo             ClusterIP   10.96.40.228    <none>        80/TCP      2m25s
 ```
 
-# 4. 卸载相关组件并清理环境
+如果想要一键移除这个组件的话，只需要在components字段中去掉对应的name就行，PlatformAdmin会自动回收对应名字的组件
 
-```powershell
-$ export WORKER_NODEPOOL="hangzhou"
-$ export EDGE_NODE="node1"
+```shell
+# 在components字段中删除nginx-demo
+cat <<EOF | kubectl apply -f -
+apiVersion: iot.openyurt.io/v1alpha2
+kind: PlatformAdmin
+metadata:
+  name: edgex-sample
+spec:
+  version: minnesota
+  poolName: hangzhou
+  components:
+  - name: yurt-iot-dock
+  - name: edgex-device-virtual
+  - name: edgex-device-rest
+  # - name: nginx-demo
+EOF
 
-# 1.1 删除所有device, deviceservice, deviceprofile资源
-$ kubectl delete device --all
-$ kubectl delete deviceprofile --all
-$ kubectl delete deviceservice --all
+# 可以看到对应的deployment和service都回收了
+kubectl get deploy
+NAME                                                   READY   UP-TO-DATE   AVAILABLE   AGE
+edgex-core-command-hangzhou-2mvhc                      1/1     1            1           7m50s
+edgex-core-common-config-bootstrapper-hangzhou-tp2qc   1/1     1            1           7m50s
+edgex-core-consul-hangzhou-hhnvv                       1/1     1            1           7m50s
+edgex-core-metadata-hangzhou-pd9b2                     1/1     1            1           7m50s
+edgex-device-rest-hangzhou-l55qd                       1/1     1            1           7m50s
+edgex-device-virtual-hangzhou-ftrg9                    1/1     1            1           7m50s
+edgex-redis-hangzhou-9hnpn                             1/1     1            1           7m50s
+yurt-iot-dock-hangzhou-gg85j                           1/1     1            1           7m50s
 
-# 1.2 删除部署的yurt-device-controller
-$ kubectl delete yurtappset yurt-device-controller
-$ kubectl delete clusterrolebinding default-cluster-admin
-
-# 1.3 删除device, deviceservice, deviceprofile资源相关的crd
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-device-controller/main/config/setup/crd.yaml
-
-# 2.1 删除所有edgex实例
-$ kubectl delete edgex --all
-
-# 2.2 卸载yurt-edgex-manager
-# 如果使用的arm64版本的，使用以下命令
-# kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager-arm64.yaml
-$ kubectl delete -f https://raw.githubusercontent.com/openyurtio/yurt-edgex-manager/main/Documentation/yurt-edgex-manager.yaml
-
-# （以下步骤可选）
-# 3.1 将边缘节点移除hangzhou节点池
-$ kubectl label node $EDGE_NODE apps.openyurt.io/desired-nodepool-
-# 3.2 删除hangzhou节点池
-$ kubectl delete nodepool $WORKER_NODEPOOL
+kubectl get svc
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)     AGE
+edgex-core-command     ClusterIP   10.96.146.121   <none>        59882/TCP   8m1s
+edgex-core-consul      ClusterIP   10.96.39.123    <none>        8500/TCP    8m1s
+edgex-core-metadata    ClusterIP   10.96.58.12     <none>        59881/TCP   8m1s
+edgex-device-rest      ClusterIP   10.96.39.152    <none>        59986/TCP   8m1s
+edgex-device-virtual   ClusterIP   10.96.165.130   <none>        59900/TCP   8m1s
+edgex-redis            ClusterIP   10.96.159.68    <none>        6379/TCP    8m1s
+kubernetes             ClusterIP   10.96.0.1       <none>        443/TCP     8d
 ```
 
+**注：不建议在platformadmin-framework中直接修改组件名，这会导致组件脱离platformadmin管控！**
 
+## 端设备管理
 
+TODO: 介绍如何使用yurt-iot-dock管理端设备

@@ -41,9 +41,10 @@ Raven builds VPN channels to ensure connectivity from cloud to edge or edge to e
   - Deployment pattern: The Yurt-Manager component is recommended to co-located with Kubernetes control plane components such as Kube-Controller-Manager. and Yurt-Manager is deployed as a `Deployment`, usually consists of
     two instances, one leader and one backup.
 
-- **YurtDeviceController/YurtEdgeXManager:**
-  - YurtDeviceController and YurtEdgeXManager manage edge devices in cloud native way, they combine EdgeX Foundry and OpenYurt seamlessly, providing IOT solutions in an easy, efficient way.
-  - Deployment pattern: Deployment for YurtEdgeXManager in cloud nodes, YurtAppSet for YurtDeviceController in each edge nodepool.
+- **YurtIoTDock:**
+  - The former YurtDeviceController component has been integrated into the main repository of OpenYurt and no longer requires separate installation.
+  - OpenYurt enables seamless integration of EdgeX Foundry into cloud-native architecture for non-intrusive fusion in edge IoT solutions. This is achieved through cloud-native management of edge devices.
+  - Deployment Mode: Users can deploy YurtIoTDock on the edge side through the PlatformAdmin CR. Once YurtIoTDock is launched, it begins synchronizing edge device information to the corresponding Device, DeviceService, and DeviceProfile entities.
 
 - **Pool-Coordinator:**
   - Provide KV data storage (stored only in memory) and distributed lock capabilities in the node pool, so that YurtHub can elect a Leader, so as to realize heartbeat proxy, cloud edge traffic reuse, operation and maintenance monitoring in the node pool, etc.
