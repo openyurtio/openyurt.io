@@ -245,4 +245,287 @@ data:
 
 ## End device management
 
- TODO: Introduce the end device management function of yurt-iot-dock
+Next, we introduce the end-device management function of yurt-iot-dock, using virtual devices as a case study.
+
+### 1. Add device-virtual components manually
+
+To make things easy, we just deploy a virtual device driver device-virtual-go.
+
+It simulates different kinds of devices to generate device data, and users can send commands to get responses from or conduct control instructions to the devices.
+
+First, we need to ensure that edgex-device-virtual is existing in the configmap of the PlatformAdmin framework:
+
+```yaml
+# Get the contents of the configmap using kubectl edit
+kubectl get cm platformadmin-framework -o yaml
+
+apiVersion: v1
+data:
+  framework: |
+    components:
+    - deployment:
+        selector:
+          matchLabels:
+            app: edgex-device-virtual
+        strategy: {}
+        template:
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: edgex-device-virtual
+          spec:
+            containers:
+            - env:
+              - name: SERVICE_HOST
+                value: edgex-device-virtual
+              envFrom:
+              - configMapRef:
+                  name: common-variables
+              image: openyurt/device-virtual:3.0.0
+              imagePullPolicy: IfNotPresent
+              name: edgex-device-virtual
+              ports:
+              - containerPort: 59900
+                name: tcp-59900
+                protocol: TCP
+              resources: {}
+            hostname: edgex-device-virtual
+      name: edgex-device-virtual
+      service:
+        ports:
+        - name: tcp-59900
+          port: 59900
+          protocol: TCP
+          targetPort: 59900
+        selector:
+          app: edgex-device-virtual
+...
+```
+
+The device-virtual-go component automatically creates and registers the deviceservice, the 5 different types of devices and their deviceprofiles at startup, and the yurt-iot-dock component synchronizes them all to OpenYurt. So you can check it with kubectl:
+
+```yaml
+$ kubectl get deviceservice
+NAME                      NODEPOOL   SYNCED   AGE
+hangzhou-device-virtual   hangzhou   true     2d1h
+
+$ kubectl get device
+NAME                                     NODEPOOL   SYNCED   AGE
+hangzhou-random-binary-device            hangzhou   true     2d1h
+hangzhou-random-boolean-device           hangzhou   true     2d1h
+hangzhou-random-float-device             hangzhou   true     2d1h
+hangzhou-random-integer-device           hangzhou   true     2d1h
+hangzhou-random-unsignedinteger-device   hangzhou   true     2d1h
+
+$ kubectl get deviceprofile
+NAME                                     NODEPOOL   SYNCED   AGE
+hangzhou-random-binary-device            hangzhou   true     2d1h
+hangzhou-random-boolean-device           hangzhou   true     2d1h
+hangzhou-random-float-device             hangzhou   true     2d1h
+hangzhou-random-integer-device           hangzhou   true     2d1h
+hangzhou-random-unsignedinteger-device   hangzhou   true     2d1h
+```
+
+### 2. Create Device, DeviceProfile
+
+In addition to synchronizing devices, device profiles, and device services in edgex by means of preconfigured configurations, the Openyurt side also provides a more general way to create devices and deviceprofiles.
+
+1. Create a DeviceProfile
+
+```yaml
+apiVersion: iot.openyurt.io/v1alpha1
+kind: DeviceProfile
+metadata:
+  name: openyurt-created-random-boolean-deviceprofile
+spec:
+  description: Example of Device-Virtual Created By OpenYurt
+  deviceCommands:
+  - isHidden: false
+    name: WriteBoolValue
+    readWrite: W
+    resourceOperations:
+    - defaultValue: ""
+      deviceResource: Bool
+    - defaultValue: "false"
+      deviceResource: EnableRandomization_Bool
+  - isHidden: false
+    name: WriteBoolArrayValue
+    readWrite: W
+    resourceOperations:
+    - defaultValue: ""
+      deviceResource: BoolArray
+    - defaultValue: "false"
+      deviceResource: EnableRandomization_BoolArray
+  deviceResources:
+  - description: used to decide whether to re-generate a random value
+    isHidden: true
+    name: EnableRandomization_Bool
+    properties:
+      defaultValue: "true"
+      readWrite: W
+      valueType: Bool
+  - description: Generate random boolean value
+    isHidden: false
+    name: Bool
+    properties:
+      defaultValue: "true"
+      readWrite: RW
+      valueType: Bool
+  - description: used to decide whether to re-generate a random value
+    isHidden: true
+    name: EnableRandomization_BoolArray
+    properties:
+      defaultValue: "true"
+      readWrite: W
+      valueType: Bool
+  - description: Generate random boolean array value
+    isHidden: false
+    name: BoolArray
+    properties:
+      defaultValue: '[true]'
+      readWrite: RW
+      valueType: BoolArray
+  labels:
+  - openyurt-created-device-virtual-example
+  manufacturer: OpenYurt Community
+  model: OpenYurt-Device-Virtual-01
+  nodePool: hangzhou
+```
+
+This DeviceProfile is just a copy of random-boolean DeviceProfile created by device-virtual-go for demo purpose.
+
+2. Create a Device
+
+Create a virtual device using the pre-synchronized DeviceService and the DeviceProfile created above:
+
+```yaml
+apiVersion: iot.openyurt.io/v1alpha1
+kind: Device
+metadata:
+  name: openyurt-created-random-boolean-device
+spec:
+  adminState: UNLOCKED
+  description: Example of Device Virtual
+  labels:
+  - openyurt-created-device-virtual-example
+  managed: true
+  nodePool: hangzhou
+  notify: true
+  operatingState: UP
+  profileName: openyurt-created-random-boolean-deviceprofile
+  protocols:
+    other:
+      Address: openyurt-created-device-virtual-bool-01
+      Port: "300"
+  serviceName: device-virtual
+```
+
+Then, we can see the resource objects in OpenYurt through kubectl as below:
+
+```shell
+$ kubectl get deviceprofile openyurt-created-random-boolean-deviceprofile
+NAME                                            NODEPOOL   SYNCED   AGE
+openyurt-created-random-boolean-deviceprofile   hangzhou   true     15h
+
+$ kubectl get device openyurt-created-random-boolean-device
+NAME                                     NODEPOOL   SYNCED   AGE
+openyurt-created-random-boolean-device   hangzhou   true     14h
+```
+
+### 4. Retrieve device generated data
+
+We have already set up the environment and simulated a virtual bool device.
+
+In OpenYurt, we can easily get the latest data generated by devices just by checking the status sub-resource of Device resource object like this:
+
+```shell
+$ kubectl get device openyurt-created-random-boolean-device -o yaml
+apiVersion: iot.openyurt.io/v1alpha1
+kind: Device
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"iot.openyurt.io/v1alpha1","kind":"Device","metadata":{"annotations":{},"name":"openyurt-boolean-device","namespace":"default"},"spec":{"adminState":"UNLOCKED","description":"Example of Device Virtual","labels":["openyurt-device-boolean-virtual"],"managed":true,"nodePool":"hangzhou","notify":true,"operatingState":"UP","profileName":"Random-Boolean-Device","protocols":{"other":{"Address":"openyurt-device-boolean-virtual-01","Port":"301"}},"serviceName":"openyurt-boolean-device"}}
+  creationTimestamp: "2023-09-14T06:25:10Z"
+  finalizers:
+  - iot.openyurt.io/device
+  generation: 2
+  name: openyurt-boolean-device
+  namespace: default
+  resourceVersion: "1717015"
+  uid: 6677eb4a-b644-4d5d-970a-1446f141a353
+spec:
+  adminState: UNLOCKED
+  description: Example of Device Virtual
+  deviceProperties:
+    Bool:
+      desiredValue: "true"
+      name: Bool
+  labels:
+  - openyurt-created-device-virtual-example
+  managed: false
+  nodePool: hangzhou
+  notify: true
+  operatingState: UP
+  profileName: openyurt-created-random-boolean-deviceprofile
+  protocols:
+    other:
+      Address: openyurt-created-device-virtual-bool-01
+      Port: "300"
+  serviceName: device-virtual
+status:
+  adminState: UNLOCKED
+  deviceProperties:
+    Bool:
+      actualValue: "true"
+      getURL: http://edgex-core-command:59882/api/v3/device/name/openyurt-boolean-device/Bool
+      name: Bool
+    BoolArray:
+      actualValue: '[true, true, true, false, false]'
+      getURL: http://edgex-core-command:59882/api/v3/device/name/openyurt-boolean-device/BoolArray
+      name: BoolArray
+  edgeId: 5e63effd-deeb-4505-890e-17ec32f02511
+  operatingState: UP
+  synced: true
+
+```
+
+The deviceProperties shows all the properties of this device.
+
+For example, the Bool property has the latest value false and the value is retrieved from the EdgeX rest api <http://edgex-core-command:59882/api/v2/device/name/openyurt-created-random-boolean-device/Bool>.
+
+### 5. Update the properties of device
+
+If you want to control the device by updating its writable attributes, you should first set the Device.Spec.Managed field to true to indicate that yurt-iot-dock takes over the device, otherwise all update operations will be ignored.
+
+1. Set the managed field of device to true
+
+```shell
+kubectl patch device openyurt-created-random-boolean-device -p '{"spec":{"managed":true}}'  --type=merge
+```
+
+2. Change the adminState of device
+
+The administrative state (aka admin state) provides control of the device service by man or other systems. It can be set to LOCKED or UNLOCKED. When a device service is set to locked, it is not supposed to respond to any command requests nor send data from the devices.
+
+```shell
+kubectl patch device openyurt-created-random-boolean-device -p '{"spec":{"adminState":"UNLOCKED"}}'  --type=merge
+```
+
+Set the DeviceProperties to control/update device
+
+```shell
+kubectl patch device openyurt-created-random-boolean-device --type=merge -p '{"spec":{"managed":true,"deviceProperties":{"Bool": {"name":"Bool", "desiredValue":"false"}}}}'
+```
+
+In the command, we set the Bool DeviceProperty value to false, yurt-iot-dock will trigger a EdgeX command and change the property of the device. We can check this by watch the status of device for multiple times, you will find the value is always false unless you change this property to true again.
+
+```shell
+watch "kubectl get device openyurt-created-random-boolean-device -o json | jq '.status.deviceProperties.Bool.actualValue'"
+
+# output
+Every 2.0s: kubectl get device openyurt-boolean-device -o json | jq '.status.deviceProperties.Bool.actualValue'                                VM-16-6-ubuntu: Sat Sep 16 16:39:58 2023
+
+"false"
+
+```
