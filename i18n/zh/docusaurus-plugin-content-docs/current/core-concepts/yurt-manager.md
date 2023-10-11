@@ -81,7 +81,15 @@ YurtAppDaemon 旨在确保在所有节点池或通过 Spec.NodePoolSelector 选�
 
 ![img](../../../../../static/img/docs/core-concepts/yurtappdaemon.png)
 
-### 1.12 platformadmin 控制器/webhook
+### 1.12 yurtappoverrider 控制器/webhook
+
+在上述 YurtAppDaemon 和 YurtAppSet 中，工作负载基于统一的模板进行分发。然而，当工作负载需要根据节点池或地域进行个性化配置时，YurtAppDaemon 无法满足我们的需求。虽然 YurtAppSet 可以通过 Topology 字段进行一定程度的个性化，但为了降低耦合度和实现向后兼容，我们引入了 YurtAppOverrider 来作为多地域工作负责个性化渲染的引擎。
+
+YurtAppOverrider 旨在确保在所有与其绑定的 YurtAppDaemon 和 YurtAppSet 在分发工作负载时都会先经过 对应Webhook 的渲染。当 YurtAppDaemon 和 YurtAppSet 的模板有任何变动或者 YurtAppOverrider 的个性化配置有变动时，YurtAppOverrider 控制器会触发配置的重新计算，从而确保多地域场景下的个性化配置。
+
+![img](../../../../../static/img/docs/core-concepts/yurtappoverrider.jpg)
+
+### 1.13 platformadmin 控制器/webhook
 
 PlatformAdmin 从之前版本的 EdgeX CRD 演进而来，是边缘设备管理平台的抽象，用户只需要输入设置接入的平台、需要部署的 NodePool 的名字、需要部署的版本等等，就可以在节点池部署一套边缘设备管理平台。
 
