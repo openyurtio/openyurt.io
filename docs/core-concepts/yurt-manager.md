@@ -86,7 +86,15 @@ YurtAppDaemon aims to ensure that workloads specified in the template (Spec.Work
 
 ![img](../../static/img/docs/core-concepts/yurtappdaemon.png)
 
-### 1.12 platformadmin controller/webhook
+### 1.12 `yurtappoverrider` controller/webhook
+
+In YurtAppDaemon and YurtAppSet above, workloads are distributed based on a uniform template. However, when workloads need to be customized based on node pool or region, YurtAppDaemon does not satisfy our needs. Although YurtAppSet can be personalized to a certain extent by the Topology field, we introduced YurtAppOverrider as the multi-region workloads rendering engine in order to reduce coupling and achieve backward compatibility.
+
+YurtAppOverrider is designed to ensure that all YurtAppDaemon and YurtAppSet bindings are rendered by the corresponding Webhook when dispatching workloads. When there are any changes to the templates of YurtAppDaemon and YurtAppSet or to the personalization configuration of YurtAppOverrider, the YurtAppOverrider controller triggers a recalculation to ensure customized configuration in a multi-region scenario.
+
+![img](../../static/img/docs/core-concepts/yurtappoverrider.jpg)
+
+### 1.13 platformadmin controller/webhook
 
 PlatformAdmin evolved from previous versions of EdgeX CRD and serves as an abstraction for an edge device management platform. Users only need to input settings such as the connected platform, the name of the NodePool to be deployed, the desired version, and more. This allows them to deploy an edge device management platform on a node pool.
 
