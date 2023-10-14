@@ -34,7 +34,7 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 对参数的解释：
 
 - `1.2.3.4:6443`: apiserver 的地址
-- `--token`：bootstrap token
+- `--token`：bootstrap token（如何获取可以参考[链接](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/bootstrap-tokens/)）
 - `--node-type`：openyurt 节点类型，可以为：cloud 或者 edge
 
 如何编译`yurtadm`二进制，可以参考[链接](./yurtadm-init.md#21编译-yurtadm)

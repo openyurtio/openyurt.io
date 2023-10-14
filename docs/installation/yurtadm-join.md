@@ -36,7 +36,7 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 Explanation of parameters:
 
 - `1.2.3.4:6443`:  The address of apiserver
-- `--token`：bootstrap token
+- `--token`：bootstrap token(how to get bootstrap token, please refer to the link [here](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/))
 - `--node-type`：openyurt node type，can be cloud or edge
 
 The process of `yurtadm join` will automatically install the following k8s components:
