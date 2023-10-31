@@ -148,6 +148,7 @@ module.exports = {
                 {
                     href: 'https://github.com/openyurtio/openyurt',
                     className: 'header-github-link',
+                    'aria-label': 'GitHub repository',
                     position: 'right',
                 },
             ],
