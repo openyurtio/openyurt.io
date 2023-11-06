@@ -27,7 +27,7 @@ make local-up-openyurt
 
 最后将在kubernetes集群中安装OpenYurt组件，包括`yurthub`，`yurt-controller-manager`，`yurt-tunnel-agent`和`yurt-tunnel-server`。
 
-现在，一个OpenYurt集群就启动完成了。可以直接通过`kubectl`命令来与集群进行交互。`kind`会自动将启动的集群的kubeconfig储存在`KUBECONFIG`所指路径（默认为${HOME}/.kube/config）。如果在该目录下已经有了kubeconfig，`kind`会为该kubeconfig增加新的context，并切换current-context指向刚刚创建的集群。可以通过`kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`命令切回原来的集群。context相关的更多信息可以参考该[文档](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters)。另外可以通过设置`KIND_KUBECONFIG`来指定其他的路径。
+现在，一个OpenYurt集群就启动完成了。可以直接通过`kubectl`命令来与集群进行交互。`kind`会自动将启动的集群的kubeconfig储存在`KUBECONFIG`所指路径（默认为`${HOME}/.kube/config`）。如果在该目录下已经有了kubeconfig，`kind`会为该kubeconfig增加新的context，并切换current-context指向刚刚创建的集群。可以通过`kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`命令切回原来的集群。context相关的更多信息可以参考该[文档](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters)。另外可以通过设置`KIND_KUBECONFIG`来指定其他的路径。
 
 ## 环境变量说明
 

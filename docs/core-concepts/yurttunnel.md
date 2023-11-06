@@ -105,8 +105,8 @@ In order to keep long and secure communication of cloud-edge, and also to suppor
 
 Because the request of the cloud component needs to be forwarded to the `Yurt-Tunnel-Server`, it also means that no modification to the cloud component is required. So it is necessary to analyze the requests of cloud components. Currently the maintenance requests of components have the following two types:
 
-* type 1: access using IP address, such as: http://{nodeIP}:{port}/{path}
-* type 2: access using domain name, such as: http://{NodeName}:{port}/{path}
+* type 1: access using IP address, such as: `http://{nodeIP}:{port}/{path}`
+* type 2: access using domain name, such as: `http://{NodeName}:{port}/{path}`
 
 Different solutions need to be adopted for different types of requests.
 

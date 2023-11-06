@@ -54,7 +54,7 @@ $ ls /var/lib/cni/networks/cbr0
 当云边断网时，Pod重启会导致host-local重新分配IP地址，且Pod IP地址的变化无法同步到云端，其它边缘节点上的kube-proxy等组件无法感知到Pod IP的变化，则无法使用Cluster IP地址访问业务Pod。
 
 ### 解决办法： Pod IP地址保持
-为了解决这个问题，需要调整host-local的代码：记录IP地址的格式为{ip}-{pod namespace}-{pod name}。当pod重启时，host-local将优先使用记录中同名Pod的IP地址。
+为了解决这个问题，需要调整host-local的代码：记录IP地址的格式为`{ip}-{pod namespace}-{pod name}`。当pod重启时，host-local将优先使用记录中同名Pod的IP地址。
 调整后的已分配的Pod IP记录如下：
 ```shell script
 $ ls /var/lib/cni/networks/cbr0

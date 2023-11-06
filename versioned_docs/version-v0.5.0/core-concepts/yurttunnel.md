@@ -98,8 +98,8 @@ Yurt-Tunnel-Agent注册的身份信息如下：
 
 因为需要无缝把云端组件的请求转发到 Yurt-Tunnel-Server ，也意味不需要对云端组件进行任何修改。因此需要对云端组件的请求进行分析，目前组件的运维请求主要有以下两种类型:
 
-* 类型1: 直接使用 IP 地址访问，如: http://{nodeIP}:{port}/{path}
-* 类型2: 使用域名访问, 如: http://{NodeName}:{port}/{path}
+* 类型1: 直接使用 IP 地址访问，如: `http://{nodeIP}:{port}/{path}`
+* 类型2: 使用域名访问, 如: `http://{NodeName}:{port}/{path}`
 
 针对不同类型请求的导流，需要采用不同方案。
 
