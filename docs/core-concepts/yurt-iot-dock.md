@@ -15,21 +15,20 @@ we believe that Kubernetes should focus on managing computing resources while ed
 
 A overall architecture about cloud-edge-device depicted below
 
-![img](../../static/img/cloud-edge-device.png)
+![img](../../static/img/docs/core-concepts/openyurt-iot-arch.png)
 
-The communication range of edge devices is usually limited to a certain network area. Therefore, edge nodes in the same network area can be divided into a nodepool. So a device management platform and a yurt-device-controller
-can be deployed in each nodepool.：
+The communication range of edge devices is usually limited to a certain network area. Therefore, edge nodes in the same network area can be divided into a nodepool. So a device management platform and a yurt-iot-dock can be deployed in each nodepool:
 
 - When communicating with kube-apiserver on the cloud, Yurt-Device-Controller only watches the device objects in its nodepool and synchronizes the updated specs to the corresponding devices through the corresponding device management platform.
 - When communicating with the device management platform，YurtHub, NodePool, and UnitedDeployment capabilities are reused. The device information in the node pool is abstracted into device, deviceService, and deviceProfile objects and synchronized to the cloud.
 
 ## Edge device management platform
 
-EdgeX Foundry is a powerful, ecosystem-supported, edge computing platform for the Internet of Things (IoT) that is plug-and-play and open-source. It offers a high level of flexibility and scalability, significantly reducing the complexity of interoperability between applications and edge devices, sensors, and other hardware. OpenYurt collaborates with the EdgeX Foundry community and has achieved integration and compatibility starting from version 0.5.0. In addition to the yurt-device-controller, OpenYurt also provides the yurt-edgex-manager component to simplify the deployment of EdgeX Foundry in edge scenarios.
+EdgeX Foundry is a powerful, ecosystem-supported, edge computing platform for the Internet of Things (IoT) that is plug-and-play and open-source. It offers a high level of flexibility and scalability, significantly reducing the complexity of interoperability between applications and edge devices, sensors, and other hardware. OpenYurt has collaborated with the EdgeX Foundry community and achieved deep integration in version 1.4.0. In addition to yurt-iot-dock, OpenYurt also provides the PlatformAdmin CRD to simplify the deployment of EdgeX Foundry in edge scenarios.
 
 Combined with the above cloud side architecture diagram, the architecture diagram of OpenYurt and EdgeX Foundry integration is as follows:
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856741/1634174981669-3c6aa2db-73fa-4b1b-9698-82aab9e14461.png)
+![img](../../static/img/docs/core-concepts/openyurt-edgex-arch.png)
 
 ### PlatformAdmin
 

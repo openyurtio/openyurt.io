@@ -15,6 +15,14 @@ If you don't have an OpenYurt cluster yet, you can use the yurtadm tool to initi
 - Nodes outside the same local network as the master node need to deploy a coreDNS pod.
 - Set ServiceTopology to `kubernetes.io/hostname` for CoreDNS service. For details, please refer to [ServiceTopology](https://openyurt.io/docs/user-manuals/network/service-topology)
 
+## Install yurt-iot-dock environment
+
+To deploy yurt-iot-dock using PlatformAdmin, you first need to install the helm chart for yurt-iot-dock into your Kubernetes cluster.
+
+```shell
+helm install yurt-iot-dock ./charts/yurt-iot-dock
+```
+
 ## Device platform management
 
 ### 1. Create Node Pool
@@ -91,6 +99,8 @@ edgex-redis-hangzhou-cwgsw-5c7d7fc478-fsgp9                       1/1     Runnin
 ### 3. Deploy optional components
 
 In the current version (v1.4.0) of PlatformAdmin, you can use the "components" field to deploy optional components with a single command. Below is an example of deploying "yurt-iot-dock," "edgex-device-virtual," and "edgex-device-rest" using the "components" field:
+
+> Refer to the [Components Documentation](../../reference/iot/components.md) for component names for optional components.
 
 ```shell
 # Add the "components" field on top of the previously deployed PlatformAdmin

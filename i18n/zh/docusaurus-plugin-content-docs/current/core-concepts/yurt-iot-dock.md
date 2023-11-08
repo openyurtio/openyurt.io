@@ -13,7 +13,7 @@ OpenYurt擅长以非侵入的方式，实现云边资源的统一管理和运维
 
 下面是云边端三者整体的架构模型：
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/26856741/1641996163563-185aeb40-93cb-4581-b48e-b8e1da8ff619.png)
+![img](../../../../../static/img/docs/core-concepts/openyurt-iot-arch.png)
 
 边缘端设备的通信范围往往局限于某一网络区域内，因此可以将同一网络区域内的边缘节点划分为一个节点池，当用户部署一个PlatformAdmin资源到某个节点池后，yurt-manager会在该节点池部署一个端设备管理平台和一个yurt-iot-dock组件：
 
@@ -22,11 +22,11 @@ OpenYurt擅长以非侵入的方式，实现云边资源的统一管理和运维
 
 ## 边缘设备管理平台
 
-EdgeX Foundry 是一款由生态系统提供强力支持的边缘物联网即插即用型、开放式软件平台。它具有高度灵活和可扩展性，可以大大的降低应用与边缘设备，传感器等硬件互操作的复杂性。OpenYurt 与 EdgeX Foundry社区合作，在0.5.0版本完成了集成对接，除了yurt-device-controller，还提供了yurt-edgex-manager组件以简化edgex foundry在边缘场景下的部署工作。
+EdgeX Foundry 是一款由生态系统提供强力支持的边缘物联网即插即用型、开放式软件平台。它具有高度灵活和可扩展性，可以大大的降低应用与边缘设备，传感器等硬件互操作的复杂性。OpenYurt 与 EdgeX Foundry社区合作，在1.4.0版本完成了深度集成，除了yurt-iot-dock，还提供了PlatformAdmin这个CRD以简化edgex foundry在边缘场景下的部署工作。
 
 结合上述的云边端架构图，OpenYurt与EdgeX Foundry集成的架构图如下：
 
-![img](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/26856741/1634174981669-3c6aa2db-73fa-4b1b-9698-82aab9e14461.png)
+![img](../../../../../static/img/docs/core-concepts/openyurt-edgex-arch.png)
 
 ### PlatformAdmin
 

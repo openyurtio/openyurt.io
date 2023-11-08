@@ -15,6 +15,14 @@ title: 云原生管理端设备
 - 与master不在同一局域网下的节点都需要部署coreDNS pod
 - 将访问coreDNS service的流量改为节点池内闭环，参考[教程](https://github.com/openyurtio/openyurt/blob/master/docs/tutorial/service-topology.md)
 
+## 安装YurtIoTDock环境
+
+如果想要使用PlatformAdmin来部署yurt-iot-dock，需要先将yurt-iot-dock相关的helm包安装到集群中。
+
+```shell
+helm install yurt-iot-dock ./charts/yurt-iot-dock
+```
+
 ## 端设备平台管理
 
 ### 1. 创建节点池
@@ -91,6 +99,8 @@ edgex-redis-hangzhou-cwgsw-5c7d7fc478-fsgp9                       1/1     Runnin
 ### 3. 部署可选组件
 
 目前v1.4.0的PlatformAdmin支持通过components字段一键部署可选组件，下面是通过components字段部署yurt-iot-dock、edgex-device-virtual、edgex-device-rest的例子
+
+> 可选组件的组件名参考[Component文档](../../reference/iot/components.md)
 
 ```shell
 # 在刚才部署的PlatformAdmin之上增加components字段
