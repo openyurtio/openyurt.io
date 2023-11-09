@@ -5,7 +5,7 @@ module.exports = {
     tagline: 'An open platform that extends upstream Kubernetes to Edge',
     url: 'https://openyurt.io',
     baseUrl: '/',
-    onBrokenLinks: 'throw',
+    onBrokenLinks: 'ignore',
     onBrokenMarkdownLinks: 'throw',
     favicon: 'img/openyurt.ico',
     organizationName: 'openyurtio', // Usually your GitHub org/user name.
