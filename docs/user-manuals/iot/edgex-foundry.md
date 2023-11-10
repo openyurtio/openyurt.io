@@ -502,7 +502,7 @@ status:
 
 The deviceProperties shows all the properties of this device.
 
-For example, the Bool property has the latest value false and the value is retrieved from the EdgeX rest api <http://edgex-core-command:59882/api/v2/device/name/openyurt-created-random-boolean-device/Bool>.
+For example, the Bool property has the latest value false and the value is retrieved from the EdgeX rest api http://edgex-core-command:59882/api/v2/device/name/openyurt-created-random-boolean-device/Bool.
 
 ### 5. Update the properties of device
 

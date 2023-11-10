@@ -1,33 +1,33 @@
 {
-    "version-v1.2/docs": [
+    "docs": [
         {
             "type": "category",
             "label": "Getting Started",
             "collapsed": false,
             "items": [
-                "version-v1.2/introduction",
+                "introduction",
                 {
                     "Usage Conditions": [
-                        "version-v1.2/usage-conditions/resource-and-system-requirements"
+                        "usage-conditions/resource-and-system-requirements"
                     ]
                 },
                 {
                     "Installation": [
-                        "version-v1.2/installation/summary",
+                        "installation/summary",
                         {
                             "Install Control Plane Components": [
-                                "version-v1.2/installation/manually-setup"
+                                "installation/manually-setup"
                             ]
                         },
-                        "version-v1.2/installation/yurtadm-join"
+                        "installation/yurtadm-join"
                     ]
                 },
                 {
                     "OpenYurt Experience Center": [
-                        "version-v1.2/installation/openyurt-experience-center/overview",
-                        "version-v1.2/installation/openyurt-experience-center/user",
-                        "version-v1.2/installation/openyurt-experience-center/web_console",
-                        "version-v1.2/installation/openyurt-experience-center/kubeconfig"
+                        "installation/openyurt-experience-center/overview",
+                        "installation/openyurt-experience-center/user",
+                        "installation/openyurt-experience-center/web_console",
+                        "installation/openyurt-experience-center/kubeconfig"
                     ]
                 }
             ]
@@ -37,16 +37,16 @@
             "label": "Core Concepts",
             "collapsed": false,
             "items": [
-                "version-v1.2/core-concepts/architecture",
+                "core-concepts/architecture",
                 {
                     "Components": [
-                        "version-v1.2/core-concepts/raven",
-                        "version-v1.2/core-concepts/yurthub",
-                        "version-v1.2/core-concepts/yurttunnel",
-                        "version-v1.2/core-concepts/yurt-app-manager",
-                        "version-v1.2/core-concepts/yurt-controller-manager",
-                        "version-v1.2/core-concepts/node-resource-manager",
-                        "version-v1.2/core-concepts/yurt-device-controller"
+                        "core-concepts/raven",
+                        "core-concepts/yurthub",
+                        "core-concepts/yurttunnel",
+                        "core-concepts/yurt-app-manager",
+                        "core-concepts/yurt-controller-manager",
+                        "core-concepts/node-resource-manager",
+                        "core-concepts/yurt-device-controller"
                     ]
                 }
             ]
@@ -58,46 +58,46 @@
             "items": [
                 {
                     "Autonomy": [
-                        "version-v1.2/user-manuals/autonomy/selfhealing-during-network-disconnection",
-                        "version-v1.2/user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes",
-                        "version-v1.2/user-manuals/autonomy/node-pod-binding"
+                        "user-manuals/autonomy/selfhealing-during-network-disconnection",
+                        "user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes",
+                        "user-manuals/autonomy/node-pod-binding"
                     ]
                 },
                 {
                     "Network": [
-                        "version-v1.2/user-manuals/network/raven",
-                        "version-v1.2/user-manuals/network/bandwidth-reduction",
-                        "version-v1.2/user-manuals/network/edge-pod-network",
-                        "version-v1.2/user-manuals/network/service-topology",
-                        "version-v1.2/user-manuals/network/edge-ingress"
+                        "user-manuals/network/raven",
+                        "user-manuals/network/bandwidth-reduction",
+                        "user-manuals/network/edge-pod-network",
+                        "user-manuals/network/service-topology",
+                        "user-manuals/network/edge-ingress"
                     ]
                 },
                 {
                     "Resource Access Control": [
-                        "version-v1.2/user-manuals/resource-access-control/resource-access-control"
+                        "user-manuals/resource-access-control/resource-access-control"
                     ]
                 },
                 {
                     "Storage": [
-                        "version-v1.2/user-manuals/storage/edge-local-storage"
+                        "user-manuals/storage/edge-local-storage"
                     ]
                 },
                 {
                     "Workload": [
-                        "version-v1.2/user-manuals/workload/daemon-pod-updater",
-                        "version-v1.2/user-manuals/workload/node-pool-management",
-                        "version-v1.2/user-manuals/workload/yurt-app-set",
-                        "version-v1.2/user-manuals/workload/yurt-app-daemon"
+                        "user-manuals/workload/daemon-pod-updater",
+                        "user-manuals/workload/node-pool-management",
+                        "user-manuals/workload/yurt-app-set",
+                        "user-manuals/workload/yurt-app-daemon"
                     ]
                 },
                 {
                     "Monitoring": [
-                        "version-v1.2/user-manuals/monitoring/prometheus"
+                        "user-manuals/monitoring/prometheus"
                     ]
                 },
                 {
                     "IOT": [
-                        "version-v1.2/user-manuals/iot/edgex-foundry"
+                        "user-manuals/iot/edgex-foundry"
                     ]
                 }
             ]
@@ -107,9 +107,9 @@
             "label": "Test Report",
             "collapsed": true,
             "items": [
-                "version-v1.2/test-report/yurthub-performance-test",
-                "version-v1.2/test-report/pool-coordinator-test",
-                "version-v1.2/test-report/pod-recover-efficiency-test"
+                "test-report/yurthub-performance-test",
+                "test-report/pool-coordinator-test",
+                "test-report/pod-recover-efficiency-test"
             ]
         },
         {
@@ -117,7 +117,7 @@
             "label": "Best Practices",
             "collapsed": true,
             "items": [
-                "version-v1.2/best-practices/practices-1"
+                "best-practices/practices-1"
             ]
         },
         {
@@ -125,10 +125,10 @@
             "label": "Developer Manuals",
             "collapsed": true,
             "items": [
-                "version-v1.2/developer-manuals/how-to-build-and-test",
-                "version-v1.2/developer-manuals/local-up-openyurt",
-                "version-v1.2/developer-manuals/ci-workflow",
-                "version-v1.2/developer-manuals/how-to-contribute"
+                "developer-manuals/how-to-build-and-test",
+                "developer-manuals/local-up-openyurt",
+                "developer-manuals/ci-workflow",
+                "developer-manuals/how-to-contribute"
             ]
         },
         {
@@ -139,17 +139,17 @@
                 "reference/api_reference",
                 {
                     "yurtadm": [
-                        "version-v1.2/reference/yurtadm/yurtadm",
-                        "version-v1.2/reference/yurtadm/yurtadm_completion",
-                        "version-v1.2/reference/yurtadm/yurtadm_completion_bash",
-                        "version-v1.2/reference/yurtadm/yurtadm_completion_fish",
-                        "version-v1.2/reference/yurtadm/yurtadm_completion_powershell",
-                        "version-v1.2/reference/yurtadm/yurtadm_completion_zsh",
-                        "version-v1.2/reference/yurtadm/yurtadm_docs",
-                        "version-v1.2/reference/yurtadm/yurtadm_init",
-                        "version-v1.2/reference/yurtadm/yurtadm_join",
-                        "version-v1.2/reference/yurtadm/yurtadm_reset",
-                        "version-v1.2/reference/yurtadm/yurtadm_token"
+                        "reference/yurtadm/yurtadm",
+                        "reference/yurtadm/yurtadm_completion",
+                        "reference/yurtadm/yurtadm_completion_bash",
+                        "reference/yurtadm/yurtadm_completion_fish",
+                        "reference/yurtadm/yurtadm_completion_powershell",
+                        "reference/yurtadm/yurtadm_completion_zsh",
+                        "reference/yurtadm/yurtadm_docs",
+                        "reference/yurtadm/yurtadm_init",
+                        "reference/yurtadm/yurtadm_join",
+                        "reference/yurtadm/yurtadm_reset",
+                        "reference/yurtadm/yurtadm_token"
                     ]
                 }
             ]
@@ -159,11 +159,11 @@
             "label": "FAQ",
             "collapsed": true,
             "items": [
-                "version-v1.2/faq/yurthub",
-                "version-v1.2/faq/yurtadm",
-                "version-v1.2/faq/yurt-tunnel",
-                "version-v1.2/faq/coredns",
-                "version-v1.2/faq/prometheus"
+                "faq/yurthub",
+                "faq/yurtadm",
+                "faq/yurt-tunnel",
+                "faq/coredns",
+                "faq/prometheus"
             ]
         }
     ]

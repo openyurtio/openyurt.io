@@ -4,7 +4,7 @@ title: yurthub
 
 ** 1. yurthub data cache directory **
 
-The metadata cache path on the edge node is: /etc/kubernetes/cache/{componentName}/{resource}/{namespace}/{name}
+The metadata cache path on the edge node is: `/etc/kubernetes/cache/{componentName}/{resource}/{namespace}/{name}`
 
 ** 2. yurthub component certificate storage directory**
 
@@ -16,7 +16,7 @@ The metadata cache path on the edge node is: /etc/kubernetes/cache/{componentNam
 At present, the validity period of the certificate is uniformly determined by the kube-controller-manager component (1 year by default), and user self-configuration is not supported for the time being.
 At the same time, yurthub will perform a certificate rotation request to update the certificate before the certificate expires. If the certificate rotation fails due to network reasons, yurthub will use the bootstrap token to re-apply for the certificate.
 Of course, if the bootstrap token also expires, the user needs to execute on the edge node: POST http://127.0.0.1:10267/v1/token -D "jointoken:
-{bootstrap token}" to update the bootstrap token. Note that the previous {bootstrap token} is replaced with valid The bootstrap token.
+`{bootstrap token}`" to update the bootstrap token. Note that the previous `{bootstrap token}` is replaced with valid The bootstrap token.
 
 ** 3. how to check which requests are forwarded to kube-apiserver through yurthub**
 
@@ -87,8 +87,8 @@ Users need to configure the runtime on the node in advance to support private im
 
 To reduce the local disk cache load, yurthub only caches components by default [`kubelet`, `kube-proxy`, `flannel`, `coredns`, `yurt-tunnel-agent`, `yurthub`, `leader-yurthub`]( https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L84) metadata obtained from the cloud.
 If the metadata of other components also needs to be cached, enable way is as follows:
-- Make sure that the HTTP request header sent by this component contains `User-Agent` information, and yurthub will determine the {componentName} in the cache directory according to the content before the first `/` in the `User-Agent header`. Component metadata will not be cached when `User-Agent` is empty
-- Manually configure the `cache_agents` field of `configmap kube-system/yurt-hub-cfg` to add {componentName}.
+- Make sure that the HTTP request header sent by this component contains `User-Agent` information, and yurthub will determine the `{componentName}` in the cache directory according to the content before the first `/` in the `User-Agent header`. Component metadata will not be cached when `User-Agent` is empty
+- Manually configure the `cache_agents` field of `configmap kube-system/yurt-hub-cfg` to add `{componentName}`.
 - When `cache_agents: "*"`, it means that all components (must have User-Agent header) get metadata from the cloud will be cached. Since many components have a large number of list/watch requests, all caches will put pressure on the local disk, so it is necessary to configure `*` carefully.
 - Configure multiple components separated by `,`. For example, the `User-Agent header` of the two components is `foo/v1.0.0` and `bar123/v1.0.0` respectively. The configuration information is as follows:
 ```

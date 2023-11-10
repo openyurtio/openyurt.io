@@ -30,7 +30,7 @@ It will use `kind` to set up the kubernetes cluster. You can set `KUBERNETESVERS
 
 At last, Finally, OpenYurt components will be installed in kubernetes cluster, including 'Yurthub', 'Yurt-Controller-Manager', 'Yurt-tunnel-Agent' and 'Yurt-Tunnel-Server'.
 
-By now, you've got the OpenYurt cluster at your local host and you can interact with it using `kubectl`. `kind` will automatically stored the kubeconfig at your `KUBECONFIG` path (default path is ${HOME}/.kube/config). If you already have the `KUBECONFIG` to interact with other clusters, `kind` will add a new context of openyurt cluster into the `KUBECONFIG` and automatically switch to it. You can manually switch back to the previous context using command `kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`. For more details, you can see the [documentation](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/). You can store the kubeconfig at another path through setting `KIND_KUBECONFIG`.
+By now, you've got the OpenYurt cluster at your local host and you can interact with it using `kubectl`. `kind` will automatically stored the kubeconfig at your `KUBECONFIG` path (default path is `${HOME}/.kube/config)`. If you already have the `KUBECONFIG` to interact with other clusters, `kind` will add a new context of openyurt cluster into the `KUBECONFIG` and automatically switch to it. You can manually switch back to the previous context using command `kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`. For more details, you can see the [documentation](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/). You can store the kubeconfig at another path through setting `KIND_KUBECONFIG`.
 
 ## Reference
 
@@ -38,7 +38,7 @@ Reference gives descriptions of all used environment variables.
 
 1. **KIND_KUBECONFIG**
 
-KIND_KUBECONFIG represents the path to store the kubeconfig file of the cluster which is created by this shell. The default value is "$HOME/.kube/config".
+KIND_KUBECONFIG represents the path to store the kubeconfig file of the cluster which is created by this shell. The default value is `"$HOME/.kube/config"`.
 
 2. **NODES_NUM**
 

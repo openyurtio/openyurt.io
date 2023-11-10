@@ -574,7 +574,7 @@ status:
 
 deviceProperties 显示该设备的所有属性。
 
-例如，Bool 属性的最新值是 false，该值是从 EdgeX rest api <http://edgex-core-command:59882/api/v2/device/name/openyurt-created-random-boolean-device/Bool> 获取的。
+例如，Bool 属性的最新值是 false，该值是从 EdgeX rest api http://edgex-core-command:59882/api/v2/device/name/openyurt-created-random-boolean-device/Bool 获取的。
 
 ### 5. 更新设备属性
 

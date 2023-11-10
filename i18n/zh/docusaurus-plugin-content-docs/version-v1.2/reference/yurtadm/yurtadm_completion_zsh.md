@@ -14,7 +14,11 @@ $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
 To load completions for every new session, execute once:
 # Linux:
+
+```
 $ yurtadm completion zsh > "${fpath[1]}/_yurtadm"
+```
+
 # macOS:
 $ yurtadm completion zsh > /usr/local/share/zsh/site-functions/_yurtadm
 

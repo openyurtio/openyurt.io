@@ -98,8 +98,8 @@ In order to ensure the long-term secure communication of the cloud-edge channel 
 
 Because the requests of cloud components need to be seamlessly forwarded to Yurt-Tunnel-Server, it also means that there is no need to modify the cloud components. Therefore, it is necessary to analyze the requests of cloud components. At present, the operation requests of components mainly include the following two types:
 
-* Type 1: Use Ip address directly, for example: http://{nodeIP}:{port}/{path}
-* Type 2: Use domain name, for example: http://{NodeName}:{port}/{path}
+* Type 1: Use Ip address directly, for example: `http://{nodeIP}:{port}/{path}`
+* Type 2: Use domain name, for example: `http://{NodeName}:{port}/{path}`
 
 For different types of requests, it needs different plans.
 
