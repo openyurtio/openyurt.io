@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkopenyurt_io=self.webpackChunkopenyurt_io||[]).push([[9786],{4198:e=>{e.exports=JSON.parse('{"label":"yurthub","permalink":"/blog/tags/yurthub","allTagsPath":"/blog/tags","count":3,"unlisted":false}')}}]);
