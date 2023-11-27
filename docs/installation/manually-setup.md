@@ -78,6 +78,7 @@ helm upgrade --install raven-agent -n kube-system openyurt/raven-agent
 
 Ensure that the pod of the raven agent component have been created successfully:
 
+You need to configure the cluster by referring to [raven-l7-proxy-prepare.md](./raven-l7-proxy-prepare.md) if you need to enable raven l7 proxy
 ```bash
 kubectl get pod -n kube-system | grep raven-agent
 ```

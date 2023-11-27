@@ -57,36 +57,58 @@ raven-agent-ds-ksxq6                              1/1     Running             0 
 raven-agent-ds-qhjtb                              1/1     Running             0              25h
 ```
 
-## How to Use
 
-### Gateways
+## 2. How to use
 
-- create gateways
+### 2.1 Gateways
+
+- Create Gateway CR
 
 ```bash
 $ cat <<EOF | kubectl apply -f -
-apiVersion: raven.openyurt.io/v1alpha1
+apiVersion: raven.openyurt.io/v1beta1
 kind: Gateway
 metadata:
   name: gw-hangzhou
 spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
   endpoints:
     - nodeName: izbp15inok0kbfkg3in52rz
       underNAT: true
-    - nodeName: izbp14hrmgyfx2n3xdsl0hz
+      port: 10262
+      type: proxy
+    - nodeName: izbp15inok0kbfkg3in52rz
       underNAT: true
-
+      port: 4500
+      underNAT: true
+      type: tunnel
 ---
 apiVersion: raven.openyurt.io/v1alpha1
 kind: Gateway
 metadata:
   name: gw-cloud
 spec:
+  exposeType: PublicIP
+  proxyConfig:
+    Replicas: 1
+    proxyHTTPPort: 10255,9445
+    proxyHTTPSPort: 10250,9100
+  tunnelConfig:
+    Replicas: 1
   endpoints:
     - nodeName: izwz9dohcv74iegqecp4axz
       underNAT: false
-    - nodeName: izwz9ey0js5z7mornclpd6z
+      port: 10262
+      type: proxy
+      publicIP: 120.79.xxx.xxx
+    - nodeName: izwz9dohcv74iegqecp4axz
       underNAT: false
+      port: 4500
+      type: tunnel
+      publicIP: 120.79.xxx.xxx
 
 ---
 apiVersion: raven.openyurt.io/v1alpha1
@@ -94,26 +116,64 @@ kind: Gateway
 metadata:
   name: gw-qingdao
 spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
   endpoints:
-    - nodeName: izm5eb24dmjfimuaybpnqzz
-      underNAT: true
-    - nodeName: izm5eb24dmjfimuaybpnr0z
-      underNAT: true
+  - nodeName: izm5eb24dmjfimuaybpnqzz
+    underNAT: true
+    port: 10262
+    type: proxy
+  - nodeName: izm5eb24dmjfimuaybpnr0z
+    underNAT: true
+    port: 4500
+    type: tunnel
 EOF
 ```
 
-- Get gateways
+- 参数介绍：
+1. ```spec.exposedType```: The type of public network exposure, empty indicates that the gateway will not be exposed, either LoadBalancer or PublicIP can be used to exposed gateway in internet. 
+2. ```spec.endpoints```: Indicates a set of alternative gateway endpoints, some of which are selected by the yurtmanager as gateway endpoints based on node status
+3. ```spec.endpoints.nodeName```: The name of gateway endpoints
+   1. ```spec.endpoints.type```: The type of gateway endpoints, the value is set to proxy if the node is proxy mode endpoints, and the value is also can be set to tunnel if the node is tunnel mode endpoints. 
+4. ```spec.endpoints.port```: Ports exposed by the gateway endpoints service: TCP 10262 in proxy mode and UDP 4500 in tunnel mode
+5. ```spec.endpoints.publicIP```: The public ip of gateway endpoints
+6. ```spec.endpoints.underNAT```: Whether to use NAT to access the public network. Generally, false is set on the cloud, and true is set on the edge
+7. ```spec.proxyConfig.Replicas```: Replicas of gateway endpoints in enable proxy mode
+8. ```spec.proxyConfig.proxyHTTPPort```: A insecure port for a cloud-side proxy mode communication agent, such as port 10255, which kubelet listens for
+9. ```spec.proxyConfig.proxyHTTPPort```: A secure port for a cloud-side proxy mode communication agent, such as port 10250, which kubelet listens for
+10. ```spec.tunnelConfig.Replicas```: Replicas of gateway endpoints in enable tunnel mode，which must be 1 currently
+
+- Describe the status of all gateways
 
 ```bash
+$ kubectl get cm raven-cfg -n kube-system -o yaml
+apiVersion: v1
+data:
+  enable-l3-tunnel: "true"
+  enable-l7-proxy: "true"
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: raven-agent
+    meta.helm.sh/release-namespace: kube-system
+  creationTimestamp: "2023-11-24T06:44:54Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: raven-cfg
+  namespace: kube-system
+```
+```bash 
 $ kubectl get gateways
 
-NAME          ACTIVEENDPOINT
-gw-cloud      izwz9dohcv74iegqecp4axz
-gw-hangzhou   izbp15inok0kbfkg3in52rz
-gw-qingdao    izm5eb24dmjfimuaybpnqzz
+NAME          AGE
+gw-cloud      22h
+gw-hangzhou   22h
+gw-qingdao    22h
 ```
 
-### Test pod-to-pod networking
+### Test pod-to-pod networking (tunnel mode)
 
 - Create test pod
 
@@ -145,7 +205,7 @@ spec:
 EOF
 ```
 
-- Get test pod
+- Get test pod 
 
 ```bash
 $ kubectl get pod -o wide
@@ -155,7 +215,7 @@ busy-box-6f46f8585b-kv4dw   1/1     Running   0          76s   10.244.17.19    i
 busy-box-6f46f8585b-t5v9d   1/1     Running   0          76s   10.244.18.4     izbp15inok0kbfkg3in52rz   <none>           <none>
 ```
 
-- Test networking across edge
+- Test networking across edge 
 
 ```bash
 $ kubectl exec -it busy-box-6f46f8585b-48zb9 -- sh
@@ -221,6 +281,35 @@ listening on raven0, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:13:13.174148 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 2, length 64
 16:13:14.175884 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 3, length 64
 16:13:15.176090 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 4, length 64
+```
+
+### Test cross-domain http networking (tunnel mode)
+
+In the edge scenario, the Intranet IP addresses of the edge devices often conflict with each other in closed Intranet environments, and the tunnel mode cannot support host communication in IP conflict scenarios. Therefore, the proxy mode must be enabled to support cross-domain HTTP/HTTPS requests.
+enable proxy model, and set  ```enable-l7-proxy: "true"```
+
+```bash
+$ kubectl get cm raven-cfg -n kube-system -o yaml
+apiVersion: v1
+data:
+  enable-l3-tunnel: "true"
+  enable-l7-proxy: "true"
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: raven-agent
+    meta.helm.sh/release-namespace: kube-system
+  creationTimestamp: "2023-11-24T06:44:54Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: raven-cfg
+  namespace: kube-system
+```
+
+```bash
+$ kubectl exec -it busy-box-6f46f8585b-48zb9 -- sh
+echo hello word
+hello word
 ```
 
 # Other Features：

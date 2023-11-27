@@ -83,6 +83,8 @@ helm upgrade --install raven-agent -n kube-system openyurt/raven-agent
 kubectl get pod -n kube-system | grep raven-agent
 ```
 
+如果您需要开启raven七层代理能力，需要参考[Raven七层代理调整](raven-l7-proxy-prepare.md)对集群进行配置
+
 ## 4. 注意
 
 以上操作仅针对 Master 节点，如果集群中还有其他节点，还需要额外调整，操作方法可以参考: [在存量的 K8s 节点上安装 OpenYurt Node 组件](./yurtadm-join.md#2-在存量的k8s节点上安装openyurt-node组件)

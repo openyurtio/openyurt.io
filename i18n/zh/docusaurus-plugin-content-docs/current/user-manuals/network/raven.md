@@ -2,9 +2,9 @@
 title: Raven
 ---
 
-本文将介绍如何安装Raven和使用Raven来增强边缘集群中的边-边和边-云网络打通能力。
+本文将介绍如何使用Raven来增强边缘集群中的边-边和边-云网络打通能力。
 
-假设你已经有了一个边缘kubernetes集群，节点分布在不同的物理区域如图所示，并且已经在这个集群中部署了`Raven Controller Manager` 和`Raven Agent`，如果没有部署可以参照[安装教程](../../installation/manually-setup.md)，有关`Raven Controller Manager`的详细信息在[这里](https://github.com/openyurtio/raven-controller-manager/blob/main/README.md)可以找到。
+假设你已经有了一个边缘kubernetes集群，节点分布在不同的物理区域如图所示，并且已经在这个集群中部署了`Yurt Manager` 和`Raven Agent`，如果没有部署可以参照[安装教程](../../installation/manually-setup.md)。
 ![raven_deploy](../../../../../../static/img/docs/user-manuals/network/raven_deploy.png)
 ## 1. 节点打标区分不同网络域
 
@@ -21,7 +21,7 @@ izwz9dohcv74iegqecp4axz   Ready    control-plane,master   5d21h   v1.22.11   192
 izwz9ey0js5z7mornclpd6z   Ready    cloud                  3h3m    v1.22.11   192.168.0.196   <none>        CentOS Linux 7 (Core)   3.10.0-1160.80.1.el7.x86_64   docker://20.10.2
 ```
 
-我们对位于不同物理（网络）区域节点，分别使用一个[Gateway](https://github.com/openyurtio/raven-controller-manager/blob/main/pkg/ravencontroller/apis/raven/v1alpha1/gateway_types.go) CR来进行管理。通过给节点打标的方式，来标识节点由哪个Gateway管理。
+我们对位于不同物理（网络）区域节点，分别使用一个[Gateway](https://github.com/openyurtio/openyurt/blob/master/pkg/apis/raven/v1beta1/gateway_types.go) CR来进行管理。通过给节点打标的方式，来标识节点由哪个Gateway管理。
 
 通过如下命令，我们给位于`hangzhou`的节点打`gw-hangzhou`的标签，来表明这些节点是由`gw-hangzhou`这个Gateway CR来管理的。
 
@@ -65,28 +65,49 @@ raven-agent-ds-qhjtb                              1/1     Running             0 
 
 ```bash
 $ cat <<EOF | kubectl apply -f -
-apiVersion: raven.openyurt.io/v1alpha1
+apiVersion: raven.openyurt.io/v1beta1
 kind: Gateway
 metadata:
   name: gw-hangzhou
 spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
   endpoints:
     - nodeName: izbp15inok0kbfkg3in52rz
       underNAT: true
-    - nodeName: izbp14hrmgyfx2n3xdsl0hz
+      port: 10262
+      type: proxy
+    - nodeName: izbp15inok0kbfkg3in52rz
       underNAT: true
-
+      port: 4500
+      underNAT: true
+      type: tunnel
 ---
 apiVersion: raven.openyurt.io/v1alpha1
 kind: Gateway
 metadata:
   name: gw-cloud
 spec:
+  exposeType: PublicIP
+  proxyConfig:
+    Replicas: 1
+    proxyHTTPPort: 10255,9445
+    proxyHTTPSPort: 10250,9100
+  tunnelConfig:
+    Replicas: 1
   endpoints:
     - nodeName: izwz9dohcv74iegqecp4axz
       underNAT: false
-    - nodeName: izwz9ey0js5z7mornclpd6z
+      port: 10262
+      type: proxy
+      publicIP: 120.79.xxx.xxx
+    - nodeName: izwz9dohcv74iegqecp4axz
       underNAT: false
+      port: 4500
+      type: tunnel
+      publicIP: 120.79.xxx.xxx
 
 ---
 apiVersion: raven.openyurt.io/v1alpha1
@@ -94,26 +115,67 @@ kind: Gateway
 metadata:
   name: gw-qingdao
 spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
   endpoints:
-    - nodeName: izm5eb24dmjfimuaybpnqzz
-      underNAT: true
-    - nodeName: izm5eb24dmjfimuaybpnr0z
-      underNAT: true
+  - nodeName: izm5eb24dmjfimuaybpnqzz
+    underNAT: true
+    port: 10262
+    type: proxy
+  - nodeName: izm5eb24dmjfimuaybpnr0z
+    underNAT: true
+    port: 4500
+    type: tunnel
 EOF
 ```
 
+- 参数介绍：
+1. ```spec.exposedType```: 在公网暴露的类型，LoadBalancer为采用负载均衡暴露、PublicIP为采用公网IP暴露，空为不暴露，一般云上暴露，边缘不暴露
+2. ```spec.endpoints```: 表示一组备选的网关节点，控制面会根据节点状态在其中选取一部分作为网关节点
+3. ```spec.endpoints.nodeName```: 网关节点名
+4. ```spec.endpoints.type```: 网关节点的类型, 代理模式为proxy，隧道模式为tunnel
+5. ```spec.endpoints.port```: 网关节点服务暴露的端口：代理模式一般为TCP 10262，隧道模式为UDP 4500
+6. ```spec.endpoints.publicIP```: 网关节点的公网地址
+7. ```spec.endpoints.underNAT```: 是否采用NAT的方式访问公网，一般云上采用false，边缘采用true
+8. ```spec.proxyConfig.Replicas```: 支持代理模式的网关节点副本数，不得大于endpoints中节点数
+9. ```spec.proxyConfig.proxyHTTPPort```: 云边代理模式通信代理的非安全端口, 例如kubelet监听的10255端口
+10. ```spec.proxyConfig.proxyHTTPPort```: 云边代理模式通信代理的安全端口, 例如kubelet监听的10250端口
+11. ```spec.tunnelConfig.proxyHTTPPort```: 支持隧道模式的网关节点的副本数，目前不支持多副本
+12. ```status.activeEndpoints```: 从spec.endpoints 的备选网关节点中选择指定数量的网关节点，激活的网关节点上的RavenAgent作为运行实例负责隧道构建和路由管理
+13.  ```status.nodes```: 由本Gateway负责代理的节点
+
 - 查看各个Gateway CR的状态
 
+开启隧道模式，设置 ```enable-l3-tunnel: "true"```
 ```bash
+$ kubectl get cm raven-cfg -n kube-system -o yaml
+apiVersion: v1
+data:
+  enable-l3-tunnel: "true"
+  enable-l7-proxy: "true"
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: raven-agent
+    meta.helm.sh/release-namespace: kube-system
+  creationTimestamp: "2023-11-24T06:44:54Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: raven-cfg
+  namespace: kube-system
+```
+```bash 
 $ kubectl get gateways
 
-NAME          ACTIVEENDPOINT
-gw-cloud      izwz9dohcv74iegqecp4axz
-gw-hangzhou   izbp15inok0kbfkg3in52rz
-gw-qingdao    izm5eb24dmjfimuaybpnqzz
+NAME          AGE
+gw-cloud      22h
+gw-hangzhou   22h
+gw-qingdao    22h
 ```
 
-### 2.2 测试位于不同网络域的Pod网络联通性
+### 2.2 测试位于不同网络域的Pod网络联通性 (隧道模式)
 
 -  创建测试Pod
 
@@ -224,13 +286,44 @@ listening on raven0, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:13:15.176090 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 4, length 64
 ```
 
+2.2 云边主机网络七层请求代理 (代理模式)
+
+在边缘场景中，边缘设备往往处在封闭的内网环境中，因此边缘设备的内网IP地址常常会出现冲突，因此隧道模式不能支持IP冲突场景下的主机通信，因此需要开启代理模式，支持跨域的HTTP/HTTPS的请求。
+开启代理模式，设置 ```enable-l7-proxy: "true"```
+
+注意：如果您只需要开启七层请求代理，并且边缘节点都是独立存在具有公网访问能力，只需要创建一个云上Gateway CR 即可，每个边缘节点都会主动与云上Gateway建立反向链接，对于一组边缘节点处于一个网络域，您可以为其创建Gateway CR，并且选出备选节点作为代理网关。
+```bash
+$ kubectl get cm raven-cfg -n kube-system -o yaml
+apiVersion: v1
+data:
+  enable-l3-tunnel: "true"
+  enable-l7-proxy: "true"
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: raven-agent
+    meta.helm.sh/release-namespace: kube-system
+  creationTimestamp: "2023-11-24T06:44:54Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: raven-cfg
+  namespace: kube-system
+```
+
+```bash
+$ kubectl exec -it busy-box-6f46f8585b-48zb9 -- sh
+echo hello word
+hello word
+```
+
+
 # 其他特性：
 默认情况下，raven 使用 IPSec 作为 VPN 后端，我们还提供WireGuard作为替代方案。您可以通过以下步骤切换到 WireGuard 后端：
 * Raven 需要在集群中的网关节点上加载 WireGuard 内核模块。从 Linux 5.6 开始，内核包含 WireGuard in-tree；具有旧内核的 Linux 发行版将需要安装 WireGuard。对于大多数 Linux 发行版，这可以使用系统包管理器来完成。有关详细信息，请参阅安装 WireGuard。
 * 网关节点将需要一个开放的 UDP 端口才能进行通信。默认情况下，WireGuard 使用 UDP 端口 51820。 运行以下命令：
   ```bash
   cd raven
-  git checkout v0.3.0
+  git checkout v0.4.0
   VPN_DRIVER=wireguard make deploy
   ```
 
