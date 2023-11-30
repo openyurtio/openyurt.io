@@ -65,7 +65,7 @@ The following explains how to add or update the doc.
    to add document path or adjust directory structure.
 
    Then for file `i18n/zh/docusaurus-plugin-content-docs/current.json`, please check whether categories in
-   `vsidebars.js` has corresponding translation.
+   `sidebars.js` has corresponding translation.
 
    
 ### Add or Update Blogs

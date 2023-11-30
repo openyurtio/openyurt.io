@@ -75,16 +75,19 @@ c). 在spec中，“pools”表示要在其上开启ingress功能的节点池列
 
 然后您可以查看YurtIngress CR的状态:
 
+```
     #kubectl get ying
     NAME                 REPLICAS-PER-POOL   READYNUM   NOTREADYNUM   AGE
     yurtingress-test     1                   2          0             3m13s
+```
 
 成功编排ingress controller后，每个节点池将暴露一个NodePort类型的Service服务：
 
+```
     #kubectl get svc -n ingress-nginx
     ingress-nginx  pool01-ingress-nginx-controller  NodePort  192.167.107.123  <none>   80:32255/TCP,443:32275/TCP  53m
     ingress-nginx  pool03-ingress-nginx-controller  NodePort  192.167.48.114   <none>   80:30531/TCP,443:30916/TCP  53m
-
+```
 
 提示:
 

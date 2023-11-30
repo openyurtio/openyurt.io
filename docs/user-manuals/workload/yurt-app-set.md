@@ -2,9 +2,6 @@
 title: YurtAppSet
 ---
 
-
-
-
 In [the previous article](./node-pool-management.md) we introduced the use of `NodePool`, mainly the creation and management of `NodePool`. 
 Further, we developed the ability to deploy applications unitized based on `NodePool` to improve the efficiency of users' operations.
 

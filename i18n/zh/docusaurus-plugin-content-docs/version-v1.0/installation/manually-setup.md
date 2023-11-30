@@ -76,10 +76,11 @@ kubeadm默认安装kube-proxy和CoreDNS的配置也需要配置，从而适配�
 helm install yurt-app-manager -n kube-system ./charts/yurt-app-manager/
 ```
 
-确认yurt-app-manager组件已经成功创建:
+确认yurt-app-manager组件的pod和service配置已经成功创建:
 
 ```bash
 kubectl get pod -n kube-system | grep yurt-app-manager
+kubectl get svc -n kube-system | grep yurt-app-manager
 ```
 
 #### 3.1.2 创建节点池

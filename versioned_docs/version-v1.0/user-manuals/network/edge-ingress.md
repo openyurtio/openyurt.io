@@ -81,9 +81,11 @@ Then you can get the YurtIngress CR to check the status:
 
 When the ingress controller is enabled successfully, a per-pool NodePort service is created to expose the ingress controller serivce:
 
+```
     #kubectl get svc -n ingress-nginx
     ingress-nginx   pool01-ingress-nginx-controller   NodePort    192.167.107.123   <none>    80:32255/TCP,443:32275/TCP   53m
     ingress-nginx   pool03-ingress-nginx-controller   NodePort    192.167.48.114    <none>    80:30531/TCP,443:30916/TCP   53m
+```
 
 Notes:
 

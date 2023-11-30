@@ -170,29 +170,23 @@
   "OpenYurt has been widely used in typical edge computing scenarios such as the IoT, distributed cloud , logistics, transportation, manufacturing, retail, CDN etc.": {
     "message": "OpenYurt 现已广泛应用于物联网、边缘云、分布式云等典型边缘计算场景，并覆盖物流、能源、交通、制造、零售、医疗、CDN等诸多行业，致力于成为边缘计算云原生基础设施引领者。"
   },
-  "Out-of-the-box cloud-edge-device collaboration capability": {
-    "message": "开箱即用的云边端协同能力"
+  "Powerful edge autonomy capability": {
+    "message": "强大的边缘自治能力"
   },
-  "OpenYurt adopts an integrated cloud-edge-device architecture, which enables the unified management of massive edge resources and services in the cloud.": {
-    "message": "OpenYurt 采用了云边端一体化架构，实现了在云端统一管理海量边缘资源及业务的能力。"
+  "In edge computing scenario, the network connections between edge and cloud are diversified (e.g. 5G, WIFI, etc.). Network jitter or node offline will lead to node heartbeat cannot be reported to the cloud in real time, which triggers the eviction and reconstruction of edge services. At the same time, in the abnormal state of cloud-edge network connection, edge services on the nodes will not be automatically restored when the edge nodes restart due to the inability to obtain workload data from the cloud, which leads to service interruption of the edge services. OpenYurt provides strong autonomy capability for edge services by enhancing the workload eviction control capability in the cloud and introducing local caching and heartbeat proxy reporting mechanisms at the edge to ensure the continuous and reliable operation of edge services. At the same time, when the edge node network is restored, the state of the edge service will be synchronized with the cloud control and ensure the data consistency.": {
+    "message": "边缘场景下，边缘节点和云端管控之间网络连接多样化(如5G, WIFI等)。由于网络抖动或者节点离线会导致节点心跳无法实时上报云端，从而触发边缘业务的驱逐和重建。同时云边网络连接异常状态下，边缘节点重启时由于无法从云端获取工作负载数据，节点上边缘业务将无法自动恢复，从而导致边缘业务的服务中断。OpenYurt通过在云端增强工作负载的驱逐管控能力，以及在边缘引入本地缓存和心跳代理上报机制，为边缘业务提供强大的自治能力，确保边缘业务持续可靠的运行。同时当边缘节点网络恢复后，边缘业务的状态将与云端管控同步并保持数据的一致性。"
   },
-  "On the one hand, it seamlessly integrates existing capabilities on the cloud such as elastic expansion, intelligent operation, logging, and DevOps, ensuring high availability of edge services.": {
-    "message": "一方面，OpenYurt 无缝融合云上已有的能力，包括与弹性、智能运维、日志、DevOps 等能力融合，保证了边缘资源和业务的少运维、高可用。"
+  "Cross-region network communication capability": {
+    "message": "跨地域网络通信能力"
   },
-  "On the other hand, with the help of the cloud-edge-device integration channel, a large number of cloud-based capabilities, including middleware, security, AI, storage, and network management capabilities, are sunk to the edge, reducing the cost of self-construction of common cloud services on the edge side.": {
-    "message": "另一方面，借助云边端一体化的通道，将大量云上的能力，包括中间件、安全、AI、存储及网络管理等能力下沉到边缘，减少常见云服务在边缘侧的自建成本。"
+  "In the cloud edge scenario, the cloud to edge / edge to edge are in different physical network planes. Generally only the cloud side exposes public network service addresses, and the native CNI container network can only address data-plane communication in a single region (layer 2 or layer 3 connectivity scenario). The cloud to edge / edge to edge network communication capability built by raven not only elegantly solves the data-plane communication needs across geographies, but also maintains seamless compatibility with the native CNI container network solution. At the same time, the cloud-edge traffic reuse capability provided by pool-coordinator significantly reduces the amount of control plane communication data between cloud-edges.": {
+    "message": "云边场景下，云边/边边处于不同的物理网络平面，同时一般仅云端暴露公网服务地址，原生的CNI容器网络仅能解决单地域(2层或3层连通场景)的数据面通信。通过raven构建的跨云边/边边的网络通信能力，不仅优雅的解决跨地域之间的数据面通信需求，同时和原生的CNI容器网络方案保持了无缝兼容。同时基于pool-coordinator提供的云边流量复用能力，大幅降低了云边之间的控制面通信数据量。"
   },
-  "Powerful edge service self-healing capability": {
-    "message": "强大的边缘业务自愈能力"
+  "Multi-region resource and application management": {
+    "message": "多地域资源与应用管理"
   },
-  "In Kubernetes, if the edge node restarts when offline, the service will be interrupted because it cannot be automatically restored. With the powerful edge service self-healing capability in OpenYurt, it can be easily resolved the impact of node offline and node restart on edge services and ensure the service runs reliably. When the edge node network is restored, the status of edge services will be synchronized with cloud management and data consistency will be maintained.": {
-    "message": "在原生 Kubernetes 中，边缘节点离线状态下边缘节点重启，节点上边缘业务无法自动恢复，从而导致边缘业务的服务中断。通过 OpenYurt强大的边缘业务自愈能力，可以轻松解决节点离线和节点重启对边缘业务的影响，确保边缘业务可靠并持续的运行。当边缘节点网络恢复后，边缘业务的状态将与云端管控同步并保持数据的一致性。"
-  },
-  "Rich edge service orchestration capability": {
-    "message": "丰富的边缘业务编排能力"
-  },
-  "For edge scenarios, OpenYurt pioneers the concept of Unitization, which can close the loop of resources, applications, and service traffic in the unit. At the resource level, the ability of node pools is abstracted, and edge site resources can be classified and divided according to geographical distribution. At the application management level, a set of application deployment models, such as unitized   deployment(UnitedDeployment), united DaemonSet(YurtAppDaemon), and edge ingress(YurtIngress) models, are designed. At the traffic service level, traffic can be accessed in a closed loop within the node pool.": {
-    "message": "针对边缘场景，OpenYurt 开创性的提出了单元化的概念, 可以做到将资源，应用，服务流量在本单元内闭环。在资源层面，抽象出节点池的能力，边缘站点资源可以根据地域分布进行分类划分，在应用管理层面，设计了一整套应用部署模型，例如单元化部署、单元化DaemonSet、边缘 Ingress 等模型，在流量服务层面，可以做到流量在本节点池内闭环访问。"
+  "For edge scenarios, OpenYurt pioneers the concept of Unitization, which can close the loop of resources, applications, and service traffic in the unit. At the resource level, the ability of node pools is abstracted, and edge site resources can be classified and divided according to geographical distribution. At the application management level, a set of application deployment models, such as unitized   deployment(UnitedDeployment), united DaemonSet(YurtAppDaemon), and edge ingress(YurtIngress) models, are designed. At the traffic service level, traffic can be accessed in a closed loop within the node pool. At the application upgrading level, OTA and Auto upgrading strategies are designed which allow edge application owners to intervene in upgrade decisions addressings the issue that NodeNotReady may cause the native rolling upgrade model to block.": {
+    "message": "针对边缘场景，OpenYurt 开创性的提出了单元化的概念, 可以做到将资源，应用，服务流量在本单元内闭环。在资源层面，抽象出节点池的能力，边缘站点资源可以根据地域分布进行分类划分，在应用管理层面，设计了一整套应用部署模型，例如单元化部署、单元化DaemonSet、边缘Ingress 等模型，在流量服务层面，可以做到流量在本节点池内闭环访问，在应用升级层面，设计了OTA和Auto升级模型，可以让边缘应用所有者介入升级决策，同时解决了节点NotReady可能导致原生滚动升级模型阻塞的问题。"
   },
   "Cloud-native device management capability": {
     "message": "云原生的设备管理能力"

@@ -27,7 +27,7 @@ Second, it will use `kind` to set up the kubernetes cluster. You can set `KUBERN
 
 Third, `yurtctl` will be used to convert the Kubernetes cluster into OpenYurt cluter. It will use images built earlier to deploy OpenYurt components, including `yurthub`, `yurt-controller-manager`, `yurt-tunnel-server` and `yurt-tunnel-agent`. You can disable `yurt-tunnel` through `export YURTTUNNEL=disable`.
 
-By now, you've got the OpenYurt cluster at your local host and you can interact with it using `kubectl`. `kind` will automatically stored the kubeconfig at your `KUBECONFIG` path (default path is ${HOME}/.kube/config). If you already have the `KUBECONFIG` to interact with other clusters, `kind` will add a new context of openyurt cluster into the `KUBECONFIG` and automatically switch to it. You can manually switch back to the previous context using command `kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`. For more details, you can see the [documentation](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/). You can store the kubeconfig at another path through setting `KIND_KUBECONFIG`.
+By now, you've got the OpenYurt cluster at your local host and you can interact with it using `kubectl`. `kind` will automatically stored the kubeconfig at your `KUBECONFIG` path (default path is `${HOME}/.kube/config)`. If you already have the `KUBECONFIG` to interact with other clusters, `kind` will add a new context of openyurt cluster into the `KUBECONFIG` and automatically switch to it. You can manually switch back to the previous context using command `kubectl config use-context ${PREVIOUS_CONTEXT_NAME}`. For more details, you can see the [documentation](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/). You can store the kubeconfig at another path through setting `KIND_KUBECONFIG`.
 
 ## Reference
 
@@ -37,7 +37,7 @@ Reference gives descriptions of all used environment variables.
 REGION affects the GOPROXY to use. You can set it to "cn" to use GOPROXY="https://goproxy.cn". Default value is "us", which means using GOPROXY="https://goproxy.io".
 
 **KIND_KUBECONFIG**  
-KIND_KUBECONFIG represents the path to store the kubeconfig file of the cluster which is created by this shell. The default value is "$HOME/.kube/config".
+KIND_KUBECONFIG represents the path to store the kubeconfig file of the cluster which is created by this shell. The default value is `"$HOME/.kube/config"`.
 
 **NODES_NUM**  
 NODES_NUM represents the number of nodes to set up in the new-created cluster. There are one control-plane node and NODES_NUM-1 worker nodes. Thus, NODES_NUM must not be less than 2. The default value is 2.

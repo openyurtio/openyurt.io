@@ -60,23 +60,3 @@ The k8s base image in sealer (current v0.8.6 version) will be stored in the sea.
 `yurtadm init` is implemented using `sealer run`.
 
 The related files of the openyurt cluster image produced by sealer will be placed in the `/var/lib/sealer/data/my-cluster/rootfs` directory. See all file related information: ：https://github.com/windydayc/openyurt-cluster-image
-
-
-
-## 4. FAQ
-
-**1\. helm installation error during yurtadm init： Release "yurt-app-manager" does not exist. Installing it now.**
-**Error: failed to download "openyurt/yurt-app-manager" (hint: running `helm repo update` may help)**
-
-Manually execute the process of helm to install yurt-app-manager：
-
-```bash
-cd /var/lib/sealer/data/my-cluster/rootfs
-helm upgrade --install yurt-app-manager openyurt/yurt-app-manager -n kube-system -f manifests/yurt-app-manager-values.yaml
-```
-
-
-
-**2. yurtadm init failed, how to clean up the environment?**
-
-http://sealer.cool/zh/help/faq.html#how-to-clean-host-environment-manually-when-sealer-apply-failed

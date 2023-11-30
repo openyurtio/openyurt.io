@@ -19,20 +19,19 @@ module.exports = {
                         {
                             "Install Control Plane Components": [
                                 "installation/manually-setup",
-                                "installation/yurtadm-init",
-                                {
-                                    "OpenYurt Experience Center": [
-                                        "installation/openyurt-experience-center/overview",
-                                        "installation/openyurt-experience-center/user",
-                                        "installation/openyurt-experience-center/web_console",
-                                        "installation/openyurt-experience-center/kubeconfig"
-                                    ]
-                                }
                             ]
                         },
                         "installation/yurtadm-join"
                     ]
-                } 
+                },
+                {
+                    "OpenYurt Experience Center": [
+                        "installation/openyurt-experience-center/overview",
+                        "installation/openyurt-experience-center/user",
+                        "installation/openyurt-experience-center/web_console",
+                        "installation/openyurt-experience-center/kubeconfig"
+                    ]
+                }
             ],
         },
         {
@@ -45,14 +44,12 @@ module.exports = {
                     'Components': [
                         'core-concepts/raven',
                         'core-concepts/yurthub',
-                        'core-concepts/yurttunnel',
-                        'core-concepts/yurt-app-manager',
-                        'core-concepts/yurt-controller-manager',
+                        'core-concepts/yurt-manager',
                         'core-concepts/node-resource-manager',
-                        'core-concepts/yurt-device-controller',
+                        'core-concepts/yurt-iot-dock',
+                        'core-concepts/yurt-coordinator',
                     ]
                 }
-
             ],
         },
         {
@@ -62,15 +59,23 @@ module.exports = {
             items: [
                 {
                     'Autonomy': [
-                        'user-manuals/autonomy/node-autonomy',
+                        'user-manuals/autonomy/selfhealing-during-network-disconnection',
+                        'user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes',
+                        'user-manuals/autonomy/node-pod-binding'
                     ]
                 },
                 {
                     'Network': [
                         'user-manuals/network/raven',
+                        'user-manuals/network/bandwidth-reduction',
                         'user-manuals/network/edge-pod-network',
                         'user-manuals/network/service-topology',
-                        'user-manuals/network/edge-ingress'
+                        'user-manuals/network/nodeport-isolation'
+                    ]
+                },
+                {
+                    'Resource Access Control': [
+                        'user-manuals/resource-access-control/resource-access-control',
                     ]
                 },
                 {
@@ -80,9 +85,12 @@ module.exports = {
                 },
                 {
                     'Workload': [
+                        'user-manuals/workload/daemon-pod-updater',
                         'user-manuals/workload/node-pool-management',
                         'user-manuals/workload/yurt-app-set',
                         'user-manuals/workload/yurt-app-daemon',
+                        'user-manuals/workload/yurt-app-overrider',
+                        'user-manuals/workload/yurt-static-set',
                     ]
                 },
                 {
@@ -127,8 +135,43 @@ module.exports = {
             ],
         },
         {
-            type: 'doc',
-            id: 'faq'
+            type: 'category',
+            label: 'Reference',
+            collapsed: true,
+            items: [
+                'reference/api_reference',
+                {
+                    'yurtadm': [
+                        "reference/yurtadm/yurtadm",
+                        "reference/yurtadm/yurtadm_completion",
+                        "reference/yurtadm/yurtadm_completion_bash",
+                        "reference/yurtadm/yurtadm_completion_fish",
+                        "reference/yurtadm/yurtadm_completion_powershell",
+                        "reference/yurtadm/yurtadm_completion_zsh",
+                        "reference/yurtadm/yurtadm_docs",
+                        "reference/yurtadm/yurtadm_join",
+                        "reference/yurtadm/yurtadm_renew_certificate",
+                        "reference/yurtadm/yurtadm_renew",
+                        "reference/yurtadm/yurtadm_reset",
+                        "reference/yurtadm/yurtadm_token",
+                    ],
+                    'iot': [
+                        "reference/iot/components",
+                    ]
+                }
+            ],
+        },
+        {
+            type: 'category',
+            label: 'FAQ',
+            collapsed: true,
+            items: [
+                'faq/yurthub',
+                'faq/yurtadm',
+                'faq/yurt-tunnel',
+                'faq/coredns',
+                'faq/prometheus',
+            ],
         },
     ],
 };

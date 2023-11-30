@@ -59,7 +59,7 @@ $ ls /var/lib/cni/networks/cbr0
 When the cloud edge network is disconnected, pod restart will cause the host-local to reassign an IP address, and the change of pod IP address cannot be synchronized to the cloud. Components such as Kube proxy on other edge nodes cannot be notified about the change of pod IP, so the cluster IP address cannot be used to access the pod.
 
 ### Solution: Pod IP address kept
-To solve this problem, you need to adjust the host-local code: the format of recording IP address is {ip}-{pod namespace}-{pod name}. When the pod restarts, host-local will firstly assign the IP address of the pod with the same name in the record.
+To solve this problem, you need to adjust the host-local code: the format of recording IP address is `{ip}-{pod namespace}-{pod name}`. When the pod restarts, host-local will firstly assign the IP address of the pod with the same name in the record.
 
 The assigned pod IP records are changed as below:
 

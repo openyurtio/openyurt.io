@@ -1,35 +1,34 @@
-
 {
-    "version-v1.0/docs": [
+    "docs": [
         {
             "type": "category",
             "label": "Getting Started",
             "collapsed": false,
             "items": [
-                "version-v1.0/introduction",
+                "introduction",
                 {
                     "Usage Conditions": [
-                        "version-v1.0/usage-conditions/resource-and-system-requirements"
+                        "usage-conditions/resource-and-system-requirements"
                     ]
                 },
                 {
                     "Installation": [
-                        "version-v1.0/installation/summary",
+                        "installation/summary",
                         {
                             "Install Control Plane Components": [
-                                "version-v1.0/installation/manually-setup",
-                                "version-v1.0/installation/yurtadm-init",
+                                "installation/manually-setup",
+                                "installation/yurtadm-init",
                                 {
                                     "OpenYurt Experience Center": [
-                                        "version-v1.0/installation/openyurt-experience-center/overview",
-                                        "version-v1.0/installation/openyurt-experience-center/user",
-                                        "version-v1.0/installation/openyurt-experience-center/web_console",
-                                        "version-v1.0/installation/openyurt-experience-center/kubeconfig"
+                                        "installation/openyurt-experience-center/overview",
+                                        "installation/openyurt-experience-center/user",
+                                        "installation/openyurt-experience-center/web_console",
+                                        "installation/openyurt-experience-center/kubeconfig"
                                     ]
                                 }
                             ]
                         },
-                        "version-v1.0/installation/yurtadm-join"
+                        "installation/yurtadm-join"
                     ]
                 } 
             ]
@@ -39,16 +38,16 @@
             "label": "Core Concepts",
             "collapsed": false,
             "items": [
-                "version-v1.0/core-concepts/architecture",
+                "core-concepts/architecture",
                 {
                     "Components": [
-                        "version-v1.0/core-concepts/raven",
-                        "version-v1.0/core-concepts/yurthub",
-                        "version-v1.0/core-concepts/yurttunnel",
-                        "version-v1.0/core-concepts/yurt-app-manager",
-                        "version-v1.0/core-concepts/yurt-controller-manager",
-                        "version-v1.0/core-concepts/node-resource-manager",
-                        "version-v1.0/core-concepts/yurt-device-controller"
+                        "core-concepts/raven",
+                        "core-concepts/yurthub",
+                        "core-concepts/yurttunnel",
+                        "core-concepts/yurt-app-manager",
+                        "core-concepts/yurt-controller-manager",
+                        "core-concepts/node-resource-manager",
+                        "core-concepts/yurt-device-controller"
                     ]
                 }
 
@@ -61,37 +60,37 @@
             "items": [
                 {
                     "Autonomy": [
-                        "version-v1.0/user-manuals/autonomy/node-autonomy"
+                        "user-manuals/autonomy/node-autonomy"
                     ]
                 },
                 {
                     "Network": [
-                        "version-v1.0/user-manuals/network/raven",
-                        "version-v1.0/user-manuals/network/edge-pod-network",
-                        "version-v1.0/user-manuals/network/service-topology",
-                        "version-v1.0/user-manuals/network/edge-ingress"
+                        "user-manuals/network/raven",
+                        "user-manuals/network/edge-pod-network",
+                        "user-manuals/network/service-topology",
+                        "user-manuals/network/edge-ingress"
                     ]
                 },
                 {
                     "Storage": [
-                        "version-v1.0/user-manuals/storage/edge-local-storage"
+                        "user-manuals/storage/edge-local-storage"
                     ]
                 },
                 {
                     "Workload": [
-                        "version-v1.0/user-manuals/workload/node-pool-management",
-                        "version-v1.0/user-manuals/workload/yurt-app-set",
-                        "version-v1.0/user-manuals/workload/yurt-app-daemon"
+                        "user-manuals/workload/node-pool-management",
+                        "user-manuals/workload/yurt-app-set",
+                        "user-manuals/workload/yurt-app-daemon"
                     ]
                 },
                 {
                     "Monitoring": [
-                        "version-v1.0/user-manuals/monitoring/prometheus"
+                        "user-manuals/monitoring/prometheus"
                     ]
                 },
                 {
                     "IOT": [
-                        "version-v1.0/user-manuals/iot/edgex-foundry"
+                        "user-manuals/iot/edgex-foundry"
                     ]
                 }
             ]
@@ -104,6 +103,8 @@
                 "version-v1.0/test-report/yurthub-performance-test",
                 "version-v1.0/test-report/pod-recover-efficiency-test",
                 "version-v1.0/test-report/raven-performance-test"
+                "test-report/yurthub-performance-test",
+                "test-report/pod-recover-efficiency-test"
             ]
         },
         {
@@ -111,7 +112,7 @@
             "label": "Best Practices",
             "collapsed": true,
             "items": [
-                "version-v1.0/best-practices/practices-1"
+                "best-practices/practices-1"
             ]
         },
         {
@@ -119,15 +120,15 @@
             "label": "Developer Manuals",
             "collapsed": true,
             "items": [
-                "version-v1.0/developer-manuals/how-to-build-and-test",
-                "version-v1.0/developer-manuals/local-up-openyurt",
-                "version-v1.0/developer-manuals/ci-workflow",
-                "version-v1.0/developer-manuals/how-to-contribute"
+                "developer-manuals/how-to-build-and-test",
+                "developer-manuals/local-up-openyurt",
+                "developer-manuals/ci-workflow",
+                "developer-manuals/how-to-contribute"
             ]
         },
         {
             "type": "doc",
-            "id": "version-v1.0/faq"
+            "id": "faq"
         }
     ]
 }

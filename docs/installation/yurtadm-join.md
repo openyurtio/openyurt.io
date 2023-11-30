@@ -36,15 +36,19 @@ $ _output/local/bin/linux/amd64/yurtadm join 1.2.3.4:6443 --token=zffaj3.a5vjzf0
 Explanation of parameters:
 
 - `1.2.3.4:6443`:  The address of apiserver
-- `--token`：bootstrap token
+- `--token`：bootstrap token(how to get bootstrap token, please refer to the link [here](https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/))
 - `--node-type`：openyurt node type，can be cloud or edge
 
-`The process of `yurtadm join` will automatically install the following k8s components:
+The process of `yurtadm join` will automatically install the following k8s components:
 
 - kubeadm
 - kubectl
 - kubelet
 - kube-proxy
+
+The process of `yurtadm join` will pull specially modified cni binaries, the modifications can be found [here](../user-manuals/network/edge-pod-network.md). If you want to use cni binaries that uses prepared beforehand, the cni binaries should be placed under `/opt/cni/bin` directory. Then configure yurtadm parameter `--reuse-cni-bin=true` for `yurtadm join` command.
+
+Also, You can pre-place the `kubelet` and `kubeadm` components in the directories named by the PATH environment variable. However, there are restrictions on the version of `kubelet` and `kubeadm`. `yurtadm` will check if the `major version` and `minor version` are the same as the cluster kubernetes version(Follow semver specification).
 
 ### 1.2 yurtadm reset
 
@@ -70,31 +74,6 @@ yurtadm reset
 ```
 rm -rf /etc/cni/net.d
 ```
-
-### 1.3 FAQ
-
-**1. yurtadm join error：crictl not found in system path**
-
-The node does not have docker installed, and installing docker can solve this problem.
-
-
-
-**2. yurtadm join error：[ERROR FileExisting-conntrack]: conntrack not found in system path**
-
-Execute `yum install -y conntrack` and then execute the yurtadm join command again.
-
-
-
-**3. kubectl logs edge node error：error: Error from server (ServiceUnavailable): the server is currently unable to handle the request ( pods/log xxx)** 
-
-https://github.com/openyurtio/openyurt/issues/984
-
-
-
-**4. kubectl logs edge node error：error: You must be logged in to the server (the server has asked for the client to provide credentials ( pods/log xxx))** 
-
-https://github.com/openyurtio/openyurt/issues/984
-
 
 
 ## 2. Install OpenYurt node components

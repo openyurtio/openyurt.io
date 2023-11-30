@@ -4,7 +4,7 @@ title: Raven
 
 ## 1. Background
 
-In edge computing, edge-edge and edge-cloud are common network communication scenarios. In OpenYurt, we have introduced `YurtTunnel` to deal with the network problems of maintenance and monitoring in edge-cloud collaboration, providing the capibility of `kubectl exec/logs` on edge nodes and collecting monitoring indicators from edge nodes. But the problems solved by `YurtTunnel` are only a part of edge-cloud communication. We also need to provide solutions for edge-edge and edge-cloud container network communication.
+In edge computing, edge-edge and edge-cloud are common network communication scenarios. In OpenYurt, we have introduced `YurtTunnel` to deal with the network problems of maintenance and monitoring in edge-cloud collaboration, providing the capability of `kubectl exec/logs` on edge nodes and collecting monitoring indicators from edge nodes. But the problems solved by `YurtTunnel` are only a part of edge-cloud communication. We also need to provide solutions for edge-edge and edge-cloud container network communication.
 
 In OpenYurt cluster, pods in different physical regions may need to use Pod IP, Service IP or Service name to communicate with other Pods. Although these pods are in a single K8s cluster, they are in different physical regions (network domains) and cannot communicate directly. So we create `Raven` project to solve this problem.
 
@@ -43,23 +43,27 @@ Advantages:
 
 `Raven Controller Manager`:
 
-| version | image                                     | release    | content | comment                  |
-| ------ |------------------------------------------|---------| -------- |---------------------|
-| v0.1.0 | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | first | support Gateway Node election |
+| version | image                                    | release | content | comment                                      |
+|---------|------------------------------------------|---------|---------|----------------------------------------------|
+| v0.1.0  | openyurt/raven-controller-manager:v0.1.0 | 2022.05 | first   | support Gateway Node election                |
+| v0.2.0  | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | feature | support multi Pod CIDRs <br/> support Calico |
+| v0.3.0  | openyurt/raven-controller-manager:v0.3.0 | 2023.1  | feature | support node IP forwarding                   |
 
 `Raven Agent`：
 
-| version | image                        | release    | content | comment                |
-| ------ |-----------------------------|---------| -------- |-------------------|
-| v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端 |
+| version | image                       | release | content | comment                |
+|---------|-----------------------------|---------|---------|-------------------|
+| v0.1.0  | openyurt/raven-agent:v0.1.0 | 2022.05 | first   | Support IPsec as VPN backend, which implemented by using libreswan |
+| v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico|
+| v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding |
 
-## 5. 未来计划
+## 5. future plan
 
-- 云端支持LB的公网暴露方式 【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
-- 支持NAT穿越 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
-- 支持分布式路由决策 【[issue #14](https://github.com/openyurtio/raven/issues/14)】
-  - 路由路径的cost计算 
-  - 根据cost计算最短路径 
-  - 在路径更改期间保持网络连接处于active状态
+- Support SLB as public network exporter for gateway  【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
+- Support NAT traversal 【[issue #13](https://github.com/openyurtio/raven/issues/13)】 
+- Support distribute route path decision 【[issue #14](https://github.com/openyurtio/raven/issues/14)】
+  - route path cost evaluation
+  - shortest path decision 
+  - keep networking connection alive during paths change
 
-欢迎感兴趣的同学加入我们，贡献代码！！！
+Welcome interested students to join us and contribute code!!
