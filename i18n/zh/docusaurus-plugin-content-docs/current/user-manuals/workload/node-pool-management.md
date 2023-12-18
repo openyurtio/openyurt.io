@@ -8,25 +8,32 @@ nodepool controller 集成在 Yurt-Manager 组件中，使用 NodePool 之前需
 
 ### 2）节点池使用Example
 
-- 创建一个节点池
+**自OpenYurt v1.4.0版本起，建议使用`apps.openyurt.io/v1beta1` 版本的NodePool资源。**
+
+- 创建一个云端节点池
 
 ```shell
 $ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
   name: beijing
 spec:
   type: Cloud
 EOF
+```
 
+- 创建一个主机网络模式的边缘节点池，同时包含Annotation, Label, Taint等配置
+
+```shell
 $ cat <<EOF | kubectl apply -f -
-apiVersion: apps.openyurt.io/v1alpha1
+apiVersion: apps.openyurt.io/v1beta1
 kind: NodePool
 metadata:
   name: hangzhou
 spec:
   type: Edge
+  hostNetwork: true
   annotations:
     apps.openyurt.io/example: test-hangzhou
   labels:
@@ -50,17 +57,10 @@ hangzhou   Edge                                28s
 
 - 将节点加入到节点池
 
-添加云端节点Cloud node到北京节点池，你只需将此节点按如下方式打上label即可
+添加云端节点Cloud node到北京节点池，你只需将此节点按如下方式打上label: apps.openyurt.io/nodepool=beijing 即可
 
 ```shell
-$ kubectl label node {Your_Node_Name} apps.openyurt.io/desired-nodepool=beijing
-```
-
-
-
-```shell
-For example:
-$ kubectl label node master apps.openyurt.io/desired-nodepool=beijing
+$ kubectl label node master apps.openyurt.io/nodepool=beijing
 
 master labeled
 ```
@@ -68,20 +68,18 @@ master labeled
 当然，你也可以将你的边缘节点Edge node添加到杭州节点池，方法和上面类似
 
 ```shell
-$ kubectl label node {Your_Node_Name} apps.openyurt.io/desired-nodepool=hangzhou
-For example:
 $ kubectl label node k8s-node1 apps.openyurt.io/desired-nodepool=hangzhou
 
 k8s-node1 labeled
 
-$ kubectl label node k8s-node2 apps.openyurt.io/desired-nodepool=hangzhou
+$ kubectl label node k8s-node2 apps.openyurt.io/nodepool=hangzhou
 
 k8s-node2 labeled
 ```
 
 - 验证节点已经加入节点池
 
-当Edge node成功加入到节点池，节点的配置信息除了节点池Spec中的所有内容，同时，节点添加了一个新的标签：apps.openyurt.io/nodepool。
+当Edge node成功加入到节点池，节点的配置信息除了节点池Spec中的所有内容，同时，节点添加了一个新的标签：`nodepool.openyurt.io/hostnetwork`。
 
 ```shell
 $ kubectl get node {Your_Node_Name} -o yaml 
@@ -100,7 +98,7 @@ metadata:
     volumes.kubernetes.io/controller-managed-attach-detach: "true"
   creationTimestamp: "2021-04-14T12:17:39Z"
   labels:
-    apps.openyurt.io/desired-nodepool: hangzhou
+    nodepool.openyurt.io/hostnetwork: "true"
     apps.openyurt.io/example: test-hangzhou
     apps.openyurt.io/nodepool: hangzhou
     beta.kubernetes.io/arch: amd64
