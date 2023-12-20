@@ -43,12 +43,22 @@ It ensures that all certificates and kubeconfig files are securely stored in the
 ### 2.2 Raven Related Controllers
 
 #### 2.2.1 gatewaypickup Controller
+A new CRD Gateway is defined in project raven as the carrier of network information across network domains. 
+In the OpenYurt cluster, a Gateway CR needs to be created for each network domain to record the available gateway endpoints and network configurations. 
+The gatewaypickup controller reconcile the Gateway to elects the gateway endpoints from among alternative endpoints and node information for each network domain.
 
-#### 2.2.2 gatewayinternalservice Controller
+#### 2.2.2 gatewaydns Controller
+Raven L7 Proxy need to forward all http requests of NodeName+Port to the gateway endpoints of the LAN.
+The domain name resolution of the NodeName need deploy dedicated dns component [raven-proxy-dns](../installation/raven-l7-proxy-prepare.md) which uses the hosts plugin to mount a configmap named `kube-system/edge-tunnel-nodes`, this configmap record resolves all NodeName to the clusterIP of service `kube-system/x-raven-proxy-internal-svc`.
+Gatewaydns controller dynamically manage the configmap entry.
 
-#### 2.2.3 gatewaypublicservice Controller
+#### 2.2.3 gatewayinternalservice Controller
+Raven L7 Proxy need to forward all http requests of NodeName+Port to the gateway endpoints of the LAN.
+Gatewayinternnalservice controller is responsible for maintaining the life cycle of the service `kube-system/x-raven-proxy-internal-svc`.
+Note that the Http request port varies according to the actual service design. Therefore, you can configure Gateway Spec.ProxyConfig to configure the Http/Https port of the proxy. The gatewaypublicservice controller update the ports in `x-raven-proxy-internal-svc` for forwarding. All https/http requests are forwarded to port 10263/10264 of the raven agent
 
-#### 2.2.4 gatewaydns Controller
+#### 2.2.4 gatewaypublicservice Controller
+Gatewaypublicservice controller maintains the life cycle of a LoadBalancer service and endpoints if you choose th expose gateway with LoadBalancer type.
 
 ### 2.3 Workload Related Controllers
 

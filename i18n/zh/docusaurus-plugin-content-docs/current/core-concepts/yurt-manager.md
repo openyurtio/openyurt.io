@@ -38,16 +38,16 @@ yurtcoordinatorcert 控制器的职责是为 yurt-coordinator 组件生成相关
 ### 2.2 Raven相关控制器
 
 #### 2.2.1 gatewaypickup 控制器
+Raven组件定义了新的CRD Gateway作为实现跨网络域网络通信信息载体，通过对节点打Label划分网络域，为每个网络域创建一个Gateway集群资源，对Gateway的Spec进行配置，为每个网络域选择一些节点作为备用的网关，择gatewaypickup控制器负责协调Gateway，为每个网络域从备选的网关节点中选举网关，并且记录本网络域的节点信息。
 
+#### 2.2.2 gatewaydns 控制器
+Raven L7需要将所有NodeName+Port的Http请求转发到本网络域的网关节点，由网关节点负责跨域或本域转发，对NodeName的解析需要部署Raven专用的DNS，[安装方法与简介](../installation/raven-l7-proxy-prepare.md)，其中，Raven专用的DNS采用host插件的方式将一个Configmap挂载进DNS内，这个Configmap记录将所有NodeName都解析到`kube-system/x-raven-proxy-internal-svc`的ClusterIP,这个Service后端挂载着网关节点，即可实现所有七层请求都转发到网关节点进行代理。而GatewayDNS控制器就是动态维护这个configmap的条目。
 
-#### 2.2.2 gatewayinternalservice 控制器
+#### 2.2.3 gatewayinternalservice 控制器
+Raven L7需要将将所有NodeName+Port的Http请求转发到本网络域的网关节点，由网关节点负责跨域或本域转发，GatewayDNS控制维护Configmap解决了NodeName的地址解析，将请求转发到`kube-system/x-raven-proxy-internal-svc`的ClusterIP，gatewaypublicservice控制器即负责维护这个service的生命周期，但Http请求的端口根据实际业务设计而变化，因此通过配置Gateway Spec.ProxyConfig，配置代理的Http/Https端口，gatewaypublicservice控制器根据配置为x-raven-proxy-internal-svc配置端口转发，所有的https/http请求转发到raven agent的10263/10264端口
 
-
-#### 2.2.3 gatewaypublicservice 控制器
-
-
-#### 2.2.4 gatewaydns 控制器
-
+#### 2.2.4 gatewaypublicservice 控制器
+Raven的Gateway可采用LoadBalancer和PublicIP两种暴露方式提供给边缘侧网关节点构建跨域隧道，如果LoadBalancer的方式暴露，gatewaypublicservice控制器负责维护一个Loadbalancer的Service和Endpoints的生命周期
 
 ### 2.3 工作负载相关控制器
 

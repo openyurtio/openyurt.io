@@ -4,19 +4,22 @@ title: Raven
 
 ## 1. Background
 
-In edge computing, edge-edge and edge-cloud are common network communication scenarios. In OpenYurt, we have introduced `YurtTunnel` to deal with the network problems of maintenance and monitoring in edge-cloud collaboration, providing the capability of `kubectl exec/logs` on edge nodes and collecting monitoring indicators from edge nodes. But the problems solved by `YurtTunnel` are only a part of edge-cloud communication. We also need to provide solutions for edge-edge and edge-cloud container network communication.
-
-In OpenYurt cluster, pods in different physical regions may need to use Pod IP, Service IP or Service name to communicate with other Pods. Although these pods are in a single K8s cluster, they are in different physical regions (network domains) and cannot communicate directly. So we create `Raven` project to solve this problem.
+In edge computing, edge-edge and edge-cloud communication are common network communication scenarios, and in OpenYurt, we developed the Raven project to provide a solution for edge-edge-cloud container network to communicate with host network In an OpenYurt cluster, Pods located in different physical areas may require the use of Pod IP The Service IP or Service name communicates with other Pods, and while these Pods are in a single K8s cluster, they are in different physical areas (network domains) and cannot communicate directly, so the Raven project was developed to address this
 
 ## 2. Architecture
 
 As following picture, the architecture of `Raven` have two components:
 
-![img](../../static/img/docs/core-concepts/raven.png)
-
-- **Raven Controller Manager**：The native Kubernetes controller is deployed in some nodes on the cloud as a `Deployment`, monitoring the status of edge nodes, selecting an egress for cross-edge traffic as a gateway node for each edge node pool. When the current gateway node is dead and other node will be switched. All cross-edge traffic will be forwarded by the gateway node of each edge node pool;
+- **Yurt Manager**：The native Kubernetes controller is deployed in some nodes on the cloud as a `Deployment`, monitoring the status of edge nodes, selecting an egress for cross-edge traffic as a gateway node for each edge node pool. When the current gateway node is dead and other node will be switched. All cross-edge traffic will be forwarded by the gateway node of each edge node pool;
 
 - **Raven Agent**：It is deployed as a `DaemonSet` and runs on each node of the K8s cluster. It configures route or VPN tunnel on the node according to the role of each node (gateway or non-gateway);
+
+### Tunnel Mode
+![img](../../static/img/docs/core-concepts/raven-tunnel.png)
+
+### Proxy Mode
+![img](../../static/img/docs/core-concepts/raven-proxy.png)
+
 
 The above two components are connected by a [Gateway CRD](https://github.com/openyurtio/raven-controller-manager/blob/main/pkg/ravencontroller/apis/raven/v1alpha1/gateway_types.go) to exchange routes and VPN tunnels, as shown in the following picture:
 
@@ -24,7 +27,7 @@ The above two components are connected by a [Gateway CRD](https://github.com/ope
 
 For more details, please refer to the code repository of the Raven project:
 
-- [raven-controller-manager](https://github.com/openyurtio/raven-controller-manager)
+- [yurt-manager](https://github.com/openyurtio/openyurt)
 - [raven](https://github.com/openyurtio/raven)
 
 ## 3. Features and Advantages
@@ -49,13 +52,16 @@ Advantages:
 | v0.2.0  | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | feature | support multi Pod CIDRs <br/> support Calico |
 | v0.3.0  | openyurt/raven-controller-manager:v0.3.0 | 2023.1  | feature | support node IP forwarding                   |
 
+Note: The Raven Controller Manger required by the Raven component is refactured in YurtManager and includes the following Controller: GatewayDNS-Controller GatewayPickup- controller GatewayInternalService-Controller GatewayPublicService-Controller. For details, see [yurt-manager](./yurt-manager.md).
+
 `Raven Agent`：
 
-| version | image                       | release | content | comment                |
-|---------|-----------------------------|---------|---------|-------------------|
+| version | image                       | release | content | comment                                                            |
+|---------|-----------------------------|---------|---------|--------------------------------------------------------------------|
 | v0.1.0  | openyurt/raven-agent:v0.1.0 | 2022.05 | first   | Support IPsec as VPN backend, which implemented by using libreswan |
-| v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico|
-| v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding |
+| v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico                |
+| v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding                                         |
+| v0.4.0  | openyurt/raven-agent:0.4.0  | 2023.11 | feature    | Support raven l7 proxy                                             |
 
 ## 5. future plan
 
