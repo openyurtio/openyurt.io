@@ -112,6 +112,7 @@ module.exports = {
             items: [
                 'test-report/yurthub-performance-test',
                 'test-report/pod-recover-efficiency-test',
+                'test-report/raven-performance-test',
             ],
         },
         {
