@@ -42,12 +42,12 @@ module.exports = {
                 'core-concepts/architecture',
                 {
                     'Components': [
-                        'core-concepts/raven',
-                        'core-concepts/yurthub',
                         'core-concepts/yurt-manager',
-                        'core-concepts/node-resource-manager',
+                        'core-concepts/yurthub',
+                        'core-concepts/raven',
                         'core-concepts/yurt-iot-dock',
                         'core-concepts/yurt-coordinator',
+                        'core-concepts/node-resource-manager',
                     ]
                 }
             ],
