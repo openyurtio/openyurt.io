@@ -111,6 +111,7 @@ module.exports = {
             collapsed: true,
             items: [
                 'test-report/yurthub-performance-test',
+                'test-report/yurt-coordinator-test',
                 'test-report/pod-recover-efficiency-test',
             ],
         },

@@ -33,4 +33,4 @@ kubectl annotate --overwrite nodes node1 apps.openyurt.io/binding=false
 
 - 边缘节点开启节点绑定功能后，无论是云边网络断连导致的节点NotReady，还是本身节点故障导致的节点NotReady，边缘节点上的业务Pod都不会被驱逐。
 - 云端节点不建议开启节点绑定。如果云端节点开启了绑定，节点为非 Ready 状态时，其业务容器不会被驱逐并重新调度。
-- 在OpenYurt 1.2.0 版本以后，如果开启Pool-Coordinator，边缘节点通过心跳代理机制可以在云边网络断连的情况下仍保持Ready状态。此时节点绑定能力将保障即使节点故障导致NotReady业务Pod也不会被驱逐。
+- 在OpenYurt 1.2.0 版本以后，如果开启Yurt-Coordinator，边缘节点通过心跳代理机制可以在云边网络断连的情况下仍保持Ready状态。此时节点绑定能力将保障即使节点故障导致NotReady业务Pod也不会被驱逐。

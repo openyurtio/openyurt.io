@@ -1,12 +1,12 @@
 ---
-title: Pool Coordinator Performance Test
+title: Yurt-Coordinator Performance Test
 ---
 
 ## Background
 
-Pool Coordinator is an important component in edge node pool. OpenYurt uses pool coordinator to select a yurthub master and backup the resources in edge node pool.
+Yurt-Coordinator is an important component in edge node pool. OpenYurt uses Yurt-Coordinator to select a yurthub master and backup the resources in edge node pool.
 
-In this article, we test the performance of pool-coordinator pod and give a suggestion resource configuration.
+In this article, we test the performance of Yurt-Coordinator pod and give a suggestion resource configuration.
 
 
 
@@ -60,10 +60,10 @@ Master and work node are virtual machines run on VMWare Fusion.
 
 ## Test Method
 
-* Start the pool-coordinator pod and record the beginning resource used.
-* Write a mount of resources and record the resource used of pool-coordinator. In this test, we write 1000 pods and 500 nodes into pool-coordinator. The size of each pod and node both are 8KB.
-* Delete all resources in pool-coordinator. To see whether resource used will go down to the beginning level.
-* Rewrite a mount of resources to pool-coordinator and patch them frequently and randomly. Check the resource used of current situation.
+* Start the Yurt-Coordinator pod and record the beginning resource used.
+* Write a mount of resources and record the resource used of Yurt-Coordinator. In this test, we write 1000 pods and 500 nodes into Yurt-Coordinator. The size of each pod and node both are 8KB.
+* Delete all resources in Yurt-Coordinator. To see whether resource used will go down to the beginning level.
+* Rewrite a mount of resources to Yurt-Coordinator and patch them frequently and randomly. Check the resource used of current situation.
 * Check the result of leader election.
 
 
@@ -72,7 +72,7 @@ Master and work node are virtual machines run on VMWare Fusion.
 
 ### Phase one
 
-Start pool-coordinator pod and record the beginning resource used.
+Start Yurt-Coordinator pod and record the beginning resource used.
 
 * CPU used: 70m ~ 90m
 * mem used: 370MB.
@@ -87,7 +87,7 @@ Start pool-coordinator pod and record the beginning resource used.
 
 ### Phase two
 
-Write a mount of resources and record the resource used of pool-coordinator. In this test, we write 1000 pods and 500 nodes into pool-coordinator. The size of each pod and node both are 8KB.
+Write a mount of resources and record the resource used of Yurt-Coordinator. In this test, we write 1000 pods and 500 nodes into Yurt-Coordinator. The size of each pod and node both are 8KB.
 
 * top CPU used: 310m
 * top mem used: 450MB. 
@@ -102,7 +102,7 @@ Write a mount of resources and record the resource used of pool-coordinator. In 
 
 ### Phase three
 
-Delete all resources in pool-coordinator. To see whether resource used will go down to the beginning level.
+Delete all resources in Yurt-Coordinator. To see whether resource used will go down to the beginning level.
 
 * top CPU used: 260m
 * top mem used: 590MB. 
@@ -118,7 +118,7 @@ Delete all resources in pool-coordinator. To see whether resource used will go d
 
 ### Phase four
 
-Rewrite a mount of resources to pool-coordinator and patch them frequently and randomly. Check the resource used of current situation.
+Rewrite a mount of resources to Yurt-Coordinator and patch them frequently and randomly. Check the resource used of current situation.
 
 * top CPU used: 640m.
 * mem used rise continually and result in etcd container OOM.
@@ -162,7 +162,7 @@ I1212 14:58:47.743684   41875 main.go:648] leader lost: 7a4dd5d7-5e25-4f69-a882-
 
 ```
 
-Check the lease resource in pool-coordinator. We can see the lease resource and the holder of lease changes periodically.
+Check the lease resource in Yurt-Coordinator. We can see the lease resource and the holder of lease changes periodically.
 
 ```shell
 $ kubectl get lease
@@ -185,15 +185,15 @@ test-lock   7a4dd5d7-5e25-4f69-a882-d32e17bb703a   5m
 
 ## Conclusion
 
-After testing, we got the minimum resource limit that pool-coordinator needed: CPU 310m、memory 450MB.
+After testing, we got the minimum resource limit that Yurt-Coordinator needed: CPU 310m、memory 450MB.
 
-And we see that deleting resource in etcd will not let the resource used of pool-coordinator goes down.
+And we see that deleting resource in etcd will not let the resource used of Yurt-Coordinator goes down.
 
 It is caused by the storage mechanism of etcd, which will add tombstone revision instead of deleting resource immediately.
 
 When patching resource frequently, the memory used of etcd go up. If we set the memory limit of etcd, it will cause etcd container OOM.
 
-Finally, we got that CPU is not the limit resource of pool-coordinator. And the memory used of etcd container should be limited to an acceptable level to protect other pod in edge node pool
+Finally, we got that CPU is not the limit resource of Yurt-Coordinator. And the memory used of etcd container should be limited to an acceptable level to protect other pod in edge node pool
 
 So, in an edge node pool, when node number less than 500 and pod number less then 1000, we recommend the resource configuration below:
 
