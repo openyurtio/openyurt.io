@@ -32,7 +32,7 @@ OpenYurt将持续致力于探索云边端协同的云原生边缘计算平台标
 
 在 Kubernetes 中，通常如果节点与 apiserver 断开连接，则当节点发生故障时无法恢复正在运行的 Pod。 此外，当节点心跳超过 5m 未上报时，边缘节点上的 Pod 将被 Kube-Controller-Manager 组件的原生控制器驱逐。
 由于云边网络可能不可靠，这给云边协同架构带来了巨大挑战。 如下图所示，OpenYurt 引入了一个每节点代理（YurtHub）和本地存储来缓存云 apiserver 状态，因此如果节点断开连接，缓存数据可以被 Kubelet、KubeProxy 或用户 Pod 使用。
-并且在Pool-Coordinator组件的帮助下，NodePool中的Leader Yurthub可以被委托帮助NodePool中其他与云端断开连接的边缘节点代理上报心跳，这样边缘节点上的pod即使断网也不会被驱逐。
+并且在Yurt-Coordinator组件的帮助下，NodePool中的Leader Yurthub可以被委托帮助NodePool中其他与云端断开连接的边缘节点代理上报心跳，这样边缘节点上的pod即使断网也不会被驱逐。
 
 ![edge-autonomy](../../../../static/img/docs/introduction/edge-autonomy.png)
 
@@ -66,22 +66,22 @@ Raven 是一个优雅的网络解决方案，用于在 OpenYurt 集群中提供�
 - servicetopology：用于根据服务的服务拓扑设置重新组装endpointslices，以确保访问Service的流量只能转发到同一节点池中的pod。
 - discardcloudservice：用于丢弃边缘节点上kube-proxy组件获取Service中LoadBalancer Service，因为无法通过pod IP访问云服务。
 - inclusterconfig：用于注释kube-system/kube-proxy configmap中的kubeconfig设置，使kube-proxy组件使用InClusterConfig访问云端kube-apiserver。
+- nodeportisolation: 该过滤器允许管理员精确地选择在节点池（NodePool）中保留哪些NodePort服务以及删除哪些服务。这样可以防止该节点池中的kube-proxy组件处理不必要的NodePort流量。这意味着管理员可以决定在每个节点池中从Kubernetes集群外部可以访问哪些NodePort服务，从而提高了集群的网络配置，增强了安全性并优化了性能。
 
 ![resource-access-control](../../../../static/img/docs/introduction/data-filtering-framework.png)
 
 **6. 云边网络带宽减少**
 
 [性能测试](https://openyurt.io/docs/test-report/yurthub-performance-test#traffic) 表明，在大规模的 OpenYurt 集群中，如果 pod 频繁删除并重新创建将会产生大量云边通信流量，因为边缘节点上的 kube-proxy 组件会监视所有endpoints/endpointslices变化。 请注意，相同的endpoints/endpointslices数据将被传输到节点池中的每个边缘节点，考虑云边通过公网通信，这可能会给用户带来不小的成本压力。
-利用上面提到的pool-coordinator，OpenYurt 建议引入 Pool Scope Data 的概念，这些元数据在节点池中是唯一的，例如endpoints/endpointslices数据。 如下图所示，Leader Yurthub 将从云端 kube-apiserver 读取Pool Scope Data并将更新到pool-coordinator中。 因此，所有其他 YurtHub 将从pool-coordinator中获取 Pool Scope Data，从而消除每个节点使用公共网络带宽从云 kube-apiserver 获取此类数据。
+利用上面提到的 Yurt-Coordinator，OpenYurt 建议引入 pool-scoped Data 的概念，这些元数据在节点池中是唯一的，例如endpoints/endpointslices数据。 如下图所示，Leader Yurthub 将从云端 kube-apiserver 读取 pool-scoped Data并将更新到 Yurt-Coordinator 中。 因此，所有其他 YurtHub 将从 Yurt-Coordinator 中获取 pool-scoped Data，从而消除每个节点使用公共网络带宽从云 kube-apiserver 获取此类数据。
 
 ![bandwidth-reduction](../../../../static/img/docs/introduction/bandwidth-reduction.png)
 
 **7. 云原生边缘设备管理**
 
-OpenYurt从云原生视角对边缘终端设备的基本特征（是什么）、主要能力（能做什么）、产生的数据（能够传递什么信息）进行了抽象与定义。 凭借良好的生态兼容性无缝集成了业界知名的IoT设备管理解决方案。最终通过云原生声明式API，向开发者提供设备数据采集处理与管理控制的能力。 如下图所示，在每个节点池中部署了一个 yurt-device-controller 组件实例和 EdgeXFoundry 服务。 Yurt-device-controller组件可以从云端kube-apiserver获取Device CRD的变化，将Device CRD需要的spec转换为EdgeXFoundry的请求，然后将请求实时传输给EdgeXFoundry服务。 另一方面，yurt-device-controller 可以从 EdgeXFoundry 服务订阅设备状态，当状态改变时更新 Device CRD 的状态。
+OpenYurt从云原生视角对边缘终端设备的基本特征（是什么）、主要能力（能做什么）、产生的数据（能够传递什么信息）进行了抽象与定义。 凭借良好的生态兼容性无缝集成了业界知名的IoT设备管理解决方案。最终通过云原生声明式API，向开发者提供设备数据采集处理与管理控制的能力。 如下图所示，在每个节点池中部署了一个 YurtIoTDock 组件实例和 EdgeXFoundry 服务。 YurtIoTDock 组件可以从云端kube-apiserver获取Device CRD的变化，将Device CRD需要的spec转换为EdgeXFoundry的请求，然后将请求实时传输给EdgeXFoundry服务。 另一方面，YurtIoTDock 可以从 EdgeXFoundry 服务订阅设备状态，当状态改变时更新 Device CRD 的状态。
 
 ![edge-device](../../../../static/img/docs/introduction/device.png)
-
 
 ## What's Next
 Here are some recommended next steps:
