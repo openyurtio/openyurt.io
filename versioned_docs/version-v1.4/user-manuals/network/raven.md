@@ -132,7 +132,7 @@ spec:
 EOF
 ```
 
-- 参数介绍：
+- Parameters Introduction：
 1. ```spec.exposedType```: The type of public network exposure, empty indicates that the gateway will not be exposed, either LoadBalancer or PublicIP can be used to exposed gateway in internet. 
 2. ```spec.endpoints```: Indicates a set of alternative gateway endpoints, some of which are selected by the yurtmanager as gateway endpoints based on node status
 3. ```spec.endpoints.nodeName```: The name of gateway endpoints
@@ -146,7 +146,9 @@ EOF
 10. ```spec.tunnelConfig.Replicas```: Replicas of gateway endpoints in enable tunnel mode，which must be 1 currently
 
 - Describe the status of all gateways
-
+1. Check whether the Gateway node is elected in the Status of the gateway. The Yurt Manager component, GatewayPickup Controller, is responsible for the election.
+2. Check whether the public IP address and exposed port are correct
+3. Check whether the enabled mode meets the expectations
 ```bash
 $ kubectl get cm raven-cfg -n kube-system -o yaml
 apiVersion: v1
@@ -171,6 +173,98 @@ NAME          AGE
 gw-cloud      22h
 gw-hangzhou   22h
 gw-qingdao    22h
+
+$ kubectl get gateway gw-cloud -o yaml
+apiVersion: raven.openyurt.io/v1alpha1
+kind: Gateway
+metadata:
+  name: gw-cloud
+spec:
+  exposeType: PublicIP
+  proxyConfig:
+    Replicas: 1
+    proxyHTTPPort: 10255,9445
+    proxyHTTPSPort: 10250,9100
+  tunnelConfig:
+    Replicas: 1
+  endpoints:
+    - nodeName: izwz9dohcv74iegqecp4axz
+      underNAT: false
+      port: 10262
+      type: proxy
+      publicIP: 120.79.xxx.xxx
+    - nodeName: izwz9dohcv74iegqecp4axz
+      underNAT: false
+      port: 4500
+      type: tunnel
+      publicIP: 120.79.xxx.xxx
+status:
+  activeEndpoints:
+  - config:
+      enable-l7-proxy: "true"
+    nodeName: izwz9dohcv74iegqecp4axz
+    port: 10262
+    publicIP: 47.xxx.xxx.xxx
+    type: proxy
+  - config:
+      enable-l3-tunnel: "true"
+    nodeName: izwz9dohcv74iegqecp4axz
+    port: 4500
+    publicIP: 47.xxx.xxx.xxx
+    type: tunnel
+  nodes:
+  - nodeName: izwz9dohcv74iegqecp4axz
+    privateIP: 192.168.0.195
+    subnets:
+    - 10.224.0.128/26
+  - nodeName: izwz9ey0js5z7mornclpd6z
+    privateIP: 192.168.0.196
+    subnets:
+    - 10.224.0.0/26
+
+$ kubectl get gateway gw-hangzhou -o yaml
+apiVersion: raven.openyurt.io/v1beta1
+kind: Gateway
+metadata:
+  name: gw-hangzhou
+spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
+  endpoints:
+    - nodeName: izbp15inok0kbfkg3in52rz
+      underNAT: true
+      port: 10262
+      type: proxy
+    - nodeName: izbp15inok0kbfkg3in52rz
+      underNAT: true
+      port: 4500
+      underNAT: true
+      type: tunnel
+status:
+  activeEndpoints:
+  - config:
+      enable-l7-proxy: "true"
+    nodeName: izbp15inok0kbfkg3in52rz
+    port: 10262
+    publicIP: 120.79.xxx.xxx
+    type: proxy
+  - config:
+      enable-l3-tunnel: "true"
+    nodeName: izbp15inok0kbfkg3in52rz
+    port: 4500
+    publicIP: 120.79.xxx.xxx
+    type: tunnel
+  nodes:
+  - nodeName: izbp15inok0kbfkg3in52rz
+    privateIP: 172.16.2.103
+    subnets:
+    - 10.224.1.128/26
+  - nodeName: izbp15inok0kbfkg3in52sz
+    privateIP: 172.16.2.104
+    subnets:
+    - 10.224.1.0/26
 ```
 
 ### Test pod-to-pod networking (tunnel mode)
@@ -283,7 +377,7 @@ listening on raven0, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:13:15.176090 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 4, length 64
 ```
 
-### Test cross-domain http networking (tunnel mode)
+### Test cross-domain http networking (proxy mode)
 
 In the edge scenario, the Intranet IP addresses of the edge devices often conflict with each other in closed Intranet environments, and the tunnel mode cannot support host communication in IP conflict scenarios. Therefore, the proxy mode must be enabled to support cross-domain HTTP/HTTPS requests.
 enable proxy model, and set  ```enable-l7-proxy: "true"```
@@ -315,9 +409,14 @@ hello word
 # Other Features：
 By default, raven uses IPSec as the VPN back end, and we also provide WireGuard as an alternative. You can do the following to switch to the WireGuard back end.
 * Raven requires the WireGuard kernel module to be loaded on the gateway node in the cluster. As of Linux 5.6, the kernel includes WireGuard in-tree; Linux distributions with older kernels will need WireGuard installed. For most Linux distributions, this can be done using the system package manager. For more information, see Installing WireGuard.
-* The gateway node will require an open UDP port to communicate. By default, the WireGuard uses UDP port 51820. Run the following command.
-  ```bash
-  cd raven
-  git checkout v0.3.0
-  VPN_DRIVER=wireguard make deploy
-  ```
+  * The gateway node will require an open UDP port to communicate. By default, the WireGuard uses UDP port 51820. Run the following command.
+    ```bash
+    cd raven
+    git checkout v0.4.1
+    VPN_DRIVER=wireguard make deploy
+    ```
+    
+# Using VPN Tunnel
+If using an IPSec tunnel (implemented via libreswan) as the backend, you can enter the raven agent container and check the relevant status by using the command ```ipsec status/look``` or ```/usr/libexec/ipsec status/look```. Additionally, make appropriate use of the ipsec tool to troubleshoot related issues.
+If using a Wireguard tunnel as the backend implementation for the VPN, you can enter the raven agent container, install the wireguard-tools tool, and refer to the tool's instructions to troubleshoot related issues.
+Raven relies entirely on open-source IPSec and Wireguard tools without any customization. You can refer to open-source communities and related technical blogs to resolve everyday issues.

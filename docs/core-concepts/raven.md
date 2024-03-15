@@ -52,7 +52,7 @@ Advantages:
 | v0.2.0  | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | feature | support multi Pod CIDRs <br/> support Calico |
 | v0.3.0  | openyurt/raven-controller-manager:v0.3.0 | 2023.1  | feature | support node IP forwarding                   |
 
-Note: The Raven Controller Manger required by the Raven component is refactured in YurtManager and includes the following Controller: GatewayDNS-Controller GatewayPickup- controller GatewayInternalService-Controller GatewayPublicService-Controller. For details, see [yurt-manager](./yurt-manager.md).
+Note: The Raven Controller Manger required by the Raven component is refactured in YurtManager and includes the following Controller: GatewayDNSController GatewayPickupController GatewayInternalServiceController GatewayPublicServiceController. For details, see [yurt-manager](./yurt-manager.md).
 
 `Raven Agent`：
 
@@ -62,7 +62,7 @@ Note: The Raven Controller Manger required by the Raven component is refactured 
 | v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | feature | Support WireGuard as VPN backend<br/>Support Calico                |
 | v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.1  | feature    | Support node IP forwarding                                         |
 | v0.4.0  | openyurt/raven-agent:0.4.0  | 2023.11 | feature    | Support raven l7 proxy                                             |
-
+| v0.4.1  | openyurt/raven-agent:0.4.1  | 2024.3  | feature    | Support raven l3 NAT traverse                                      |
 ## 5. future plan
 
 - Support SLB as public network exporter for gateway  【[issue #22](https://github.com/openyurtio/raven/issues/22)】 
