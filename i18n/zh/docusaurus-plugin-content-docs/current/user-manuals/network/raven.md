@@ -148,7 +148,12 @@ EOF
 
 - 查看各个Gateway CR的状态
 
+1. 确保Gateway的Status中是否选举了网关节点，选举动作由Yurt-Manager组件GatewayPickup Controller负责。
+2. 确认公网地址、暴露端口是否正确
+3. 确认开启的模式是否达到预期
+
 开启隧道模式，设置 ```enable-l3-tunnel: "true"```
+开启代理模式，设置 ```enable-l7-proxy: "true"```
 ```bash
 $ kubectl get cm raven-cfg -n kube-system -o yaml
 apiVersion: v1
@@ -173,6 +178,98 @@ NAME          AGE
 gw-cloud      22h
 gw-hangzhou   22h
 gw-qingdao    22h
+
+$ kubectl get gateway gw-cloud -o yaml
+apiVersion: raven.openyurt.io/v1alpha1
+kind: Gateway
+metadata:
+  name: gw-cloud
+spec:
+  exposeType: PublicIP
+  proxyConfig:
+    Replicas: 1
+    proxyHTTPPort: 10255,9445
+    proxyHTTPSPort: 10250,9100
+  tunnelConfig:
+    Replicas: 1
+  endpoints:
+    - nodeName: izwz9dohcv74iegqecp4axz
+      underNAT: false
+      port: 10262
+      type: proxy
+      publicIP: 120.79.xxx.xxx
+    - nodeName: izwz9dohcv74iegqecp4axz
+      underNAT: false
+      port: 4500
+      type: tunnel
+      publicIP: 120.79.xxx.xxx
+status:
+  activeEndpoints:
+  - config:
+      enable-l7-proxy: "true"
+    nodeName: izwz9dohcv74iegqecp4axz
+    port: 10262
+    publicIP: 47.xxx.xxx.xxx
+    type: proxy
+  - config:
+      enable-l3-tunnel: "true"
+    nodeName: izwz9dohcv74iegqecp4axz
+    port: 4500
+    publicIP: 47.xxx.xxx.xxx
+    type: tunnel
+  nodes:
+  - nodeName: izwz9dohcv74iegqecp4axz
+    privateIP: 192.168.0.195
+    subnets:
+    - 10.224.0.128/26
+  - nodeName: izwz9ey0js5z7mornclpd6z
+    privateIP: 192.168.0.196
+    subnets:
+    - 10.224.0.0/26
+
+$ kubectl get gateway gw-hangzhou -o yaml
+apiVersion: raven.openyurt.io/v1beta1
+kind: Gateway
+metadata:
+  name: gw-hangzhou
+spec:
+  proxyConfig:
+    Replicas: 1
+  tunnelConfig:
+    Replicas: 1
+  endpoints:
+    - nodeName: izbp15inok0kbfkg3in52rz
+      underNAT: true
+      port: 10262
+      type: proxy
+    - nodeName: izbp15inok0kbfkg3in52rz
+      underNAT: true
+      port: 4500
+      underNAT: true
+      type: tunnel
+status:
+  activeEndpoints:
+  - config:
+      enable-l7-proxy: "true"
+    nodeName: izbp15inok0kbfkg3in52rz
+    port: 10262
+    publicIP: 120.79.xxx.xxx
+    type: proxy
+  - config:
+      enable-l3-tunnel: "true"
+    nodeName: izbp15inok0kbfkg3in52rz
+    port: 4500
+    publicIP: 120.79.xxx.xxx
+    type: tunnel
+  nodes:
+  - nodeName: izbp15inok0kbfkg3in52rz
+    privateIP: 172.16.2.103
+    subnets:
+    - 10.224.1.128/26
+  - nodeName: izbp15inok0kbfkg3in52sz
+    privateIP: 172.16.2.104
+    subnets:
+    - 10.224.1.0/26
 ```
 
 ### 2.2 测试位于不同网络域的Pod网络联通性 (隧道模式)
@@ -286,7 +383,7 @@ listening on raven0, link-type EN10MB (Ethernet), capture size 262144 bytes
 16:13:15.176090 IP iZm5eb24dmjfimuaybpnr0Z > 172.16.2.104: ICMP echo reply, id 2, seq 4, length 64
 ```
 
-2.2 云边主机网络七层请求代理 (代理模式)
+### 2.3 云边主机网络七层请求代理 (代理模式)
 
 在边缘场景中，边缘设备往往处在封闭的内网环境中，因此边缘设备的内网IP地址常常会出现冲突，因此隧道模式不能支持IP冲突场景下的主机通信，因此需要开启代理模式，支持跨域的HTTP/HTTPS的请求。
 开启代理模式，设置 ```enable-l7-proxy: "true"```
@@ -316,7 +413,6 @@ echo hello word
 hello word
 ```
 
-
 # 其他特性：
 默认情况下，raven 使用 IPSec 作为 VPN 后端，我们还提供WireGuard作为替代方案。您可以通过以下步骤切换到 WireGuard 后端：
 * Raven 需要在集群中的网关节点上加载 WireGuard 内核模块。从 Linux 5.6 开始，内核包含 WireGuard in-tree；具有旧内核的 Linux 发行版将需要安装 WireGuard。对于大多数 Linux 发行版，这可以使用系统包管理器来完成。有关详细信息，请参阅安装 WireGuard。
@@ -326,6 +422,11 @@ hello word
   git checkout v0.4.0
   VPN_DRIVER=wireguard make deploy
   ```
+
+# 如何排查VPN问题：
+* 如采用IPSec隧道（libreswan方式）作为后端实现，可进入raven agent容器内，通过命令 ```ipsec status/look``` 或 ```/usr/libexec/ipsec status/look``` 查看相关状态，并且合理运用```ipsec```工具排查相关问题。
+* 如采用Wiregurad隧道作为VPN后端实现，可进入raven agent容器内，安装wireguard-tools工具，参照工具说明排查相关问题。
+* Raven完全采用开源IPSec、Wireguard工具，无任何定制化，您可以参照开源社区以及相关技术博客解决日常问题。
 
 
 

@@ -52,17 +52,19 @@ Raven Controller Manager版本：
 | v0.2.0 | openyurt/raven-controller-manager:v0.2.0 | 2022.12 | 增加特性 | 支持多  Pod CIDRs<br/> 支持Calico |
 | v0.3.0 | openyurt/raven-controller-manager:v0.3.0 | 2023.01 | 增加特性 | 支持节点 IP 转发                   |
 
-注：Raven组件需要的控制器在YurtManager被重构，包含以下控制器 GatewayDNS-Controller、GatewayPickup-Controller、GatewayInternalService-Controller、GatewayPublicService-Controller. 详情请看[Yurt-Manager](./yurt-manager.md)
+注：Raven组件需要的控制器在YurtManager被重构，包含以下控制器 GatewayDNSController、GatewayPickupController、GatewayInternalServiceController、GatewayPublicServiceController. 详情请看[Yurt-Manager](./yurt-manager.md)
 
 
 Raven Agent版本：
 
-| 版本号     | 镜像地址                        | 发布时间    | 发布内容 | 备注                             |
-|---------|-----------------------------|---------|------|--------------------------------|
-| v0.1.0  | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端              |
-| v0.2.0  | openyurt/raven-agent:v0.2.0 | 2022.12 | 增加特性 | 支持WireGuard作为VPN后端<br/> 支持Calico |
-| v0.3.0  | openyurt/raven-agent:v0.3.0 | 2023.01 | 增加特性 | 支持节点 IP 转发                     |
-| v0.4.0  | openyurt/raven-agent:0.4.0  | 2023.11 | 增加特性 | 支持主机网络七层代理                     |
+| 版本号    | 镜像地址                        | 发布时间    | 发布内容 | 备注                              |
+|--------|-----------------------------|---------|------|---------------------------------|
+| v0.1.0 | openyurt/raven-agent:v0.1.0 | 2022.05 | 首次发布 | 支持 IPSec 作为VPN 后端               |
+| v0.2.0 | openyurt/raven-agent:v0.2.0 | 2022.12 | 增加特性 | 支持WireGuard作为VPN后端<br/> 支持Calico |
+| v0.3.0 | openyurt/raven-agent:v0.3.0 | 2023.01 | 增加特性 | 支持节点 IP 转发                      |
+| v0.4.0 | openyurt/raven-agent:0.4.0  | 2023.11 | 增加特性 | 支持主机网络七层代理                      |
+| v0.4.1 | openyurt/raven-agent:0.4.1  | 2024.3  | 增加特性 | 支持三层隧道模式NAT穿越                   |
+
 ## 5. 未来计划
 
 - 支持IPVS后端的流量转发 【[issue #16](https://github.com/openyurtio/raven/issues/16)】
