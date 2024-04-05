@@ -1564,7 +1564,7 @@ OpenYurt组件YurtHub构架图：</p>
 <h2 id="openyurt介绍">OpenYurt介绍</h2>
 <p>OpenYurt 主打“云边一体化”概念，依托 Kubernetes 强大的容器应用编排能力，满足了云边一体化的应用分发、交付、和管控的诉求。相较于其他基于 Kubernetes 的边缘计算框架，OpenYurt 秉持着“最小修改”原则，通过在边缘节点安装 Yurthub 组件，和在云端部署 Yurt-controller-manager，保证了在对 Kubernetes 零侵入的情况下，提供管理边缘计算应用所需的相关能力。</p>
 <p>OpenYurt 能帮用户解决在海量边、端资源上完成大规模应用交付、运维、管控的问题，并提供中心服务下沉通道，实现和边缘计算应用的无缝对接。在设计 OpenYurt 之初，我们就非常强调保持用户体验的一致性，不增加用户运维负担，让用户真正方便地 “Extending your native kubernetes to edge”。</p>
-<h2 id="yurtctl一键让原生k8s集群具备边缘计算能力">Yurtctl：一键让原生k8s集群具备边缘计算能力</h2>
+<h2 id="yurtctl一键让原生k8s集群具备边缘计�算能力">Yurtctl：一键让原生k8s集群具备边缘计算能力</h2>
 <p>为了让原生 K8s 集群具备边缘计算能力，OpenYurt 以 addon 为载体，非侵入式给原生 K8s 增强了如下能力：</p>
 <ul>
 <li>边缘自治能力（YurtHub：已开源），保证在弱网或者重启节点的情况下，部署在边缘节点上的应用也能正常运行；</li>
