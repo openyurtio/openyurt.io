@@ -97,7 +97,7 @@ The yurtstaticset controller/webhook introduces two upgrade mechanisms for stati
 Users typically leverage various Kubernetes labels to group and manage nodes. However, as the number of nodes and labels grows, the operations and maintenance tasks for nodes—such as implementing scheduling policies and batch setting taints—become increasingly burdensome and complex.
 To simplify this process, the NodePool abstracts a group of nodes with common characteristics (such as geographic location, CPU architecture, cloud service provider, etc.) into a node pool, allowing for unified management at a higher level.
 This abstraction brings clear structure to the grouping of nodes within the cluster, greatly simplifying the overall node operations and maintenance workflow.
-When creating a node pool, it automatically adds the nodepool.openyurt.io/type label based on the pool's type. By default, it's set to edge.
+When creating a node pool, it automatically adds the `nodepool.openyurt.io/type` label based on the pool's type. By default, it's set to `edge`.
 
 #### 2.4.2 csrapprover Controller
 
