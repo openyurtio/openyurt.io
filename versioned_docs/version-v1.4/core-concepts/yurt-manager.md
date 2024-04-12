@@ -72,7 +72,7 @@ The OTA strategy is for scenarios where the edge node owner (rather than the clu
 
 In native Kubernetes environments, managing similar applications distributed across multiple node pools typically requires creating a separate Deployment for each node pool, which undoubtedly adds to the management burden and potential error rate.
 To simplify the management process, the YurtAppSet CRD is designed to define an application template (compatible with Deployment and StatefulSet) and is responsible for managing workloads across multiple node pools.
-YurtAppSet requires users to clearly define in its Spec.Topology field which specific node pools the workloads should be deployed to. This greatly simplifies the deployment and management of applications, making it more convenient to expand, upgrade, and maintain applications in a multi-node pool environment.
+YurtAppSet requires users to specify a nodepool selector in its `NodePoolSelector` field. It also maintains backward compatibility by supporting direct nodepool naming through the `Pools` field. This greatly simplifies the deployment and management of applications, making it more convenient to expand, upgrade, and maintain applications in a multi-node pool environment.
 With YurtAppSet, users can centrally manage the application deployments of multiple node pools, effectively reducing management complexity and error rates.
 
 #### 2.3.3 yurtappdaemon Controller/Webhook
@@ -97,6 +97,7 @@ The yurtstaticset controller/webhook introduces two upgrade mechanisms for stati
 Users typically leverage various Kubernetes labels to group and manage nodes. However, as the number of nodes and labels grows, the operations and maintenance tasks for nodes—such as implementing scheduling policies and batch setting taints—become increasingly burdensome and complex.
 To simplify this process, the NodePool abstracts a group of nodes with common characteristics (such as geographic location, CPU architecture, cloud service provider, etc.) into a node pool, allowing for unified management at a higher level.
 This abstraction brings clear structure to the grouping of nodes within the cluster, greatly simplifying the overall node operations and maintenance workflow.
+When creating a node pool, it automatically adds the `nodepool.openyurt.io/type` label based on the pool's type. By default, it's set to `edge`.
 
 #### 2.4.2 csrapprover Controller
 
