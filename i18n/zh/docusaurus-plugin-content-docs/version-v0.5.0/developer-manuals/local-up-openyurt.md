@@ -4,17 +4,17 @@ title: 本地启动集群
 
 ## 使用方法
 
-OpenYurt提供了一种在本地快速启动集群的方法，通过运行脚本[local_up_openyurt.sh](https://github.com/openyurtio/openyurt/blob/master/hack/local_up_openyurt.sh)，可以自动完成对源码的编译、镜像打包、启动OpenYurt集群等工作。该脚本正确完成后，可以直接通过kubectl命令访问集群。在运行前需要安装docker、kubectl、go和kind等依赖软件。使用方法如下：
+OpenYurt提供了一种在本地快速启动集群的方法，通过运行脚本[local-up-openyurt.sh](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local-up-openyurt.sh)，可以自动完成对源码的编译、镜像打包、启动OpenYurt集群等工作。该脚本正确完成后，可以直接通过kubectl命令访问集群。在运行前需要安装docker、kubectl、go和kind等依赖软件。使用方法如下：
 
 ```bash
-sudo -E REGION=cn bash hack/local_up_openyurt.sh
+sudo -E REGION=cn bash hack/local-up-openyurt.sh
 ```
 
-> 注意该脚本只能保证在linux/amd64上的可用性，其他平台未经过测试。如果在运行local_up_openyurt.sh时出现“ERROR: failed to load image .. not found"，那很可能是因为与运行平台不兼容，请在linux/amd64上运行，或者手动部署。
+> 注意该脚本只能保证在linux/amd64上的可用性，其他平台未经过测试。如果在运行local-up-openyurt.sh时出现“ERROR: failed to load image .. not found"，那很可能是因为与运行平台不兼容，请在linux/amd64上运行，或者手动部署。
 
 ## 实现原理
 
-总的来说，`local_up_openyurt.sh`会使用当前openyurt目录下的源文件启动OpenYurt集群。可以通过设置环境变量来控制脚本的行为。
+总的来说，`local-up-openyurt.sh`会使用当前openyurt目录下的源文件启动OpenYurt集群。可以通过设置环境变量来控制脚本的行为。
 
 首先，脚本会启动一个docker容器来构建可执行二进制文件和镜像。这些构建的可执行二进制文件和镜像运行的目标平台和本地平台一样。比如说，如果本地是linux/amd64，那么只有linux/amd64相关的可执行二进制文件和镜像会被构建。构建出来的可执行二进制文件和镜像放在`_output`目录下。
 

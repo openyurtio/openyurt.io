@@ -4,10 +4,10 @@ title: Local Up OpenYurt
 
 ## How to use
 
-If you don't have the openyurt cluster, you can run the bash shell [`local_up_openyurt.sh`](https://github.com/openyurtio/openyurt/blob/master/hack/local_up_openyurt.sh) to quickly set up the openyurt cluster at your local host.
+If you don't have the openyurt cluster, you can run the bash shell [`local-up-openyurt.sh`](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local-up-openyurt.sh) to quickly set up the openyurt cluster at your local host.
 Assuming that you've entered the openyurt work path, the commad is as simple as follows:
 ```bash
-bash hack/local_up_openyurt.sh
+bash hack/local-up-openyurt.sh
 ```
 Then you can use `kubectl` to interact with your OpenYurt cluster.
 
@@ -16,7 +16,7 @@ Then you can use `kubectl` to interact with your OpenYurt cluster.
 
 ## What does the shell do for you
 
-In summary, the `local_up_openyurt.sh` will use the local files under the openyurt work path to set up the cluster.  And you can specify the behavior of the shell through setting environment variables.
+In summary, the `local-up-openyurt.sh` will use the local files under the openyurt work path to set up the cluster.  And you can specify the behavior of the shell through setting environment variables.
 
 First, it will set up a docker container to build required binaries and images. The Arch and OS platform of built binaries and images is the same as your local host. For instance, if your local host is linux/amd64, then only binaries for linux/amd64 will be built. Built binaries and images will be saved under `_output` directory.
 
