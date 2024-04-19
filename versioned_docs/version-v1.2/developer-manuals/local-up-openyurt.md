@@ -4,7 +4,7 @@ title: Local Up OpenYurt
 
 ## How to use
 
-If you don't have the openyurt cluster, you can run the bash shell [`local_up_openyurt.sh`](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local_up_openyurt.sh) to quickly set up the openyurt cluster at your local host.
+If you don't have the openyurt cluster, you can run the bash shell [`local-up-openyurt.sh`](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local-up-openyurt.sh) to quickly set up the openyurt cluster at your local host.
 Assuming that you've entered the openyurt work path, the command is as simple as follows:
 
 ```bash
@@ -21,7 +21,7 @@ Then you can use `kubectl` to interact with your OpenYurt cluster.
 
 ## What does the shell do for you
 
-In summary, the `local_up_openyurt.sh` will use the local files under the openyurt work path to set up the cluster.  And you can specify the behavior of the shell through setting environment variables.
+In summary, the `local-up-openyurt.sh` will use the local files under the openyurt work path to set up the cluster.  And you can specify the behavior of the shell through setting environment variables.
 
 It will use `kind` to set up the kubernetes cluster. You can set `KUBERNETESVERSION` to specify the kubernetes version to use. For instance, `export KUBERNETESVERSION=1.23` before running the shell will enable you to use kubernetes v1.23. In addition, you can set `NODES_NUM` to specify the number of nodes the cluster will contain.
 >Note:

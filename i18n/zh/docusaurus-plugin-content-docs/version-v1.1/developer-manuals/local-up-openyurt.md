@@ -4,7 +4,7 @@ title: 本地启动集群
 
 ## 使用方法
 
-OpenYurt提供了一种在本地快速启动集群的方法，通过运行脚本[local_up_openyurt.sh](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local_up_openyurt.sh)，可以一键式在本地创建OpenYurt集群。该脚本正确完成后，可以直接通过kubectl命令访问集群。在运行前需要安装docker、kubectl、go和kind等依赖软件，以及`make docker-build`在本地准备好OpenYurt各组件镜像。使用方法如下：
+OpenYurt提供了一种在本地快速启动集群的方法，通过运行脚本[local-up-openyurt.sh](https://github.com/openyurtio/openyurt/blob/master/hack/make-rules/local-up-openyurt.sh)，可以一键式在本地创建OpenYurt集群。该脚本正确完成后，可以直接通过kubectl命令访问集群。在运行前需要安装docker、kubectl、go和kind等依赖软件，以及`make docker-build`在本地准备好OpenYurt各组件镜像。使用方法如下：
 
 ```bash
 # 先构建OpenYurt镜像，再启动OpenYurt集群
@@ -18,7 +18,7 @@ make local-up-openyurt
 
 ## 实现原理
 
-总的来说，`local_up_openyurt.sh`会使用当前openyurt目录下的源文件启动OpenYurt集群。可以通过设置环境变量来控制脚本的行为。
+总的来说，`local-up-openyurt.sh`会使用当前openyurt目录下的源文件启动OpenYurt集群。可以通过设置环境变量来控制脚本的行为。
 
 脚本会通过`kind`来启动一个kubernetes集群。可以通过设置`KUBERNETESVERSION`来指定集群的kubernetes的版本。如，通过运行`export KUBERNETESVERSION=1.23`可以指定使用1.23版本的kind镜像。还可以通过设置`NODES_NUM`来指定启动集群中包含节点的数量。
 >注意：
