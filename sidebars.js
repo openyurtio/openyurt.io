@@ -94,6 +94,11 @@ module.exports = {
                     'IOT': [
                         'user-manuals/iot/edgex-foundry',
                     ]
+                },
+                {
+                    'crd-upgrade': [
+                        'user-manuals/crd-upgrade/yurtmanager-crd-upgrade',
+                    ]
                 }
             ]
         },
