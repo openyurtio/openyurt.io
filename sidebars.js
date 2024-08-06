@@ -80,8 +80,6 @@ module.exports = {
                         'user-manuals/workload/daemon-pod-updater',
                         'user-manuals/workload/node-pool-management',
                         'user-manuals/workload/yurt-app-set',
-                        'user-manuals/workload/yurt-app-daemon',
-                        'user-manuals/workload/yurt-app-overrider',
                         'user-manuals/workload/yurt-static-set',
                     ]
                 },

@@ -43,21 +43,25 @@ It ensures that all certificates and kubeconfig files are securely stored in the
 ### 2.2 Raven Related Controllers
 
 #### 2.2.1 gatewaypickup Controller
-A new CRD Gateway is defined in project raven as the carrier of network information across network domains. 
-In the OpenYurt cluster, a Gateway CR needs to be created for each network domain to record the available gateway endpoints and network configurations. 
+
+A new CRD Gateway is defined in project raven as the carrier of network information across network domains.
+In the OpenYurt cluster, a Gateway CR needs to be created for each network domain to record the available gateway endpoints and network configurations.
 The gatewaypickup controller reconcile the Gateway to elects the gateway endpoints from among alternative endpoints and node information for each network domain.
 
 #### 2.2.2 gatewaydns Controller
+
 Raven L7 Proxy need to forward all http requests of NodeName+Port to the gateway endpoints of the LAN.
 The domain name resolution of the NodeName need deploy dedicated dns component [raven-proxy-dns](../installation/raven-l7-proxy-prepare.md) which uses the hosts plugin to mount a configmap named `kube-system/edge-tunnel-nodes`, this configmap record resolves all NodeName to the clusterIP of service `kube-system/x-raven-proxy-internal-svc`.
 Gatewaydns controller dynamically manage the configmap entry.
 
 #### 2.2.3 gatewayinternalservice Controller
+
 Raven L7 Proxy need to forward all http requests of NodeName+Port to the gateway endpoints of the LAN.
 Gatewayinternnalservice controller is responsible for maintaining the life cycle of the service `kube-system/x-raven-proxy-internal-svc`.
 Note that the Http request port varies according to the actual service design. Therefore, you can configure Gateway Spec.ProxyConfig to configure the Http/Https port of the proxy. The gatewaypublicservice controller update the ports in `x-raven-proxy-internal-svc` for forwarding. All https/http requests are forwarded to port 10263/10264 of the raven agent
 
 #### 2.2.4 gatewaypublicservice Controller
+
 Gatewaypublicservice controller maintains the life cycle of a LoadBalancer service and endpoints if you choose th expose gateway with LoadBalancer type.
 
 ### 2.3 Workload Related Controllers
@@ -70,22 +74,25 @@ The OTA strategy is for scenarios where the edge node owner (rather than the clu
 
 #### 2.3.2 yurtappset Controller/Webhook
 
-In native Kubernetes environments, managing similar applications distributed across multiple node pools typically requires creating a separate Deployment for each node pool, which undoubtedly adds to the management burden and potential error rate.
-To simplify the management process, the YurtAppSet CRD is designed to define an application template (compatible with Deployment and StatefulSet) and is responsible for managing workloads across multiple node pools.
-YurtAppSet requires users to specify a nodepool selector in its `NodePoolSelector` field. It also maintains backward compatibility by supporting direct nodepool naming through the `Pools` field. This greatly simplifies the deployment and management of applications, making it more convenient to expand, upgrade, and maintain applications in a multi-node pool environment.
-With YurtAppSet, users can centrally manage the application deployments of multiple node pools, effectively reducing management complexity and error rates.
+> After OpenYurt 1.5, we have combined the function of yurtappset, yurtappdaemon and yurtappoverrider into one CRD, yurtappset v1beta1.
 
-#### 2.3.3 yurtappdaemon Controller/Webhook
+YurtAppSets are provided to reduce the complexity of distributed deployment in edge computing scenarios. YurtAppSets are upper-layer abstractions that allow you to centrally manage multiple workloads. For example, you can use YurtAppSets to create, update, and delete multiple Deployments in a centralized manner.
 
-In traditional Kubernetes, a DaemonSet is responsible for running replicated daemon Pods on every node in the cluster. The addition or removal of nodes triggers the creation or removal of the corresponding daemon Pods. However, DaemonSet does not apply in situations where the workload needs to be automatically adjusted based on the dynamic changes of node pools.
-YurtAppDaemon is designed to ensure that specified workloads based on the Spec.WorkloadTemplate are automatically deployed across all node pools or those specified by the Spec.NodePoolSelector. As node pools are added or removed, the YurtAppDaemon controller and Webhook will create or remove workloads for the respective node pools, ensuring that the qualified node pools always have the intended Pods.
+YurtAppSets support the following features to address the disadvantages of the traditional deployment mode, including inefficient application updates, complex application maintenance, and redundant application configurations.
 
-#### 2.3.4 yurtappoverrider Controller/Webhook
+- Unified template definition (workloadTemplate)
 
-In the YurtAppDaemon and YurtAppSet schemes, workloads are distributed through a unified template. However, when workloads require specific personalized configuration for different node pools or geographic regions, a simple template may not fully meet the needs. Although YurtAppSet provides a degree of personalization through the Topology field, in order to further reduce inter-system coupling and maintain backward compatibility, we have introduced YurtAppOverrider as a specialized engine for personalized rendering of multi-regional workloads.
-The primary role of YurtAppOverrider is to ensure that all bound YurtAppDaemon and YurtAppSet undergo specific Webhook rendering before distributing workloads. Whether the templates of YurtAppDaemon and YurtAppSet change, or the personalized configuration of YurtAppOverrider needs updating, the YurtAppOverrider controller will trigger re-calculation of the configuration to ensure precise personalization in a multi-regional deployment scenario.
+You can use the workloadTemplate parameter in the configurations of YurtAppSets to specify a template that is used to deploy the same application in multiple regions. This prevents duplicate application configurations and deployments and ensures efficient and consistent batch operations such as creations, updates, and deletions.
 
-#### 2.3.5 yurtstaticset Controller/Webhook
+- Automated deployment (nodepoolSelector)
+
+You can use the nodepoolSelector parameter in the configurations of YurtAppSets to specify the labels that are used to select node pools. This keeps the application in sync with node pools. When you create or delete node pools, the system automatically selects matching node pools based on the nodepoolSelector parameter to deploy workloads. This simplifies O&M work.
+
+- Regionally differentiated deployment (workloadTweaks)
+
+You can use the workloadTweaks parameter in the configurations of YurtAppSets to customize the workloads in specific regions. You do not need to manage or update each workload in the regions.
+
+#### 2.3.3 yurtstaticset Controller/Webhook
 
 Given the vast number and wide distribution of edge devices, manually deploying and upgrading static Pods in a cloud-edge environment can pose significant operational challenges and risks. To overcome these challenges, OpenYurt has introduced a new type of Custom Resource Definition (CRD) called YurtStaticSet, aimed at improving the management of static Pods.
 The yurtstaticset controller/webhook introduces two upgrade mechanisms for static Pods: AdvancedRollingUpdate and Over-The-Air (OTA), ensuring effective version control and seamless upgrades of static Pods in a cloud-edge collaborative environment.
@@ -108,7 +115,7 @@ To address this issue, the csrapprover controller within Yurt-Manager is designe
 
 PlatformAdmin has evolved from the previous version of the EdgeX CRD and serves as an abstraction for the edge device management platform. Users simply input the platform settings, the name of the NodePool to be deployed, the version to be deployed, and so on, to deploy a complete edge device management platform within the node pool.
 The platformadmin-controller, integrated within yurt-manager, is responsible for parsing the PlatformAdmin CR into the corresponding configmap, service, and yurtappset, thereby realizing the deployment of the edge device management platform.
-It is also in charge of distributing yurt-iot-dock to the respective node pools to achieve synchronization of edge devices. Additionally, users can select the required EdgeX optional components to be deployed via the components field of the PlatformAdmin CR, for more information on this part, please refer to the [Cloud-Native Device Management Section]((../user-manuals/iot/edgex-foundry.md)).
+It is also in charge of distributing yurt-iot-dock to the respective node pools to achieve synchronization of edge devices. Additionally, users can select the required EdgeX optional components to be deployed via the components field of the PlatformAdmin CR, for more information on this part, please refer to the [Cloud-Native Device Management Section](<(../user-manuals/iot/edgex-foundry.md)>).
 
 ![platform-adminv1.4.0](../../static/img/docs/core-concepts/platform-adminv1.4.0.png)
 
