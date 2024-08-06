@@ -1,5 +1,5 @@
 ---
-title: nodeport-isolation
+title: NodePort isolation
 ---
 
 ## Background introduction
@@ -13,7 +13,7 @@ This feature originated from a community requirement, which can be found in the 
 A new filter named `nodeportisolation` has been introduced to handle this feature, and a new annotation `nodeport.openyurt.io/listen` has been added for NodePort services to trigger the nodeportisolation filter in YurtHub.
 The nodeportisolation filter reassembles responses for kube-proxy list/watch service requests according to the `nodeport.openyurt.io/listen` annotation settings in the service.
 
-For more information on the detailed design of the data filtering framework, please refer to [resource-access-control](../resource-access-control/resource-access-control.md).
+For more information on the detailed design of the data filtering framework, please refer to [resource-access-control].
 
 ## How to use
 
