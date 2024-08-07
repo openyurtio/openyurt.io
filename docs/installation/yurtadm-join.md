@@ -46,7 +46,7 @@ The process of `yurtadm join` will automatically install the following k8s compo
 - kubelet
 - kube-proxy
 
-The process of `yurtadm join` will pull specially modified cni binaries, the modifications can be found [here](../user-manuals/network/edge-pod-network.md). If you want to use cni binaries that uses prepared beforehand, the cni binaries should be placed under `/opt/cni/bin` directory. Then configure yurtadm parameter `--reuse-cni-bin=true` for `yurtadm join` command.
+The process of `yurtadm join` will pull specially modified cni binaries, the modifications can be found [here](../user-manuals/network/container-network/flannel.md). If you want to use cni binaries that uses prepared beforehand, the cni binaries should be placed under `/opt/cni/bin` directory. Then configure yurtadm parameter `--reuse-cni-bin=true` for `yurtadm join` command.
 
 Also, You can pre-place the `kubelet` and `kubeadm` components in the directories named by the PATH environment variable. However, there are restrictions on the version of `kubelet` and `kubeadm`. `yurtadm` will check if the `major version` and `minor version` are the same as the cluster kubernetes version(Follow semver specification).
 

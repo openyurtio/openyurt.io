@@ -1,5 +1,5 @@
 ---
-title: Edge Pod Network
+title: Flannel
 ---
 
 ## Background
@@ -11,7 +11,7 @@ In Cloud Edge usage scenarios，in order to ensure the workloads on the edge nod
 If we adopt flannel as CNI plugin and VXLAN as the backend, when a VTEP device is created on a node（generally named: flannel.1）, the VNI and VTEP info will be record in the node annotations，so that other nodes can create the related route and forward rules.
 Flannel arch is shown below:
 
-![flannel-architecture](../../../static/img/docs/user-manuals/network/flannel-architecture.png)
+![flannel-architecture](../../../../static/img/docs/user-manuals/network/flannel-architecture.png)
 
 Let's take an example with 2 edge nodes：
 - node2 creates flannel.1 device，MAC address is "9e:c9:07:f9:b3:8b"，IP address is "172.30.133.0", the related info will be record in node2 annotations:

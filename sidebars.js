@@ -50,24 +50,46 @@ module.exports = {
             collapsed: true,
             items: [
                 {
-                    'Autonomy': [
-                        'user-manuals/autonomy/selfhealing-during-network-disconnection',
-                        'user-manuals/autonomy/heartbeat-delegation-for-disconnected-nodes',
-                        'user-manuals/autonomy/node-pod-binding'
+                    'Node pool management': [
+                        'user-manuals/node-pool-management/node-pool-management-overview',
+                        'user-manuals/node-pool-management/create-a-node-pool',
+                        'user-manuals/node-pool-management/edit-a-node-pool',
+                        `user-manuals/node-pool-management/delete-a-node-pool`
                     ]
                 },
                 {
-                    'Network': [
-                        'user-manuals/network/raven',
-                        'user-manuals/network/bandwidth-reduction',
-                        'user-manuals/network/edge-pod-network',
-                        'user-manuals/network/service-topology',
-                        'user-manuals/network/nodeport-isolation'
+                    'Node management': [
+                        'user-manuals/node-management/node-management-overview',
+                        'user-manuals/node-management/join-a-node',
+                        'user-manuals/node-management/remove-a-node',
+                        'user-manuals/node-management/configure-node-autonomy'
                     ]
                 },
                 {
-                    'Resource Access Control': [
-                        'user-manuals/resource-access-control/resource-access-control',
+                    'Workload management': [
+                        'user-manuals/workload/workload-management-overview',
+                        'user-manuals/workload/yurt-app-set',
+                        'user-manuals/workload/yurt-static-set',
+                        'user-manuals/workload/daemon-pod-updater'
+                    ]
+                },
+                {
+                    'Network management': [
+                        'user-manuals/network/network-management-overview',
+                        'user-manuals/network/network-ports-list',
+                        {
+                            'Container network': [
+                                'user-manuals/network/container-network/hostnetwork',
+                                'user-manuals/network/container-network/flannel'
+                            ]
+                        },
+                        {
+                            'Service': [
+                                'user-manuals/network/service/service-topology',
+                                'user-manuals/network/service/nodeport-isolation'
+                            ]
+                        },
+                        'user-manuals/network/raven'
                     ]
                 },
                 {
@@ -76,20 +98,12 @@ module.exports = {
                     ]
                 },
                 {
-                    'Workload': [
-                        'user-manuals/workload/daemon-pod-updater',
-                        'user-manuals/workload/node-pool-management',
-                        'user-manuals/workload/yurt-app-set',
-                        'user-manuals/workload/yurt-static-set',
-                    ]
-                },
-                {
-                    'Monitoring': [
+                    'Observability': [
                         'user-manuals/monitoring/prometheus',
                     ]
                 },
                 {
-                    'IOT': [
+                    'IoT': [
                         'user-manuals/iot/edgex-foundry',
                     ]
                 }

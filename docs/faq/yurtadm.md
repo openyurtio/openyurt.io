@@ -12,7 +12,7 @@ Execute `yum install -y conntrack` and then re-execute the yurtadm join command.
 
 **3. How does yurtadm join support user-provided cni plugins**
 
-`yurtadm join` will pull the specially modified cni binary files by default. For the modified content, please refer to [link](../user-manuals/network/edge-pod-network.md). If you want to use pre-prepared cni binaries, they should be placed in the directory `/opt/cni/bin`, and then add the `--reuse-cni-bin=true` parameter when using `yurtadm join` .
+`yurtadm join` will pull the specially modified cni binary files by default. For the modified content, please refer to [link](../user-manuals/network/container-network/flannel.md). If you want to use pre-prepared cni binaries, they should be placed in the directory `/opt/cni/bin`, and then add the `--reuse-cni-bin=true` parameter when using `yurtadm join` .
 
 **4. How does yurtadm join support components such as kubelet/kubeadm provided by users**
 

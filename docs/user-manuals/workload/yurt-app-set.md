@@ -2,7 +2,7 @@
 title: YurtAppSet
 ---
 
-In [the previous article](./node-pool-management.md) we introduced the use of `NodePool`, mainly the creation and management of `NodePool`.
+In [the previous article](../node-pool-management/node-pool-management-overview.md) we introduced the use of `NodePool`, mainly the creation and management of `NodePool`.
 Further, we developed the ability to deploy applications unitized based on `NodePool` to improve the efficiency of users' operations.
 
 In this article, we will show how `yurt-app-set` can help users manage their workload. Assume we already have an OpenYurt cluster built on

@@ -6,7 +6,7 @@ title: Service Topology
 
 The following picture shows the general function of the *service topology*.
 
-![service-topology](../../../static/img/docs/user-manuals/network/service-topology-example.png)
+![service-topology](../../../../static/img/docs/user-manuals/network/service-topology-example.png)
 
 To use *service topology*, the `EndpointSliceProxying` [feature gate](https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/) must be enabled, and kube-proxy needs to be configured to connect to Yurthub instead of the API server.
 
