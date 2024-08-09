@@ -43,25 +43,25 @@
   "sidebar.docs.category.User Manuals": {
     "message": "用户手册"
   },
-  "sidebar.docs.category.Autonomy": {
-    "message": "边缘自治"
+  "sidebar.docs.category.Node pool management": {
+    "message": "节点池管理"
   },
-  "sidebar.docs.category.Network": {
-    "message": "边缘网络"
+  "sidebar.docs.category.Node management": {
+    "message": "节点管理"
   },
-  "sidebar.docs.category.Resource Access Control": {
-    "message": "可编程的资源访问控制"
+  "sidebar.docs.category.Network management": {
+    "message": "网络管理"
   },
   "sidebar.docs.category.Storage": {
-    "message": "边缘存储"
+    "message": "存储管理"
   },
-  "sidebar.docs.category.Workload": {
-    "message": "工作负载"
+  "sidebar.docs.category.Workload management": {
+    "message": "应用管理"
   },
-  "sidebar.docs.category.Monitoring": {
-    "message": "监控运维"
+  "sidebar.docs.category.Observability": {
+    "message": "可观测性"
   },
-  "sidebar.docs.category.IOT": {
+  "sidebar.docs.category.IoT": {
     "message": "端设备"
   },
   "sidebar.docs.category.Developer Manuals": {

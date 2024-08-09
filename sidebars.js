@@ -99,7 +99,7 @@ module.exports = {
                 },
                 {
                     'Observability': [
-                        'user-manuals/monitoring/prometheus',
+                        'user-manuals/observability/prometheus',
                     ]
                 },
                 {
