@@ -1,5 +1,5 @@
 ---
-title: 边缘Pod网络
+title: Flannel容器网络
 ---
 
 ## 背景说明
@@ -10,7 +10,7 @@ title: 边缘Pod网络
 ### 场景
 如果我们使用flannel作为CNI插件，且后端为VXLAN模式。在节点上会创建一个VTEP设备（通常命名为": flannel.1），同时VNI和VTEP的信息会被记录到节点的annotations中，供其它节点创建相应的路由和转发规则。
 
-![flannel-architecture](../../../../../../static/img/docs/user-manuals/network/flannel-architecture.png)
+![flannel-architecture](../../../../../../../static/img/docs/user-manuals/network/flannel-architecture.png)
 
 Flannel的架构如图所示，我们用两个边缘节点来举例说明：
 - node2创建flannel.1设备，MAC地址为"9e:c9:07:f9:b3:8b"，IP地址为"172.30.133.0"，那么node2的annotations中有如下记录。
