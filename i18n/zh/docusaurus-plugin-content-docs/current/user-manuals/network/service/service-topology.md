@@ -15,7 +15,7 @@ title: 服务拓扑
 
 下图为服务拓扑功能的一个例子。`service-ud1` 添加了注解 `openyurt.io/topologyKeys: openyurt.io/nodepool `, 当 `pod6` 访问 `service-ud1` 的时候，由于 `pod6` 位于 `edge node2`，也就是位于杭州节点池，因此其流量只会发往杭州节点池的 `pod1` 或 `pod2`上，而不会跨节点池，所以 `pod3` 和 `pod4` 收不到。从而实现了同一个节点池中的流量闭环。
 
-![service-topology](../../../../../../static/img/docs/user-manuals/network/service-topology-example.png)
+![service-topology](../../../../../../../static/img/docs/user-manuals/network/service-topology-example.png)
 
 ## 前提条件
 
