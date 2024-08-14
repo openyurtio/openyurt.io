@@ -216,34 +216,6 @@ module.exports = {
   plugins: [
     "docusaurus-plugin-sass",
     require.resolve("docusaurus-plugin-image-zoom"),
-    function myPlugin(context, options) {
-      return {
-        name: "custom-webpack-plugin",
-        configureWebpack(config, isServer, utils) {
-          return {
-            module: {
-              rules: [
-                {
-                  test: /\.less$/,
-                  use: [
-                    "style-loader",
-                    "css-loader",
-                    {
-                      loader: "less-loader",
-                      options: {
-                        lessOptions: {
-                          javascriptEnabled: true,
-                        },
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          };
-        },
-      };
-    },
   ],
   presets: [
     [
