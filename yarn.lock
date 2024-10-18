@@ -1753,10 +1753,10 @@
     unist-util-visit "^5.0.0"
     vfile "^6.0.0"
 
-"@mdx-js/react@3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@mdx-js/react/-/react-3.0.1.tgz#997a19b3a5b783d936c75ae7c47cfe62f967f746"
-  integrity sha512-9ZrPIU4MGf6et1m1ov3zKf+q9+deetI51zprKB1D/z3NOb+rUxxtEl3mCjW5wTGh6VhRdwPueh1oRzi6ezkA8A==
+"@mdx-js/react@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@mdx-js/react/-/react-3.1.0.tgz#c4522e335b3897b9a845db1dbdd2f966ae8fb0ed"
+  integrity sha512-QjHtSaoameoalGnKDT3FoIl4+9RwyTmo9ZJGBdLOks/YOiWHoRDI3PUwEzOE7kEmGcV3AFcp9K6dYu9rEuKLAQ==
   dependencies:
     "@types/mdx" "^2.0.0"
 
@@ -7527,10 +7527,10 @@ sass-loader@^10.1.1:
     schema-utils "^3.0.0"
     semver "^7.3.2"
 
-sass@^1.79.5:
-  version "1.79.5"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.79.5.tgz#646c627601cd5f84c64f7b1485b9292a313efae4"
-  integrity sha512-W1h5kp6bdhqFh2tk3DsI771MoEJjvrSY/2ihJRJS4pjIyfJCw0nTsxqhnrUzaLMOJjFchj8rOvraI/YUVjtx5g==
+sass@^1.80.2:
+  version "1.80.2"
+  resolved "https://registry.yarnpkg.com/sass/-/sass-1.80.2.tgz#9d13d85a4f81bb17e09d1dc3e1c0944f7fd7315e"
+  integrity sha512-9wXY8cGBlUmoUoT+vwOZOFCiS+naiWVjqlreN9ar9PudXbGwlMTFwCR5K9kB4dFumJ6ib98wZyAObJKsWf1nAA==
   dependencies:
     "@parcel/watcher" "^2.4.1"
     chokidar "^4.0.0"
