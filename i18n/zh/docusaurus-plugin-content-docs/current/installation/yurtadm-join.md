@@ -90,10 +90,10 @@ node/us-west-1.192.168.0.88 labeled
 
 > 如果`us-west-1.192.168.0.88`不是一个边缘节点，则将`true`改为`false`即可
 
-为了激活自治模式，我们需要通过如下命令给边缘节点添加注解。
+为了激活自治模式，我们需要通过如下命令给边缘节点添加注解。[持续时间记录在此处](https://pkg.go.dev/maze.io/x/duration#ParseDuration).
 
 ```bash
-$ kubectl annotate node us-west-1.192.168.0.88 node.beta.openyurt.io/autonomy=true
+$ kubectl annotate node us-west-1.192.168.0.88 node.openyurt.io/autonomy-duration=0
 node/us-west-1.192.168.0.88 annotated
 ```
 
