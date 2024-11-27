@@ -91,10 +91,10 @@ node/us-west-1.192.168.0.88 labeled
 
 > If `us-west-1.192.168.0.88` is a cloud node, then you should change the label from `true` to `false`
 
-To further activate the node autonomous mode, we add an annotation to this edge node:
+To further activate the node autonomous mode, we add an annotation to this edge node. Autonomy duration sets the duration before a pod will be evicted from the edge. The duration format can be found [here](https://pkg.go.dev/maze.io/x/duration#ParseDuration). When the duration is set to 0, the pod will never be evicted from the edge which maintains the previous deprecated `node.beta.openyurt.io/autonomy=true` behaviour. 
 
 ```bash
-$ kubectl annotate node us-west-1.192.168.0.88 node.beta.openyurt.io/autonomy=true
+$ kubectl annotate node us-west-1.192.168.0.88 node.openyurt.io/autonomy-duration=0
 node/us-west-1.192.168.0.88 annotated
 ```
 
