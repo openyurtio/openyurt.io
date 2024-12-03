@@ -168,6 +168,14 @@ module.exports = {
         },
         {
             type: 'category',
+            label: 'Integrations',
+            collapsed: true,
+            items: [
+              'integrations/integrations'
+            ]
+          },
+        {
+            type: 'category',
             label: 'FAQ',
             collapsed: true,
             items: [
