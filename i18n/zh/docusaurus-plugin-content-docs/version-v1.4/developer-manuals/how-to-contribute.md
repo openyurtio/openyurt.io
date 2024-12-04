@@ -2,9 +2,26 @@
 title: 如何参与贡献
 ---
 
-社区欢迎大家参与贡献，贡献的形式可以不只局限于代码，也欢迎大家在社区分享自己的实践经验，提出使用中遇到的问题，解决社区中的别人的疑问，帮助完善社区文档等等。这些方面的贡献在社区中最终都会以Issue，Pull Request，Review的形式呈现。 本文会介绍如何提交Issue，Pull Request以及如何进行Review。
+欢迎加入 OpenYurt 项目。以下是为您准备的贡献指南。
 
-## Issue
+## Code of Conduct
+
+在进行贡献之前，请务必查看我们的 [Code of Conduct](./code-of-conduct.md)。
+
+## Topics
+
+* [报告安全问题](#报告安全隐患问题)
+* [报告常规问题](#报告常规问题)
+* [代码与文档贡献](#代码与文档贡献)
+* [Review](#review)
+* [参与并提供任何帮助](#参与并提供任何帮助)
+* [写在最后](#写在最后)
+
+## 报告安全问题
+
+我们非常重视安全问题，并且不鼓励公开传播安全问题。如果你发现 OpenYurt 存在安全问题，请不要在公开场合讨论，更不要创建公开问题。相反，我们鼓励你通过电子邮件私密地向我们报告安全问题，邮件地址是 [security@mail.openyurt.io](mailto:security@mail.openyurt.io)。
+
+## 报告常规问题
 
 当你对OpenYurt项目有什么问题，建议或是需求，欢迎在社区提交Issue。步骤如下：
 
@@ -13,21 +30,124 @@ title: 如何参与贡献
 3. 填写Issue的标题，并在给出的Issue的模板中填充内容
 4. 最后`Submit new issue`
 
-## Pull Request
+由于 OpenYurt 开发将以分布式方式进行，我们非常感谢 **写得清晰**、**详细**、**明确** 的问题报告。为了提高沟通效率，我们建议在提交新问题之前，先搜索一下是否已有类似的问题。如果你找到了相似的问题，请将你的细节补充到该问题的评论中。
 
-在写代码前，请先检查社区中是否已经有类似的问题正在解决，以免重复劳动。在提交Pull Request前，可以先更新一下本地仓库，使其尽量与OpenYurt最新状态一致，以免后续合入时发生冲突。另外还需要了解一些[CI Workflow](./ci-workflow.md)的过程，这将有助于Pull Request的合入。
+以下是一些可以创建问题的场景：
 
-当你往自己fork的仓库中提交了新的commit后，可以向OpenYurt仓库提交一个Pull Request，请求OpenYurt合并你的分支。具体步骤如下：
+* Bug 报告
+* 功能请求
+* 性能问题
+* 功能提案
+* 功能设计
+* 求助
+* 文档不完整
+* 测试改进
+* 关于项目的任何问题，等等
 
-1. 通过`git push`将本地代码同步到fork的OpenYurt仓库中
-2. 登录Github，进入fork的OpenYurt仓库
-3. 在Pull requests界面中点击`New pull request`，然后可以在下拉列表中选择需要合入的分支
-4. 点击`Create pull request`，根据模板填入相应信息
-5. 最后点击`Create pull request`就可以提交Pull Request，提交后的Pull Request可以在[OpenYurt的Pull Request界面](https://github.com/openyurtio/openyurt/pulls)找到
+请记住，在提交新问题时，务必删除其中的敏感数据。敏感数据可能包括密码、密钥、网络地址、私人商业数据等。
 
-一般来说一个Pull Request只做一件事，如修复一个bug。因此，一个Pull Request中通常只包含一个commit，如果发现其中包含多个commit，请调整为一个，这可以通过`git reset`和`git commit`完成。在本地调整完成后，通过`git push`（这里会要求强制推送，请确认后再进行）推送到fork的OpenYurt仓库中的相应分支（第3步中选择合入的分支）上，Pull Request中的commit会自动与该分支同步，无需重新提交Pull Request。
+## 代码和文档贡献
 
-提交成功后需要查看CI Workflow的结果，其中的检查全部通后就只需等待社区成员的Review和Approve。社区觉得没问题会给你的Pull Request打上`lgtm`(looks good to me)和`approve`的标签，然后就能合入OpenYurt仓库了。
+我们鼓励任何能够使 OpenYurt 更好的行动，这些行动可以通过 PR（即拉取请求）来实现。
+
+* 如果你发现了拼写错误，试着修正它！
+* 如果你发现了 bug，试着修复它！
+* 如果你发现了一些冗余的代码，试着去除它们！
+* 如果你发现缺少测试用例，试着添加它们！
+* 如果你能够增强某个功能，**不要**犹豫！
+* 如果你发现代码不清晰，试着添加注释来让它更明了！
+* 如果你发现技术债务，试着重构它们！
+* 如果你发现文档有错误，请修正它！
+
+这些只是一些例子，无法完全列举所有情况，我们期待着你的拉取请求。
+在写代码前，请先检查社区中是否已经有类似的问题正在解决，以免重复劳动。
+在提交 PR 之前，我们建议你先查看以下的 PR 规则。
+
+* [工作区准备](#workspace-preparation)
+* [分支定义](#branch-definition)
+* [提交规则](#commit-rules)
+* [PR 指南](#pr-guidelines)
+
+### 工作区准备
+
+我们假设你已经有了一个 GitHub 账号，接下来可以通过以下步骤完成准备工作：
+
+1. **Fork** OpenYurt 到你的仓库。只需要点击 [openyurt](https://github.com/openyurtio/openyurt) 主页面右上角的 `Fork` 按钮。这样你将拥有一个位于 `https://github.com/<username>/openyurt` 的仓库，其中 `username` 是你的 GitHub ID。
+2. **Clone** 你的仓库到本地进行开发。使用 `git clone https://github.com/<username>/openyurt.git` 将仓库克隆到本地机器。然后你可以创建新分支来完成你想要的更改。
+3. **设置 Remote**：将 upstream 设置为 OpenYurt，使用以下两个命令：
+
+```
+git remote add upstream https://github.com/openyurtio/openyurt.git
+git remote set-url --push upstream no-pushing
+```
+
+通过这个 remote 配置，你可以通过以下命令查看你的 git remote 配置：
+
+```
+$ git remote -v
+origin     https://github.com/<username>/openyurt.git (fetch)
+origin     https://github.com/<username>/openyurt.git (push)
+upstream   https://github.com/openyurtio/openyurt.git (fetch)
+upstream   no-pushing (push)
+```
+
+有了上述设置，你可以轻松地同步本地分支与 upstream 分支。
+
+### 分支定义
+
+目前我们假设所有通过拉取请求（PR）的贡献都是针对 OpenYurt 的 `master` 分支。
+除了 `master` 分支外，还有一些其他分支，如 RC 分支、发布分支和回溯分支。
+在正式发布版本之前，我们可能会检查一个 RC（发布候选）分支进行更多测试。
+正式发布版本时，可能会先创建一个发布分支，在标记版本之后会删除。
+当需要将一些修复回溯到已发布版本时，我们会创建回溯分支。
+
+### 提交规则
+
+在 OpenYurt 项目中，我们对提交 PR 有两个规则要求严格遵守：
+
+* [提交信息](#commit-message)
+* [提交内容](#commit-content)
+
+#### 提交信息
+
+提交信息能够帮助审核者更好地理解提交 PR 的目的，也有助于加快代码审查的流程。我们鼓励贡献者使用 **明确** 的提交信息，而不是模糊的描述。一般来说，我们提倡使用以下格式的提交信息：
+
+* Docs: xxxx. For example, "Docs: add docs about storage installation".
+* Feature: xxxx.For example, "Feature: make result show in sorted order".
+* Bugfix: xxxx. For example, "Bugfix: fix panic when input nil parameter".
+* Style: xxxx. For example, "Style: format the code style of Constants.java".
+* Refactor: xxxx. For example, "Refactor: simplify to make codes more readable".
+* Test: xxx. For example, "Test: add unit test case for func InsertIntoArray".
+* 其他可读且明确的表达方式。
+
+另一方面，我们不鼓励贡献者使用以下方式编写提交信息：
+
+* ~~fix bug~~
+* ~~update~~
+* ~~add doc~~
+
+#### 提交内容
+
+提交内容表示一个提交中包含的所有内容变更。我们最好将一个提交的内容控制在可以支持审核者独立审核的范围内，而不依赖于其他提交。换句话说，单个提交中的内容应当能够通过 CI 测试，以避免代码杂乱。简而言之，有两条小规则需要记住：
+
+* 避免在一个提交中进行非常大的更改；
+* 每个提交应当是完整且可审查的。
+
+### PR 指南
+
+PR 是对 OpenYurt 项目进行更改的唯一方式。在提交拉取请求之前，你应该检查本地的 git 仓库，并确保与 OpenYurt 仓库保持同步，以避免合并冲突。此外，你应该了解 OpenYurt 的 [CI 工作流](./ci-workflow.md)，这将有助于Pull Request的合入。
+
+在将更改提交到你 fork 的 OpenYurt 仓库后，你可以向官方 OpenYurt 仓库提交一个拉取请求，要求合并你的更改。步骤如下：
+
+1. 将代码推送到你的 fork 仓库。
+2. 登录 GitHub 并进入你的 OpenYurt 仓库。
+3. 在拉取请求界面点击 `New pull request`，选择要合并的分支。
+4. 点击 `Create pull request` 并填写拉取请求模板中的内容。
+5. 最后点击 `Create pull request` 提交拉取请求，你可以在 [OpenYurt 的拉取请求界面](https://github.com/openyurtio/openyurt/pulls) 中查看它。
+
+通常，一个拉取请求应该只聚焦于一个任务，例如修复一个 bug。因此，一个拉取请求中应该只包含一个提交。如果你发现拉取请求中包含多个提交，你应该使用 `git reset` 和 `git commit` 在本地进行修正，然后将更改推送到你的 fork 仓库（通常需要强制推送，请小心）。提交的拉取请求将同步到你在步骤 3 中选择的分支，且不需要重新创建新的拉取请求。
+
+提交拉取请求后，你应该检查 CI 工作流，确保所有检查都通过。然后，你只需要等待社区成员的审核和批准。如果社区接受你的拉取请求，它将被标记为 `lgtm`（Looks good to me）和 `approve`。
 
 ## Review
 
@@ -40,6 +160,20 @@ Review指审查Pull Request中提交的代码中是否存在问题，欢迎所�
 
 之后就只需要等待Pull Request作者的回复。
 
-## 最后
+## 参与并提供任何帮助
+
+GitHub 是 OpenYurt 贡献者合作的主要平台。尽管通过 PR 进行贡献是明确的方式，我们仍然欢迎任何其他形式的帮助。
+
+* 如果有能力，请帮助我们回复他人的问题；
+* 帮助解决其他用户的疑难问题；
+* 帮助审查他人 PR 设计；
+* 帮助审查 PR 中的代码；
+* 讨论 OpenYurt 的技术细节，帮助他人更好地理解；
+* 在 GitHub 以外宣传 OpenYurt 技术；
+* 撰写关于 OpenYurt 的博客，等等。
+
+总之，**任何帮助都可以视为一种贡献。**
+
+## 写在最后
 
 [OpenYurt组织](https://github.com/openyurtio)下不只包含OpenYurt这一个项目，比如现在看到的这个文档和网站是在[openyurt.io](https://github.com/openyurtio/openyurt.io)仓库中维护的。这些项目相辅相成共同构成了整个OpenYurt，欢迎大家探索各个项目的能力，一起让OpenYurt变得更加成熟。
