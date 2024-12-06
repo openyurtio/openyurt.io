@@ -181,7 +181,7 @@ us-west-1.192.168.0.88   Ready    <none>   3d23h   v1.20.11
 
 ### 2.4 重建节点上的Pods
 
-当安装完Yurthub并且调整好Kubelet配置后，为了让节点上所有Pods(Yurthub除外)都可以通过Yurthub访问Kube-apiserver，所有需要重建节点上所有Pods(Yurthub pod除外)。请务必确认该操作对生产环境的影响后再执行。
+当安装完Yurthub并且调整好Kubelet配置后，为了让节点上所有Pods(Yurthub除外)都可以通过Yurthub访问Kube-apiserver，所以需要重建节点上所有Pods(Yurthub pod除外)。请务必确认该操作对生产环境的影响后再执行。
 
 ```bash
 $ kubectl get pod -A -o wide | grep us-west-1.192.168.0.88
