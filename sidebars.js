@@ -136,6 +136,7 @@ module.exports = {
                 'developer-manuals/local-up-openyurt',
                 'developer-manuals/ci-workflow',
                 'developer-manuals/how-to-contribute',
+                'developer-manuals/code-of-conduct',
                 'developer-manuals/how-to-write-a-filter'
             ],
         },
