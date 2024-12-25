@@ -55,9 +55,9 @@ spec:
             - name: nginx
               targetImage: nginx:1.20.1
           patches:
-            - path: /metadata/labels/test
+            - path: /metadata/labels
               operation: add
-              value: test
+              value: {"foo": "bar"}
 ```
 
 - 查看 YurtAppSet
