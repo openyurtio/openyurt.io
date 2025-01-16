@@ -29,7 +29,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-github-btn": "^1.4.0",
-    "sass": "^1.83.1",
+    "sass": "^1.83.4",
     "url-loader": "^4.1.1"
   },
   "browserslist": {
