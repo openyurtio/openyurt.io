@@ -34,7 +34,7 @@ iptables -w -P FORWARD ACCEPT
 接下来要用到的所有 helm charts 都可以在[openyurt-helm 仓库](https://github.com/openyurtio/openyurt-helm)中找到。请按照以下方式添加仓库：
 
 ```bash
-helm repo add openyurt https://openyurtio.github.io/openyurt-helm
+helm repo add openyurt https://openyurtio.github.io/charts
 ```
 
 您可以运行 `helm search repo openyurt` 来查看这些 helm charts，并且我们建议使用最新版本.
