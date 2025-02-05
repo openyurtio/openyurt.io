@@ -1,7 +1,7 @@
 # OpenYurt Docs and Website
 
 This repo contains the source code of [OpenYurt website](https://openyurt.io/).
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
 
 ## Contributing to OpenYurt Website
