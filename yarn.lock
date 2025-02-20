@@ -2528,10 +2528,10 @@
   resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.8.2.tgz#7973ceb6892c30f154ba254cd05c562257a44977"
   integrity sha512-y05ayQFyUmCXze79+56v/4HpycYF3uFqB78pLPrSV5ZKAlDuIAAJNhaRi8tTdRNXh05yxX/TyNnzD6LwSM89vQ==
 
-"@docsearch/css@3.8.3":
-  version "3.8.3"
-  resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.8.3.tgz#12f377cf8c14b687042273f920efdfdb794e9fcf"
-  integrity sha512-1nELpMV40JDLJ6rpVVFX48R1jsBFIQ6RnEQDsLFGmzOjPWTOMlZqUcXcvRx8VmYV/TqnS1l784Ofz+ZEb+wEOQ==
+"@docsearch/css@3.9.0":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.9.0.tgz#3bc29c96bf024350d73b0cfb7c2a7b71bf251cd5"
+  integrity sha512-cQbnVbq0rrBwNAKegIac/t6a8nWoUAn8frnkLFW6YARaRmAQr5/Eoe6Ln2fqkUCZ40KpdrKbpSAmgrkviOxuWA==
 
 "@docsearch/react@^3.8.1":
   version "3.8.2"
@@ -2543,14 +2543,14 @@
     "@docsearch/css" "3.8.2"
     algoliasearch "^5.14.2"
 
-"@docsearch/react@^3.8.3":
-  version "3.8.3"
-  resolved "https://registry.yarnpkg.com/@docsearch/react/-/react-3.8.3.tgz#72f6bcbbda6cd07f23398af641e483c27d16e00a"
-  integrity sha512-6UNrg88K7lJWmuS6zFPL/xgL+n326qXqZ7Ybyy4E8P/6Rcblk3GE8RXxeol4Pd5pFpKMhOhBhzABKKwHtbJCIg==
+"@docsearch/react@^3.9.0":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@docsearch/react/-/react-3.9.0.tgz#d0842b700c3ee26696786f3c8ae9f10c1a3f0db3"
+  integrity sha512-mb5FOZYZIkRQ6s/NWnM98k879vu5pscWqTLubLFBO87igYYT4VzVazh4h5o/zCvTIZgEt3PvsCOMOswOUo9yHQ==
   dependencies:
     "@algolia/autocomplete-core" "1.17.9"
     "@algolia/autocomplete-preset-algolia" "1.17.9"
-    "@docsearch/css" "3.8.3"
+    "@docsearch/css" "3.9.0"
     algoliasearch "^5.14.2"
 
 "@docusaurus/babel@3.7.0":
