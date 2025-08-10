@@ -169,7 +169,7 @@ module.exports = {
           items: [
             {
               label: "CNCF Slack ( #openyurt channel )",
-              href: "https://join.slack.com/t/openyurt/shared_invite/zt-rc5ecz4h-sEWU1vYx5gzc3_zx3En0jg",
+              href: "https://join.slack.com/t/openyurt/shared_invite/zt-2ajsy47br-jl~zjumRsCAE~BlPRRsIvg",
             },
             {
               label: "DingTalk (31993519)",
