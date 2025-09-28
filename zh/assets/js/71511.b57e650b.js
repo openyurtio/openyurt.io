@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkopenyurt_io=self.webpackChunkopenyurt_io||[]).push([[71511],{71511:(e,a,o)=>{o.r(a),o.d(a,{DocSearchModal:()=>r.a1});var r=o(40903)}}]);
