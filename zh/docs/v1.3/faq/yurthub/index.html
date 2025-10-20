@@ -2,7 +2,7 @@
 <html lang="zh" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-v1.3 docs-doc-page docs-doc-id-faq/yurthub" data-has-hydrated="false">
 <head>
 <meta charset="UTF-8">
-<meta name="generator" content="Docusaurus v3.9.1">
+<meta name="generator" content="Docusaurus v3.9.2">
 <title data-rh="true">yurthub | OpenYurt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://openyurt.io/zh/docs/v1.3/faq/yurthub"><meta data-rh="true" property="og:locale" content="zh"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh"><meta data-rh="true" name="docsearch:language" content="zh"><meta data-rh="true" name="docusaurus_version" content="v1.3"><meta data-rh="true" name="docusaurus_tag" content="docs-default-v1.3"><meta data-rh="true" name="docsearch:version" content="v1.3"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-v1.3"><meta data-rh="true" property="og:title" content="yurthub | OpenYurt"><meta data-rh="true" name="description" content="1. yurthub数据缓存目录"><meta data-rh="true" property="og:description" content="1. yurthub数据缓存目录"><link data-rh="true" rel="icon" href="/zh/img/openyurt.ico"><link data-rh="true" rel="canonical" href="https://openyurt.io/zh/docs/v1.3/faq/yurthub"><link data-rh="true" rel="alternate" href="https://openyurt.io/docs/v1.3/faq/yurthub" hreflang="en"><link data-rh="true" rel="alternate" href="https://openyurt.io/zh/docs/v1.3/faq/yurthub" hreflang="zh"><link data-rh="true" rel="alternate" href="https://openyurt.io/docs/v1.3/faq/yurthub" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://&lt;NEW_APP_ID&gt;-dsn.algolia.net" crossorigin="anonymous"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"yurthub","item":"https://openyurt.io/zh/docs/v1.3/faq/yurthub"}]}</script><link rel="alternate" type="application/rss+xml" href="/zh/blog/rss.xml" title="OpenYurt RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/zh/blog/atom.xml" title="OpenYurt Atom Feed">
 
@@ -21,9 +21,9 @@
 <link rel="manifest" href="/favicons/site.webmanifest">
 <link rel="mask-icon" color="#ffffff" href="/favicons/safari-pinned-tab.svg">
 <meta name="theme-color" content="#ffffff">
-<meta name="msapplication-config" content="/favicons/browserconfig.xml"><link rel="stylesheet" href="/zh/assets/css/styles.6199bf72.css">
-<script src="/zh/assets/js/runtime~main.64c37a27.js" defer="defer"></script>
-<script src="/zh/assets/js/main.9d8f005b.js" defer="defer"></script>
+<meta name="msapplication-config" content="/favicons/browserconfig.xml"><link rel="stylesheet" href="/zh/assets/css/styles.b5f82e8b.css">
+<script src="/zh/assets/js/runtime~main.44935493.js" defer="defer"></script>
+<script src="/zh/assets/js/main.8da20a7c.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -33,51 +33,51 @@
 <p>边缘节点上meta数据缓存路径为：<code>/etc/kubernetes/cache/{componentName}/{resource}/{namespace}/{name}</code></p>
 <p>** 2. yurthub组件使用证书存储目录**</p>
 <ul>
-<li>client证书: /var/lib/yurthub/pki/yurthub-current.pem
+<li class="">client证书: /var/lib/yurthub/pki/yurthub-current.pem
 用于访问云端kube-apiserver，权限同kubelet节点证书</li>
-<li>server证书: /var/lib/yurthub/pki/yurthub-server-current.pem
+<li class="">server证书: /var/lib/yurthub/pki/yurthub-server-current.pem
 用于yurthub启动https server，为边缘节点上各个组件提供TLS校验</li>
 </ul>
-<p>目前证书有效期统一由kube-controller-manager组件决定(默认1年)，暂时不支持用户自配置。同时证书在过期前yurthub会执行证书轮转请求来更新证书。如果由于网络原因导致证书过期(轮转失败)，yurthub将使用bootstrap token重新申请证书。当然bootstrap token也过期的话，需要用户在边缘节点上执行: POST <a href="http://127.0.0.1:10267/v1/token" target="_blank" rel="noopener noreferrer">http://127.0.0.1:10267/v1/token</a> -D &quot;jointoken<!-- -->:xxx<!-- -->&quot; 来更新bootstrap token即可，注意前面的xxx替换为有效的bootstrap token。</p>
+<p>目前证书有效期统一由kube-controller-manager组件决定(默认1年)，暂时不支持用户自配置。同时证书在过期前yurthub会执行证书轮转请求来更新证书。如果由于网络原因导致证书过期(轮转失败)，yurthub将使用bootstrap token重新申请证书。当然bootstrap token也过期的话，需要用户在边缘节点上执行: POST <a href="http://127.0.0.1:10267/v1/token" target="_blank" rel="noopener noreferrer" class="">http://127.0.0.1:10267/v1/token</a> -D &quot;jointoken<!-- -->:xxx<!-- -->&quot; 来更新bootstrap token即可，注意前面的xxx替换为有效的bootstrap token。</p>
 <p>** 3. 如何查看有哪些请求经过yurthub转发给kube-apiserver**</p>
-<p>边缘节点上执行：curl <a href="http://127.0.0.1:10267/metrics" target="_blank" rel="noopener noreferrer">http://127.0.0.1:10267/metrics</a> 查看下面内容即可：</p>
+<p>边缘节点上执行：curl <a href="http://127.0.0.1:10267/metrics" target="_blank" rel="noopener noreferrer" class="">http://127.0.0.1:10267/metrics</a> 查看下面内容即可：</p>
 <p><img decoding="async" loading="lazy" alt="img" src="/zh/assets/images/flight-requests-in-yurthub-157930bc6238883bbcafc66294f11720.png" width="1500" height="345" class="img_ev3q"></p>
 <p>node_yurthub_in_flight_requests_collector每一行代表一种类型请求，由client/resource/verb三元组决定。后面的数字0表示请求发生过，但是当前已经结束。数字1表示为当前有一个1个该请求。</p>
 <p>注意点：</p>
 <ul>
-<li>list/watch一般配套出现的，如果只有list，没有watch，可能意味list请求没有结束，在yurthub中卡住了。比如集群中没有nodePool资源时，而yurthub的servicetopology filter会依赖nodePool资源。因此yurthub的servicetopology filter一直无法就绪，会阻塞coredns/kube-proxy list endpointslices请求。</li>
-<li>如果yurthub重启了，可能出现只有watch，没有list的请求，这是正常现象。</li>
+<li class="">list/watch一般配套出现的，如果只有list，没有watch，可能意味list请求没有结束，在yurthub中卡住了。比如集群中没有nodePool资源时，而yurthub的servicetopology filter会依赖nodePool资源。因此yurthub的servicetopology filter一直无法就绪，会阻塞coredns/kube-proxy list endpointslices请求。</li>
+<li class="">如果yurthub重启了，可能出现只有watch，没有list的请求，这是正常现象。</li>
 </ul>
 <p>** 4. 如何查看边缘节点各个组件与kube-apiserver交互的通信流量 **</p>
-<p>边缘节点上执行：curl <a href="http://127.0.0.1:10267/metrics" target="_blank" rel="noopener noreferrer">http://127.0.0.1:10267/metrics</a> 查看下面内容即可：</p>
+<p>边缘节点上执行：curl <a href="http://127.0.0.1:10267/metrics" target="_blank" rel="noopener noreferrer" class="">http://127.0.0.1:10267/metrics</a> 查看下面内容即可：</p>
 <p><img decoding="async" loading="lazy" alt="img" src="/zh/assets/images/response-traffic-in-yurthub-2b7d371bc2fc30a8370af3e25e5061fc.png" width="1500" height="200" class="img_ev3q"></p>
 <p>通过node_yurthub_proxy_traffic_collector的信息，可以查看到各个请求从云端返回数据的总流量。单位为Byte
 所以在边缘节点上的pod，一定要减少对大规模资源(如node，pods，endpointslice等资源的全量list请求)，否则会占用大量的公网带宽。</p>
 <p>** 5. 使用InClusterConfig的Pod没有经过yurthub访问云端的kube-apiserver **</p>
 <p>使用yurtadm join安装的节点，节点上的pod通过InClusterConfig访问kube-apiserver时，请求会自动经过yurthub进行转发，从而复用到yurthub的数据缓存，过滤，流量统计等一系列能力。如果发现yurthub的metrics并没有相关请求记录时，可以确认如下内容：</p>
 <ul>
-<li>确定pod是否使用的是InClusterConfig，还是直接使用kube-apiserver地址访问。如果未使用InClusterConfig，先调整Pod使用InClusterConfig，然后重启Pod。</li>
-<li>确认一下机器上缓存数据/etc/kubernetes/cache/kubelet/services/default/kubernetes中内容，Service的ClusterIP和Port是否为yurthub监听地址(默认为：169.254.2.1:10268)。如果内容不对，请重启kubelet(systemctl restart kubelet)后确认改缓存数据是否更新。</li>
-<li>查看Pod(容器)中的环境变量: KUBERNETES_SERVICE_HOST和KUBERNETES_SERVICE_PORT，它们的值是否对应yurthub的监听地址(默认为：169.254.2.1:10268)。请重建pod(kubectl delete pod),确认环境变量是否更新。</li>
+<li class="">确定pod是否使用的是InClusterConfig，还是直接使用kube-apiserver地址访问。如果未使用InClusterConfig，先调整Pod使用InClusterConfig，然后重启Pod。</li>
+<li class="">确认一下机器上缓存数据/etc/kubernetes/cache/kubelet/services/default/kubernetes中内容，Service的ClusterIP和Port是否为yurthub监听地址(默认为：169.254.2.1:10268)。如果内容不对，请重启kubelet(systemctl restart kubelet)后确认改缓存数据是否更新。</li>
+<li class="">查看Pod(容器)中的环境变量: KUBERNETES_SERVICE_HOST和KUBERNETES_SERVICE_PORT，它们的值是否对应yurthub的监听地址(默认为：169.254.2.1:10268)。请重建pod(kubectl delete pod),确认环境变量是否更新。</li>
 </ul>
 <p>** 6. 边缘节点上，service topology能力未生效**</p>
 <ul>
-<li>查看/etc/kubernetes/cache/kube-proxy下对应endpointslice数据是否符合service topology。数据不符合预期时，重启kube-proxy后看再确认数据是否更新。</li>
-<li>查看yurthub的metrics，看kube-proxy list endpointslice请求是否结束(数量为0表示结束)，如果该list请求没有结束的话，说明yurthub中的servicetopology filter还没有ready，一般是因为集群中nodePool资源没有创建导致的。</li>
+<li class="">查看/etc/kubernetes/cache/kube-proxy下对应endpointslice数据是否符合service topology。数据不符合预期时，重启kube-proxy后看再确认数据是否更新。</li>
+<li class="">查看yurthub的metrics，看kube-proxy list endpointslice请求是否结束(数量为0表示结束)，如果该list请求没有结束的话，说明yurthub中的servicetopology filter还没有ready，一般是因为集群中nodePool资源没有创建导致的。</li>
 </ul>
 <p>** 7. yurthub无法正常启动，主机上也未发现Exited的yurthub容器**</p>
 <ul>
-<li>journalctl -u kubelet查看kubelet组件日志，发现有错误信息：<code>dial tcp 127.0.0.1:10261: connect: connection refused</code>，表示Yurthub未正常启动</li>
-<li>docker ps -a查看主机上是否有Exited状态的yurthub容器</li>
-<li>如果没有Exited状态的yurthub容器，请在kubelet日志查看yurthub无法启动原因</li>
-<li>如果有Exited状态的yurthub容器，docker logs查看Exited yurthub容器日志，分析无法启动原因。</li>
+<li class="">journalctl -u kubelet查看kubelet组件日志，发现有错误信息：<code>dial tcp 127.0.0.1:10261: connect: connection refused</code>，表示Yurthub未正常启动</li>
+<li class="">docker ps -a查看主机上是否有Exited状态的yurthub容器</li>
+<li class="">如果没有Exited状态的yurthub容器，请在kubelet日志查看yurthub无法启动原因</li>
+<li class="">如果有Exited状态的yurthub容器，docker logs查看Exited yurthub容器日志，分析无法启动原因。</li>
 </ul>
 <p>** 8. yurthub无法正常启动，日志显示在等待证书生成 **</p>
 <p>yurthub需要的证书没有生成成功，可以通过下述方法来定位：</p>
 <ul>
-<li>对集群执行：kubectl get csr，查看相关节点的证书csr是否有生成</li>
-<li>如果csr未生成，一般是传入的bootstrap token是无效的token，清理节点后，使用有效bootstrap token再接入即可。</li>
-<li>如果csr已经生成，但是状态一直是pending状态，表示yurt-manager一直无法approve该csr。查看yurt-manager是否已经安装并正常工作。</li>
+<li class="">对集群执行：kubectl get csr，查看相关节点的证书csr是否有生成</li>
+<li class="">如果csr未生成，一般是传入的bootstrap token是无效的token，清理节点后，使用有效bootstrap token再接入即可。</li>
+<li class="">如果csr已经生成，但是状态一直是pending状态，表示yurt-manager一直无法approve该csr。查看yurt-manager是否已经安装并正常工作。</li>
 </ul>
 <p>** 9. 边缘节点上yurthub缓存中的某个组件的metadata被删除了，如何恢复**</p>
 <p>节点和云端网络连接正常状态下，重建一下对应pod即可恢复相关缓存meta数据。</p>
@@ -89,17 +89,17 @@
 同时cache_agents也支持通用配置符：*, 这样所有的clients的response都会自动被缓存，但是用户需要重点关注缓存的磁盘占用状况。</p>
 <p>** 12. 如何使用私有镜像仓库的yurthub镜像**</p>
 <p>首先社区提供的镜像都有经过trivy的安全扫描，用户可以放心使用。由于yurthub采用static pod模式部署，因此无法通过imagePullSecrets方式来支持私有镜像仓库。
-用户需要提前在机器上配置runtime来支持私有镜像仓库。如Containerd runtime私有仓库配置，可以参照：<a href="https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials" target="_blank" rel="noopener noreferrer">https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials</a></p>
+用户需要提前在机器上配置runtime来支持私有镜像仓库。如Containerd runtime私有仓库配置，可以参照：<a href="https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials" target="_blank" rel="noopener noreferrer" class="">https://github.com/containerd/cri/blob/release/1.4/docs/registry.md#configure-registry-credentials</a></p>
 <p>** 13. 组件已经通过yurthub访问云端kube-apiserver，但是边缘节点上的缓存目录中找不到相关的缓存数据**</p>
-<p>为减轻本地磁盘缓存负载，yurthub默认只缓存组件<a href="https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L84" target="_blank" rel="noopener noreferrer"><code>kubelet</code>, <code>kube-proxy</code>, <code>flannel</code>, <code>coredns</code>, <code>yurt-tunnel-agent</code>, <code>yurthub</code>, <code>leader-yurthub</code></a>从云端获取的元数据。
+<p>为减轻本地磁盘缓存负载，yurthub默认只缓存组件<a href="https://github.com/openyurtio/openyurt/blob/master/pkg/yurthub/util/util.go#L84" target="_blank" rel="noopener noreferrer" class=""><code>kubelet</code>, <code>kube-proxy</code>, <code>flannel</code>, <code>coredns</code>, <code>yurt-tunnel-agent</code>, <code>yurthub</code>, <code>leader-yurthub</code></a>从云端获取的元数据。
 如果其他组件的元数据也需要缓存，开启方法如下：</p>
 <ul>
-<li>确保该组件发起的HTTP请求Header中带有<code>User-Agent</code>信息，yurthub将根据<code>User-Agent header</code>中第一个<code>/</code>前面的内容来确定缓存目录中的<code>{componentName}</code>。当<code>User-Agent</code>为空时，组件的元数据将无法被缓存</li>
-<li>手动配置<code>configmap kube-system/yurt-hub-cfg</code>的<code>cache_agents</code>字段添加<code>{componentName}</code>。</li>
-<li>当<code>cache_agents: &quot;*&quot;</code>时，表示所有组件(必须带有User-Agent header)从云端获取的元数据都将被缓存。由于不少组件有大量的list/watch请求，全部缓存将对本地磁盘带来压力，因此需谨慎配置为<code>*</code>。</li>
-<li>配置多个组件使用<code>,</code>分隔，例如两个组件的<code>User-Agent header</code>分别为<code>foo/v1.0.0</code>和<code>bar123/v1.0.0</code>，配置信息如下:</li>
+<li class="">确保该组件发起的HTTP请求Header中带有<code>User-Agent</code>信息，yurthub将根据<code>User-Agent header</code>中第一个<code>/</code>前面的内容来确定缓存目录中的<code>{componentName}</code>。当<code>User-Agent</code>为空时，组件的元数据将无法被缓存</li>
+<li class="">手动配置<code>configmap kube-system/yurt-hub-cfg</code>的<code>cache_agents</code>字段添加<code>{componentName}</code>。</li>
+<li class="">当<code>cache_agents: &quot;*&quot;</code>时，表示所有组件(必须带有User-Agent header)从云端获取的元数据都将被缓存。由于不少组件有大量的list/watch请求，全部缓存将对本地磁盘带来压力，因此需谨慎配置为<code>*</code>。</li>
+<li class="">配置多个组件使用<code>,</code>分隔，例如两个组件的<code>User-Agent header</code>分别为<code>foo/v1.0.0</code>和<code>bar123/v1.0.0</code>，配置信息如下:</li>
 </ul>
-<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">   cache_agents: &quot;foo, bar123&quot;</span><br></span></code></pre></div></div></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col"><a href="https://github.com/openyurtio/openyurt.io/edit/master/docs/faq/yurthub.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑本页</a></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">Last updated<!-- --> on <b><time datetime="2025-10-17T21:12:50.000Z" itemprop="dateModified">2025年10月17日</time></b> by <b>Ihor Sychevskyi</b></span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages navigation"><a class="pagination-nav__link pagination-nav__link--prev" href="/zh/docs/v1.3/reference/yurtadm/yurtadm_token"><div class="pagination-nav__sublabel">上一篇</div><div class="pagination-nav__label">yurtadm_token</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/zh/docs/v1.3/faq/yurtadm"><div class="pagination-nav__sublabel">下一篇</div><div class="pagination-nav__label">yurtadm</div></a></nav></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/zh/docs/installation/summary">快速开始</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">社区</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://join.slack.com/t/openyurt/shared_invite/zt-2ajsy47br-jl~zjumRsCAE~BlPRRsIvg" target="_blank" rel="noopener noreferrer" class="footer__link-item">CNCF Slack ( #openyurt channel )<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a class="footer__link-item" href="/zh/docs/v1.3/faq/">钉钉 (31993519)</a></li><li class="footer__item"><a href="https://shimo.im/docs/rGK3cXYWYkPrvWp8" target="_blank" rel="noopener noreferrer" class="footer__link-item">Bi-week Meeting (APAC, Chinese)<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/openyurtio/openyurt" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/openyurtio/community/blob/main/community-membership.md" target="_blank" rel="noopener noreferrer" class="footer__link-item">Community Membership<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">
+<div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">   cache_agents: &quot;foo, bar123&quot;</span><br></span></code></pre></div></div></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/openyurtio/openyurt.io/edit/master/docs/faq/yurthub.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑本页</a></div><div class="col lastUpdated_JAkA"><span class="theme-last-updated">Last updated<!-- --> on <b><time datetime="2025-10-20T21:11:34.000Z" itemprop="dateModified">2025年10月20日</time></b> by <b>Ihor Sychevskyi</b></span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages navigation"><a class="pagination-nav__link pagination-nav__link--prev" href="/zh/docs/v1.3/reference/yurtadm/yurtadm_token"><div class="pagination-nav__sublabel">上一篇</div><div class="pagination-nav__label">yurtadm_token</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/zh/docs/v1.3/faq/yurtadm"><div class="pagination-nav__sublabel">下一篇</div><div class="pagination-nav__label">yurtadm</div></a></nav></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/zh/docs/installation/summary">快速开始</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">社区</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://join.slack.com/t/openyurt/shared_invite/zt-2ajsy47br-jl~zjumRsCAE~BlPRRsIvg" target="_blank" rel="noopener noreferrer" class="footer__link-item">CNCF Slack ( #openyurt channel )<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a class="footer__link-item" href="/zh/docs/v1.3/faq/">钉钉 (31993519)</a></li><li class="footer__item"><a href="https://shimo.im/docs/rGK3cXYWYkPrvWp8" target="_blank" rel="noopener noreferrer" class="footer__link-item">Bi-week Meeting (APAC, Chinese)<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/openyurtio/openyurt" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://github.com/openyurtio/community/blob/main/community-membership.md" target="_blank" rel="noopener noreferrer" class="footer__link-item">Community Membership<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">
         <br>
         <strong>Copyright © 2025 The OpenYurt Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage/"> Trademark Usage</a> page.</strong></div></div></div></footer></div>
 </body>
