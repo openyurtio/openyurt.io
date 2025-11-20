@@ -7,7 +7,7 @@ title: Remove a node
 **On the master node:**
 ```bash
 # Drain the node and delete its data
-kubectl drain <NodeName> --delete-local-data --force --ignore-daemonsets
+kubectl drain <NodeName> --delete-emptydir-data --force --ignore-daemonsets
 
 # Delete the node from the cluster
 kubectl delete node <NodeName>
