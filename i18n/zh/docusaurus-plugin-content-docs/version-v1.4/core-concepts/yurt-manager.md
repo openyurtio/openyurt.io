@@ -57,10 +57,6 @@ Raven的Gateway可采用LoadBalancer和PublicIP两种暴露方式提供给边缘
 AdvancedRollingUpdate 策略首先升级 Ready 节点上的 Daemon Pod，并跳过 NotReady 节点。当节点从 NotReady 转为 Ready 时，该节点上的Daemon Pod 会自动升级。
 OTA 策略用于边缘节点所有者（而非集群所有者）决定升级工作负载的场景。这种方法尤其适用于电动汽车等情况，其中边缘节点所有者对升级过程具有完全控制权。
 
-在云-边协作环境中，DaemonSet 的标准 RollingUpdate 更新策略可能会因 NotReady 节点的存在而遭遇阻塞。为了克服这一挑战，daemonpodupdater 控制器引入了两种新型更新机制：AdvancedRollingUpdate 和 OTA（空中升级）。
-AdvancedRollingUpdate 机制优先更新状态为 Ready 的节点上的 Daemon Pod，并跳过 NotReady 状态的节点。当节点状态从 NotReady 变为 Ready 后，该节点上的 Daemon Pod 将会自动进行更新。
-OTA 更新机制适用于边缘节点所有者（非集群管理员）自主决定更新时机的场景，例如电动汽车等场合，其中边缘节点所有者对升级过程拥有完全自主控制权。
-
 #### 2.3.2 yurtappset 控制器/webhook
 
 在原生 Kubernetes 环境中，管理分布于多个节点池的同类应用通常要求为每个节点池创建单独的 Deployment，这无疑增加了管理负担和潜在的出错率。为了简化管理流程，YurtAppSet CRD 被设计用来定义一个应用模板（兼容 Deployment 和 StatefulSet），并负责跨多个节点池管理工作负载。
