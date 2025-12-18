@@ -32,7 +32,7 @@ The `yurtadm join` command handles the installation of `kubeadm`, `kubelet`, and
 **To join an edge node:**
 
 * [yurtadm](https://github.com/openyurtio/openyurt/releases) binary can be downloaded from the OpenYurt Releases page.
-* how to compile `yurtadm` binary, please refer to the link [here](./yurtadm-init.md#21-compile-yurtadm)
+* how to compile `yurtadm` binary, please refer to the link [here](../../installation/yurtadm-init.md#21-compile-yurtadm)
 ```sh
 yurtadm join <apiserver-address>:6443 --token=<apiserver-token> --node-type=edge --discovery-token-unsafe-skip-ca-verification --v=5
 ```
