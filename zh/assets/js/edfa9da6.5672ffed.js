@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkopenyurt_io=globalThis.webpackChunkopenyurt_io||[]).push([[85045],{33726(o){o.exports=JSON.parse('{"metadata":{"permalink":"/zh/blog/page/2","page":2,"postsPerPage":10,"totalPages":2,"totalCount":11,"previousPage":"/zh/blog","blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

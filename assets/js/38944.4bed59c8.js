@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkopenyurt_io=globalThis.webpackChunkopenyurt_io||[]).push([[38944],{38944(o,u,e){e.r(u)}}]);
