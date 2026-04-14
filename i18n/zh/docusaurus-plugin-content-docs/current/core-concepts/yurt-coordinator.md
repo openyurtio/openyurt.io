@@ -1,5 +1,5 @@
 ---
-title: YurtCoordinator
+title: YurtCoordinator [Deprecated]
 ---
 
 ## 1. 功能简介

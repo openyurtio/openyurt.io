@@ -29,16 +29,19 @@ By adding the `apps.openyurt.io/binding=true` annotation to nodes, the Pod bindi
 The podbinding controller is responsible for managing Pod toleration policies when the `apps.openyurt.io/binding` annotation is changed. When the node is marked as `apps.openyurt.io/binding=true`, the toleration seconds for `node.kubernetes.io/not-ready` and `node.kubernetes.io/unreachable` in Pods will be set to 0,
 ensuring that Pods are not evicted from the node even when cloud-edge network connectivity is lost. Conversely, if the nodes are not set to true, these toleration seconds default to 300 seconds.
 
-#### 2.1.3 delegatelease Controller
+#### 2.1.3 HubLeader Controller
 
-The delegatelease controller is designed to work in conjunction with the yurt-coordinator component.
-When a node loses its connection to the cloud, the yurt-coordinator component reports a node Lease with the openyurt.io/delegate-heartbeat=true annotation.
-Upon detecting a Lease with this annotation, the delegatelease controller will mark the node with the `openyurt.io/unschedulable` taint to ensure that newly created Pods are not scheduled to these nodes.
+Elects leader nodes within each NodePool based on the configured leader election strategy (mark-based or random). It maintains the list of leader endpoints in the NodePool status for hub leader functionality.
 
-#### 2.1.4 yurtcoordinatorcert Controller
+#### 2.1.4  HubLeaderConfig Controller
 
-The yurtcoordinatorcert controller is responsible for generating certificates and kubeconfig files for the yurt-coordinator component.
-It ensures that all certificates and kubeconfig files are securely stored in the system as Secret resources.
+Creates and updates a ConfigMap containing the elected leader endpoints and pool-scoped metadata for each NodePool. The ConfigMap is consumed by yurthub to know which nodes are leaders in its pool.
+
+
+#### 2.1.5  HubLeaderConfig Controller
+
+Creates and maintains a ClusterRole (yurt-hub-multiplexer) that grants list and watch permissions for pool-scoped API resources. It collects PoolScopeMetadata from all NodePools and merges them into RBAC rules.
+
 
 ### 2.2 Raven Related Controllers
 
@@ -72,7 +75,12 @@ In cloud-edge collaboration scenarios, the traditional RollingUpdate upgrade str
 The AdvancedRollingUpdate strategy starts by upgrading the Daemon Pods on Ready nodes and skips the NotReady nodes. When a node transitions from NotReady to Ready, the Daemon Pod on that node will upgrade automatically.
 The OTA strategy is for scenarios where the edge node owner (rather than the cluster owner) decides when to upgrade the workloads. This approach is particularly suitable for cases like electric vehicles where the edge node owner has full control over the upgrade process.
 
-#### 2.3.2 yurtappset Controller/Webhook
+#### 2.3.2 ImagePreheat Controller
+
+Coordinates image preheating across edge nodes. It watches DaemonSets with preheat annotations and triggers image pulling on target nodes before workload deployment, reducing pod startup latency in edge
+  scenarios.
+
+#### 2.3.3 yurtappset Controller/Webhook
 
 > After OpenYurt 1.5, we have combined the function of yurtappset, yurtappdaemon and yurtappoverrider into one CRD, yurtappset v1beta1.
 
@@ -92,7 +100,7 @@ You can use the nodepoolSelector parameter in the configurations of YurtAppSets 
 
 You can use the workloadTweaks parameter in the configurations of YurtAppSets to customize the workloads in specific regions. You do not need to manage or update each workload in the regions.
 
-#### 2.3.3 yurtstaticset Controller/Webhook
+#### 2.3.4 yurtstaticset Controller/Webhook
 
 Given the vast number and wide distribution of edge devices, manually deploying and upgrading static Pods in a cloud-edge environment can pose significant operational challenges and risks. To overcome these challenges, OpenYurt has introduced a new type of Custom Resource Definition (CRD) called YurtStaticSet, aimed at improving the management of static Pods.
 The yurtstaticset controller/webhook introduces two upgrade mechanisms for static Pods: AdvancedRollingUpdate and Over-The-Air (OTA), ensuring effective version control and seamless upgrades of static Pods in a cloud-edge collaborative environment.
@@ -123,3 +131,13 @@ It is also in charge of distributing yurt-iot-dock to the respective node pools 
 
 The servicetopology controller assists the [servicetopology filter](../user-manuals/resource-access-control/resource-access-control.md) in YurtHub to provide service topology routing functionality for the cluster.
 When the topology Annotation of a Service is modified, the servicetopology controller updates the corresponding Endpoints and EndpointSlices, thereby triggering an update of the service topology in the node-side YurtHub.
+
+#### 2.3.5 LoadBalancerSet Controller
+
+Manages PoolService CRDs for multi-region Service exposure. It watches Services annotated with nodepool selectors, creates per-NodePool PoolService resources, and aggregates their load balancer statuses back to
+  the parent Service.
+
+####  2.3.6 NodeBucket Controller
+
+Creates NodeBucket resources for each NodePool, which group nodes into buckets (ConfigMaps) for efficient node information distribution. Each bucket contains a limited number of nodes to avoid overly large
+  ConfigMaps.

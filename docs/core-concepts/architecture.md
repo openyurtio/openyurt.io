@@ -45,7 +45,3 @@ Raven builds VPN channels to ensure connectivity from cloud to edge or edge to e
   - The former YurtDeviceController component has been integrated into the main repository of OpenYurt and no longer requires separate installation.
   - OpenYurt enables seamless integration of EdgeX Foundry into cloud-native architecture for non-intrusive fusion in edge IoT solutions. This is achieved through cloud-native management of edge devices.
   - Deployment Mode: Users can deploy YurtIoTDock on the edge side through the PlatformAdmin CR. Once YurtIoTDock is launched, it begins synchronizing edge device information to the corresponding Device, DeviceService, and DeviceProfile entities.
-
-- **Yurt-Coordinator:**
-  - Provide KV data storage (stored only in memory) and distributed lock capabilities in the node pool, so that YurtHub can elect a Leader, so as to realize heartbeat proxy, cloud edge traffic reuse, operation and maintenance monitoring in the node pool, etc.
-  - Deployment pattern: YurtAppDaemon and ensures one instance per edge node pool.
