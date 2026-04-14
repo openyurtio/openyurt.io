@@ -25,10 +25,10 @@ Assuming that you've entered the openyurt work path, the command is as simple as
 
 ```bash
 # build OpenYurt components images and startup a OpenYurt cluster
-make docker-build-and-up-openyurt
+make docker-build
 
 # startup a OpenYurt cluster based on prepared images
-make local-up-openyurt
+NODES_NUM=5 DISABLE_DEFAULT_CNI=true make local-up-openyurt
 
 # run e2e test
 make e2e-tests

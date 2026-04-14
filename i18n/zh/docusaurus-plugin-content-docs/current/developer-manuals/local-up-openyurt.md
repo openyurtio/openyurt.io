@@ -27,7 +27,7 @@ OpenYurt提供了一种在本地快速启动集群的方法，通过运行脚本
 make docker-build
 
 #本地启动OpenYurt集群
-make local-up-openyurt
+NODES_NUM=5 DISABLE_DEFAULT_CNI=true make local-up-openyurt
 
 #运行e2e测试
 make e2e-tests
