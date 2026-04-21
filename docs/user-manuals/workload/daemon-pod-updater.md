@@ -150,14 +150,19 @@ Containers:
 ### 3）OTA Upgrade Model
 
 #### OTA Upgrade API
-YurtHub provides two REST APIs for OTA upgrades.
+YurtHub provides three REST APIs for OTA upgrades.
+
 1. `GET /pods`
 
    This API allows you to get information about the pods on the node.
 
-2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/imagepull`
 
-   This API allows you to specify and upgrade a DaemonSet Pod. The path parameters `ns` and `podname` represent the namespace and name of the pod, respectively.
+   This API requests image pre-pull for a specific pod. The path parameters `ns` and `podname` represent the namespace and name of the pod, respectively. When called, YurtHub sets the `PodImageReady` condition to `False` with a message containing the target image hash. The `image-preheat` controller in Yurt-Manager then creates a short-lived `Job` on that node to pull the new image. Once the Job succeeds, the `PodImageReady` condition is set to `True`.
+
+3. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+
+   This API triggers the actual pod upgrade. It first checks that `PodImageReady` is `True` (image already pulled locally), then proceeds to delete the old pod so the new one is created with the pre-pulled image. The path parameters `ns` and `podname` represent the namespace and name of the pod, respectively.
 
 #### OTA Upgrade Example
 - Create daemonset instance
@@ -224,11 +229,37 @@ Conditions:
 ***
 ```
 
-- Execute OTA upgrade
+- **Pre-pull the image on the edge node**
+
+  Before upgrading, pre-pull the new image to avoid download latency during the actual upgrade. Call the imagepull API on the edge node:
+
 ```shell
-# enter edge node container of Kind cluster 
+# enter edge node container of Kind cluster
 $ docker exec -it openyurt-e2e-test-worker2 /bin/bash
 
+# call ImagePull API, this API is only available on the edge nodes
+$ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/imagepull
+Image pre-pull requested for pod default/nginx-daemonset-bwzss
+```
+
+  This triggers the `image-preheat` controller to create a short-lived Job that pulls the new image to the node. You can check the `PodImageReady` condition:
+
+```shell
+$ kubectl describe pods nginx-daemonset-bwzss
+
+***
+Conditions:
+  Type              Status
+  PodNeedUpgrade    True
+  PodImageReady     True
+***
+```
+
+- **Execute OTA upgrade**
+
+  Once `PodImageReady` is `True`, the new image is already on the node. Call the upgrade API:
+
+```shell
 # call Upgrade API, this upgrade API is only available on the edge nodes
 $ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/upgrade
 Start updating pod default/nginx-daemonset-bwzss

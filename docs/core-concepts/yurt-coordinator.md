@@ -2,6 +2,12 @@
 title: YurtCoordinator [Deprecated]
 ---
 
+:::caution Deprecated
+
+YurtCoordinator is deprecated and will be removed in a future release. Please refer to the latest OpenYurt documentation for recommended alternatives.
+
+:::
+
 ## 1. Introduction
 
 Yurt-Coordinator provides the following features for edge node pools:

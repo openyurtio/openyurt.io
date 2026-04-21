@@ -148,14 +148,19 @@ Containers:
 ### 3）OTA 升级模型
 
 #### OTA 升级接口
-YurtHub 提供了两个 OTA 升级相关的 REST APIs。
+YurtHub 提供了三个与 OTA 升级相关的 REST APIs。
+
 1. `GET /pods`
 
     通过该接口可以获取节点上 pods 信息。
 
-2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+2. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/imagepull`
 
-    通过该接口用户可以指定更新某个 DaemonSet Pod。路径参数 `ns` 与 `podname` 分别代表 Pod 的 命名空间以及名称。
+    通过该接口可以请求预拉取指定 Pod 的镜像。路径参数 `ns` 和 `podname` 分别代表 Pod 的命名空间和名称。调用后 YurtHub 会将 Pod 的 `PodImageReady` 条件设为 `False`，`image-preheat` 控制器随后在该节点上创建一个短生命周期的 Job 来拉取新镜像。Job 成功后，`PodImageReady` 条件设为 `True`。
+
+3. `POST /openyurt.io/v1/namespaces/{ns}/pods/{podname}/upgrade`
+
+    通过该接口用户可以触发指定 DaemonSet Pod 的实际升级。该接口会先校验 `PodImageReady` 是否为 `True`（确认新镜像已下载到本地），然后删除旧 Pod 以便用预拉取的镜像创建新 Pod。路径参数 `ns` 与 `podname` 分别代表 Pod 的命名空间以及名称。
 
 #### OTA 升级示例
 - 创建 daemonset 实例
@@ -222,11 +227,37 @@ Conditions:
 ***
 ```
 
-- 进入节点`openyurt-e2e-test-worker2`，执行 OTA 升级
+- **在边缘节点上预拉取镜像**
+
+  在升级之前，先在边缘节点上预拉取新镜像，避免升级时因下载镜像导致启动延迟。在边缘节点上调用 imagepull 接口：
+
 ```shell
 # Kind 集群中需要先进入边缘节点
 $ docker exec -it openyurt-e2e-test-worker2 /bin/bash
 
+# 调用 ImagePull API, 该接口仅在边缘节点上提供
+$ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/imagepull
+Image pre-pull requested for pod default/nginx-daemonset-bwzss
+```
+
+  该请求会触发 `image-preheat` 控制器在节点上创建短生命周期的 Job 来拉取新镜像。可以查看 `PodImageReady` 条件确认预拉取结果：
+
+```shell
+$ kubectl describe pods nginx-daemonset-bwzss
+
+***
+Conditions:
+  Type              Status
+  PodNeedUpgrade    True
+  PodImageReady     True
+***
+```
+
+- **执行 OTA 升级**
+
+  当 `PodImageReady` 为 `True` 后，新镜像已经下载到本地，此时可以调用 upgrade 接口进行升级：
+
+```shell
 # 调用 Upgrade API, 该升级接口仅在边缘节点上提供
 $ curl -X POST 127.0.0.1:10267/openyurt.io/v1/namespaces/default/pods/nginx-daemonset-bwzss/upgrade
 Start updating pod default/nginx-daemonset-bwzss

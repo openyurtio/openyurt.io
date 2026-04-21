@@ -9,7 +9,6 @@ This document describes three key autonomy features:
 - [1. Self-Healing from Restarts During Disconnection](#1-self-healing-from-restarts-during-disconnection)
 - [2. Preventing Pod Eviction During Disconnection](#2-preventing-pod-eviction-during-disconnection)
   - [2.1 Per-Node Autonomy Duration](#21-per-node-autonomy-duration)
-  - [2.2 Heartbeat Delegation (via Yurt-Coordinator)](#22-heartbeat-delegation-via-yurt-coordinator)
 
 ## 1. Self-Healing from Restarts During Disconnection
 
@@ -46,15 +45,3 @@ kubectl annotate node my-edge-node node.openyurt.io/autonomy-duration="0"
 ```
 
 The duration format can be found [here](https://pkg.go.dev/maze.io/x/duration#ParseDuration).
-
-### 2.2 Heartbeat Delegation (via Yurt-Coordinator)
-
-For more advanced scenarios, OpenYurt provides a heartbeat delegation mechanism using the `Yurt-Coordinator` component. When an edge node's connection to the cloud is lost but its local network (within the same NodePool) is stable, another node (the leader YurtHub) can send heartbeat signals to the cloud on its behalf.
-
-This keeps the node in a `Ready` state in the cloud, thus preventing pod evictions and stopping the scheduler from assigning new pods to this disconnected node by adding a special taint.
-
-**How to Use:**
-This is an advanced feature that requires careful setup:
-- Ensure your OpenYurt version is 1.2.0 or newer.
-- Ensure a `Yurt-Coordinator` instance is running in each NodePool.
-- Start the YurtHub component with the `--enable-coordinator=true` flag.
