@@ -100,6 +100,9 @@
             "label": "Test Report",
             "collapsed": true,
             "items": [
+                "version-v1.0/test-report/yurthub-performance-test",
+                "version-v1.0/test-report/pod-recover-efficiency-test",
+                "version-v1.0/test-report/raven-performance-test"
                 "test-report/yurthub-performance-test",
                 "test-report/pod-recover-efficiency-test"
             ]
