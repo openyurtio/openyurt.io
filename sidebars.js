@@ -76,7 +76,6 @@ module.exports = {
                 {
                     'Network management': [
                         'user-manuals/network/network-management-overview',
-                        'user-manuals/network/network-ports-list',
                         {
                             'Container network': [
                                 'user-manuals/network/container-network/hostnetwork',
@@ -109,16 +108,6 @@ module.exports = {
                     ]
                 }
             ]
-        },
-        {
-            type: 'category',
-            label: 'Test Report',
-            collapsed: true,
-            items: [
-                'test-report/yurthub-performance-test',
-                'test-report/yurt-coordinator-test',
-                'test-report/pod-recover-efficiency-test',
-            ],
         },
         {
             type: 'category',

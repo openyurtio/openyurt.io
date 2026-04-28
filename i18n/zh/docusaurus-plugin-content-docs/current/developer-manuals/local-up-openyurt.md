@@ -28,7 +28,6 @@ make docker-build
 
 #本地启动OpenYurt集群
 NODES_NUM=5 DISABLE_DEFAULT_CNI=true make local-up-openyurt
-
 #运行e2e测试
 make e2e-tests
 ```

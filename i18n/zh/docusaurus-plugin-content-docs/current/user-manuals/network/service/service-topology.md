@@ -2,6 +2,8 @@
 title: 服务拓扑
 ---
 
+> **弃用通知**：OpenYurt 社区未来将不再维护此功能。该功能可以通过 Kubernetes 原生的 [Traffic Distribution](https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution) 实现，建议后续使用原生方案替代。
+
 ## 使用服务拓扑实现边缘流量闭环能力
 
 服务拓扑（Service Topology）可以让一个服务根据集群的节点拓扑进行流量路由。 例如，一个服务可以指定流量被优先路由到和客户端 pod 相同的节点或者节点池上。

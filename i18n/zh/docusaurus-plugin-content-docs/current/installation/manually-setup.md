@@ -41,7 +41,7 @@ helm repo add openyurt https://openyurtio.github.io/charts
 
 ### 3.1 安装 yurt-manager
 
-yurt-manager 应该在通过 yurtadm 命令加入节点之前启动，因为节点上的 yurthub 组件依赖于 yurt-manager 来批准 csr。所以请确保 yurt-manager 组件在主节点或任何其他没有 yurthub 组件的节点上运行。
+yurt-manager 应该在通过 yurtadm 命令加入边缘节点之前安装，因为它提供了 OpenYurt 功能所需的控制器和 Webhook。所以请确保 yurt-manager 组件在控制平面节点上运行。
 
 ```bash
 helm upgrade --install yurt-manager -n kube-system openyurt/yurt-manager
@@ -54,22 +54,7 @@ kubectl get pod -n kube-system | grep yurt-manager
 kubectl get svc -n kube-system | grep yurt-manager
 ```
 
-### 3.2 安装 yurthub 相关配置
-
-yurthub 相关配置包括 yurtstaticset 模板，以及 yurthub 相关的 ConfigMap 和 ClusterRole。同时在安装 yurthub 配置时，我们需要将`kubernetesServerAddr`字段设置为 Kubernetes 服务器地址（使用`kubectl config view`来查找）。
-以 Kubernetes 服务器地址`https://1.2.3.4:6443`为例。
-
-```bash
-helm upgrade --install yurt-hub -n kube-system --set kubernetesServerAddr=https://1.2.3.4:6443 openyurt/yurthub
-```
-
-确保 yurthub yurtstaticset 和 yurthub cloud yurtstaticset 已经成功创建：
-
-```
-kubectl get yss -n kube-system
-```
-
-### 3.3 安装跨网络域通信组件 Raven
+### 3.2 安装跨网络域通信组件 Raven
 
 [Raven](../core-concepts/raven.md)提供了云、边位于不同网络区域的网络通信能力, 可通过 Helm 安装：
 
@@ -77,13 +62,13 @@ kubectl get yss -n kube-system
 helm upgrade --install raven-agent -n kube-system openyurt/raven-agent
 ```
 
-确认 Raven-Agent 组件的 pod 和 service 配置已经成功创建:
+确认 Raven-Agent 组件的 pod 已经成功创建:
 
 ```bash
 kubectl get pod -n kube-system | grep raven-agent
 ```
 
-如果您需要开启raven七层代理能力，需要参考[Raven七层代理调整](raven-l7-proxy-prepare.md)对集群进行配置
+如果您需要开启 Raven 七层代理能力，需要参考 [Raven 七层代理调整](raven-l7-proxy-prepare.md) 对集群进行配置
 
 ## 4. 注意
 

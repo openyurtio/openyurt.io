@@ -46,32 +46,6 @@ GOOS=${target_os} GOARCH=${target_arch} CGO_ENABLED=0 make build WHAT=yurtadm
 
 This command will enable the built yurtadm binary to run on any platform as you want, through setting the `target_os` and `target_arch`. To avoid some problems of compatibility, we'd better set `CGO_ENABLED=0`.
 
-#### Windows
-
-Because there's no make command on Windows(if you don't have Cygwin), we have to run `go build` manually to compile the code. Steps in powershell(run as administrator) are as follows:
-
-1. prepare environment variables
-   Replace `target_os` and `target_arch` as what you want.
-
-```powershell
-$Env:GOOS = $Env:target_os
-$Env:GOARCH = $Env:target_arch
-$Env:CGO_ENABLED = 0
-$Env:GOLDFLAGS = "-s -w 
--X github.com/openyurtio/openyurt/pkg/projectinfo.projectPrefix=yurt
--X github.com/openyurtio/openyurt/pkg/projectinfo.labelPrefix=openyurt.io
--X github.com/openyurtio/openyurt/pkg/projectinfo.gitVersion=$(git describe --abbrev=0)
--X github.com/openyurtio/openyurt/pkg/projectinfo.gitCommit=$(git rev-parse HEAD)
--X github.com/openyurtio/openyurt/pkg/projectinfo.buildDate=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-```
-
-2. run go build
-   Run `go build` to compile the code, with the `-ldflags=$Env:GOLDFLAGS` option.
-
-```powershell
-go build -ldflags=$Env:GOLDFLAGS cmd/yurtadm/yurtadm.go
-```
-
 ## How to test
 
 There are tests of two types: unit test and e2e test.

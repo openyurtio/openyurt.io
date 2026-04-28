@@ -39,8 +39,8 @@ You can then run `helm search repo openyurt` to see the charts.
 
 ### 3.1 Install yurt-manager
 
-yurt-manager should be started before joining the node via the yurtadm command, because the yurthub component on the node depends on yurt-manager to approve csr.
-So please ensure that the yurt-manager component is running on the master node or any other node that does not have a yurthub component.
+yurt-manager should be installed before joining edge nodes via the yurtadm command, as it provides the controllers and webhooks required for OpenYurt features.
+Please ensure that the yurt-manager component is running on the control plane node.
 
 ```bash
 helm upgrade --install yurt-manager -n kube-system openyurt/yurt-manager
@@ -53,24 +53,9 @@ kubectl get pod -n kube-system | grep yurt-manager
 kubectl get svc -n kube-system | grep yurt-manager
 ```
 
-### 3.2 Install yurthub artifacts
+### 3.2 Install raven component
 
-The yurthub artifacts include the yurtstaticset template, as well as the yurthub-related configmap. When installing the yurthub artifacts, we need to set the `kubernetesServerAddr` field to the Kubernetes server address(use `kubectl config view` to find).
-Take the Kubernetes server address of `https://1.2.3.4:6443` as an example.
-
-```bash
-helm upgrade --install yurt-hub -n kube-system --set kubernetesServerAddr=https://1.2.3.4:6443 openyurt/yurthub
-```
-
-Ensure yurthub yurtstaticset and yurthub cloud yurtstaticset have been created successfully:
-
-```
-kubectl get yss -n kube-system
-```
-
-### 3.3 Install raven component
-
-[Raven](../core-concepts/raven.md) provides network communication capabilities when the cloud and the edge are in different network areas， which include two components raven-controller-manager and raven-agent.
+[Raven](../core-concepts/raven.md) provides network communication capabilities when the cloud and the edge are in different network areas, which include two components raven-controller-manager and raven-agent.
 
 ```bash
 helm upgrade --install raven-agent -n kube-system openyurt/raven-agent
@@ -78,7 +63,8 @@ helm upgrade --install raven-agent -n kube-system openyurt/raven-agent
 
 Ensure that the pod of the raven agent component have been created successfully:
 
-You need to configure the cluster by referring to [raven-l7-proxy-prepare.md](./raven-l7-proxy-prepare.md) if you need to enable raven l7 proxy
+You need to configure the cluster by referring to [raven-l7-proxy-prepare.md](./raven-l7-proxy-prepare.md) if you need to enable raven l7 proxy.
+
 ```bash
 kubectl get pod -n kube-system | grep raven-agent
 ```
