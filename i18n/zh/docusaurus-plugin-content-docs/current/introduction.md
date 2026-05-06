@@ -32,9 +32,9 @@ OpenYurt将持续致力于探索云边端协同的云原生边缘计算平台标
 
 在 Kubernetes 中，通常如果节点与 apiserver 断开连接，则当节点发生故障时无法恢复正在运行的 Pod。 此外，当节点心跳超过 5m 未上报时，边缘节点上的 Pod 将被 Kube-Controller-Manager 组件的原生控制器驱逐。
 由于云边网络可能不可靠，这给云边协同架构带来了巨大挑战。 如下图所示，OpenYurt 引入了一个每节点代理（YurtHub）和本地存储来缓存云 apiserver 状态，因此如果节点断开连接，缓存数据可以被 Kubelet、KubeProxy 或用户 Pod 使用。
-并且在Yurt-Coordinator组件的帮助下，NodePool中的Leader Yurthub可以被委托帮助NodePool中其他与云端断开连接的边缘节点代理上报心跳，这样边缘节点上的pod即使断网也不会被驱逐。
+这样边缘节点上的pod即使断网也不会被驱逐。
 
-![edge-autonomy](../../../../static/img/docs/introduction/edge-autonomy.png)
+![edge-autonomy](../../../../static/img/docs/introduction/edge-autonomy-new.png)
 
 **2. 跨 NodePool 网络通信能力**
 
