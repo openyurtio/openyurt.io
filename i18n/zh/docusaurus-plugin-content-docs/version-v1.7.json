@@ -1,0 +1,77 @@
+{
+  "version.label": {
+    "message": "v1.7",
+    "description": "The label for version v1.7"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "快速开始",
+    "description": "The label for category Getting Started in sidebar docs"
+  },
+  "sidebar.docs.category.introduction": {
+    "message": "openYurt是什么"
+  },
+  "sidebar.docs.category.Usage Conditions": {
+    "message": "使用条件"
+  },
+  "sidebar.docs.category.Installation": {
+    "message": "安装"
+  },
+  "sidebar.docs.category.Install Control Plane Components": {
+    "message": "安装OpenYurt管控组件"
+  },
+  "sidebar.docs.category.OpenYurt Experience Center": {
+    "message": "OpenYurt 体验中心"
+  },
+  "sidebar.docs.category.References": {
+    "message": "参考",
+    "description": "The label for category References in sidebar docs"
+  },
+  "sidebar.docs.category.Core Concepts": {
+    "message": "核心概念",
+    "description": "The label for Core Concepts in sidebar docs"
+  },
+  "sidebar.docs.category.Components": {
+    "message": "OpenYurt组件"
+  },
+  "sidebar.docs.category.Best Practices": {
+    "message": "最佳实践",
+    "description": "The label for category case studies in sidebar docs"
+  },
+
+  "sidebar.docs.category.User Manuals": {
+    "message": "用户手册"
+  },
+  "sidebar.docs.category.Node pool management": {
+    "message": "节点池管理"
+  },
+  "sidebar.docs.category.Node management": {
+    "message": "节点管理"
+  },
+  "sidebar.docs.category.Network management": {
+    "message": "网络管理"
+  },
+  "sidebar.docs.category.Storage": {
+    "message": "存储管理"
+  },
+  "sidebar.docs.category.Workload management": {
+    "message": "应用管理"
+  },
+  "sidebar.docs.category.Observability": {
+    "message": "可观测性"
+  },
+  "sidebar.docs.category.IoT": {
+    "message": "端设备"
+  },
+  "sidebar.docs.category.Developer Manuals": {
+    "message": "开发者手册"
+  },
+  "sidebar.docs.category.Reference": {
+    "message": "参考手册"
+  },
+  "sidebar.docs.category.Integrations": {
+        "message": "集成"
+  },
+  "sidebar.docs.category.FAQ": {
+    "message": "常见问题"
+  }
+}

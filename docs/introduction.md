@@ -16,10 +16,9 @@ OpenYurt will continue to work on exploring cloud-native edge computing platform
 
 In Kubernetes, normally if a node is disconnected from the apiserver, the running Pods cannot be restored upon a node reboot. Moreover, pods on edge nodes will be evicted by native controllers of the Kube-Controller-Manager component when node heartbeat is not reported for more than 5m.
 This brings a significant challenge for the cloud-edge orchestration since the cloud-edge networking can be unreliable.  As illustrated in the figure below, OpenYurt addresses this issue by implementing a per-node proxy (YurtHub) along with local storage to cache the state of the cloud apiserver.
-Consequently, when a node loses its connection, the cached states remain accessible to Kubelet, KubeProxy, and any user Pods. Furthermore, OpenYurt enhances node reliability through the Yurt-Coordinator component.
-Nodes within the same NodePool that have lost cloud connectivity have the ability to transmit their heartbeat to Yurt-Coordinator, the leader Yurthub within NodePool then proxies these node heartbeats to the cloud. This mechanism prevents the eviction of pods on edge nodes, ensuring their stability despite any network disconnections.
+Consequently, when a node loses its connection, the cached states remain accessible to Kubelet, KubeProxy, and any user Pods. This mechanism prevents the eviction of pods on edge nodes, ensuring their stability despite any network disconnections.
 
-![edge-autonomy](../static/img/docs/introduction/edge-autonomy.png)
+![edge-autonomy](../static/img/docs/introduction/edge-autonomy-new.png)
 
 **2. Cross NodePool network communication capability**
 
