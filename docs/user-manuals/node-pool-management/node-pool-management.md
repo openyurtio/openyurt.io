@@ -78,6 +78,8 @@ $ kubectl label node k8s-node2 apps.openyurt.io/nodepool=hangzhou
 k8s-node2 labeled
 ```
 
+> For an `Edge` node pool on OpenYurt v1.7.0 and later, adding this label to an existing worker does more than associate it with the pool: the `yurt-node-conversion-controller` converts the node into an edge node and installs YurtHub. See [Convert a worker node to an edge node](../node-management/convert-a-node-to-edge.md).
+
 - Verify whether a node is added to a nodepool:
 
 When an edge node is added to a nodepool, all the annotations/labels of the nodepool are added to the node, together with a new label: `nodepool.openyurt.io/hostnetwork`

@@ -77,6 +77,8 @@ $ kubectl label node k8s-node2 apps.openyurt.io/nodepool=hangzhou
 k8s-node2 labeled
 ```
 
+> 对于 OpenYurt v1.7.0 及以上版本的 `Edge` 节点池，给已有工作节点打上该标签不只是建立关联：`yurt-node-conversion-controller` 会把该节点转换为边缘节点并安装 YurtHub。参见[将工作节点转换为边缘节点](../node-management/convert-a-node-to-edge.md)。
+
 - 验证节点已经加入节点池
 
 当Edge node成功加入到节点池，节点的配置信息除了节点池Spec中的所有内容，同时，节点添加了一个新的标签：`nodepool.openyurt.io/hostnetwork`。
