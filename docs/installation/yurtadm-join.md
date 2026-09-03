@@ -80,6 +80,12 @@ rm -rf /etc/cni/net.d
 
 The following operations are intended only for existing worker nodes that are already part of a Kubernetes cluster (Node deployment via kubeadm and usage of `systemd` are highly recommended). OpenYurt provides a declarative **Label-Driven YurtHub mechanism** to automatically convert a standard node into an edge node.
 
+### Prerequisites for Node Conversion
+
+Before converting a node, ensure the following tools are installed on the target edge nodes:
+- `crictl` (from `cri-tools`): The node conversion process utilizes a privileged `node-servant` Job that executes `crictl` directly on the host to manage container lifecycles during the transition. If `crictl` is missing, the conversion Job will fail.
+
+
 ### 2.1 convert
 
 Suppose we want to integrate an existing Kubernetes node into a NodePool to manage units and enable edge autonomy.
