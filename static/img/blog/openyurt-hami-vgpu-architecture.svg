@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="710" viewBox="0 0 1200 710">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f7fbff"/><stop offset="1" stop-color="#eef6f4"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="#243b53" flood-opacity=".12"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#63788b"/></marker>
+  </defs>
+  <rect width="1200" height="710" rx="24" fill="url(#bg)"/>
+  <text x="600" y="54" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="700" fill="#183b56">OpenYurt × HAMi 边缘 GPU 管理架构</text>
+  <g filter="url(#shadow)"><rect x="120" y="88" width="960" height="220" rx="20" fill="#fff" stroke="#2f80ed" stroke-width="2"/></g>
+  <text x="600" y="132" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="700" fill="#1769aa">Kubernetes + OpenYurt 云端控制面</text>
+  <rect x="175" y="156" width="400" height="126" rx="14" fill="#f4f8fc"/>
+  <text x="375" y="190" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#334e68">Kubernetes</text>
+  <text x="375" y="222" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#607788">统一 API · 工作负载声明</text>
+  <text x="375" y="250" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#607788">集群调度 · 原生使用体验</text>
+  <rect x="625" y="156" width="400" height="126" rx="14" fill="#eaf3ff"/>
+  <text x="825" y="190" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="700" fill="#1769aa">OpenYurt</text>
+  <text x="825" y="222" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#526778">边缘节点纳管 · 边缘自治</text>
+  <text x="825" y="250" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#526778">云边运维 · 应用管理</text>
+  <path d="M600 308 V346" fill="none" stroke="#63788b" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M600 346 H332 Q320 346 320 358 V396" fill="none" stroke="#63788b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <path d="M600 346 H868 Q880 346 880 358 V396" fill="none" stroke="#63788b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+  <g filter="url(#shadow)"><rect x="70" y="400" width="500" height="240" rx="20" fill="#fff" stroke="#57b894" stroke-width="2"/><rect x="630" y="400" width="500" height="240" rx="20" fill="#fff" stroke="#57b894" stroke-width="2"/></g>
+  <text x="320" y="442" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="#18795b">边缘 NodePool A</text><text x="880" y="442" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="#18795b">边缘 NodePool B</text>
+  <g font-family="sans-serif" text-anchor="middle"><rect x="105" y="462" width="200" height="78" rx="12" fill="#f3f8fa" stroke="#93a7b5"/><text x="205" y="491" font-size="17" font-weight="700" fill="#334e68">GPU 节点 1</text><text x="205" y="517" font-size="15" fill="#607788">GPU 0 · GPU 1</text><rect x="335" y="462" width="200" height="78" rx="12" fill="#f3f8fa" stroke="#93a7b5"/><text x="435" y="491" font-size="17" font-weight="700" fill="#334e68">GPU 节点 2</text><text x="435" y="517" font-size="15" fill="#607788">GPU 0 · GPU 1</text><rect x="665" y="462" width="200" height="78" rx="12" fill="#f3f8fa" stroke="#93a7b5"/><text x="765" y="491" font-size="17" font-weight="700" fill="#334e68">GPU 节点 3</text><text x="765" y="517" font-size="15" fill="#607788">GPU 0 · GPU 1</text><rect x="895" y="462" width="200" height="78" rx="12" fill="#f3f8fa" stroke="#93a7b5"/><text x="995" y="491" font-size="17" font-weight="700" fill="#334e68">GPU 节点 4</text><text x="995" y="517" font-size="15" fill="#607788">GPU 0 · GPU 1</text></g>
+  <rect x="105" y="562" width="430" height="48" rx="12" fill="#e6f7f0"/><rect x="665" y="562" width="430" height="48" rx="12" fill="#e6f7f0"/>
+  <text x="320" y="593" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="700" fill="#18795b">HAMi：GPU 调度 · 共享 · 显存/算力隔离</text><text x="880" y="593" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="700" fill="#18795b">HAMi：GPU 调度 · 共享 · 显存/算力隔离</text>
+  <text x="600" y="682" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#607788">OpenYurt 与 HAMi 结合，实现分散 GPU 资源的统一管理、精细调度、共享与隔离</text>
+</svg>
