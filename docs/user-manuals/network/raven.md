@@ -2,9 +2,9 @@
 title: Raven
 ---
 
-This document introduces how to install raven and use raven to enhance edge-edge and edge-cloud network communication in an edge cluster.
+This document introduces how to install Raven and use it to enhance edge-edge and edge-cloud network communication in an OpenYurt cluster.
 
-Suppose you have an edge kubernetes cluster with nodes in different physical regions, and already deploy the `Raven Controller Manager` and `Raven Agent` in this cluster,You can refer to the  [installation tutorial](../../installation/manually-setup.md) if you do not have Raven installed, the details of `Raven Controller Manager` are in [here](https://github.com/openyurtio/raven-controller-manager/blob/main/README.md).
+Suppose you have an edge Kubernetes cluster with nodes in different physical regions and have already deployed `yurt-manager` and `raven-agent`. You can refer to the [installation tutorial](../../installation/manually-setup.md) if Raven is not installed yet. The current `Gateway` schema referenced below is defined in OpenYurt and uses `raven.openyurt.io/v1beta1`.
 ![raven_deploy](../../../static/img/docs/user-manuals/network/raven_deploy.png)
 ## Label nodes in different physical regions
 
@@ -21,7 +21,7 @@ izwz9dohcv74iegqecp4axz   Ready    control-plane,master   5d21h   v1.22.11   192
 izwz9ey0js5z7mornclpd6z   Ready    cloud                  3h3m    v1.22.11   192.168.0.196   <none>        CentOS Linux 7 (Core)   3.10.0-1160.80.1.el7.x86_64   docker://20.10.2
 ```
 
-We use a [Gateway](https://github.com/openyurtio/raven-controller-manager/blob/main/pkg/ravencontroller/apis/raven/v1alpha1/gateway_types.go) CR to manage nodes in different physical regions, and label nodes to indicate which `Gateway` these nodes are managed by.
+We use a [Gateway](https://github.com/openyurtio/openyurt/blob/master/pkg/apis/raven/v1beta1/gateway_types.go) CR to manage nodes in different physical regions, and label nodes to indicate which `Gateway` these nodes are managed by.
 
 For example, We label nodes in region `hangzhou` with value `gw-hangzhou`, indicating that these nodes are managed by the `gw-hangzhou` gateway.
 
@@ -81,12 +81,11 @@ spec:
       port: 10262
       type: proxy
     - nodeName: izbp15inok0kbfkg3in52rz
-      underNAT: true
       port: 4500
       underNAT: true
       type: tunnel
 ---
-apiVersion: raven.openyurt.io/v1alpha1
+apiVersion: raven.openyurt.io/v1beta1
 kind: Gateway
 metadata:
   name: gw-cloud
@@ -111,7 +110,7 @@ spec:
       publicIP: 120.79.xxx.xxx
 
 ---
-apiVersion: raven.openyurt.io/v1alpha1
+apiVersion: raven.openyurt.io/v1beta1
 kind: Gateway
 metadata:
   name: gw-qingdao
@@ -133,17 +132,18 @@ EOF
 ```
 
 - Parameters Introduction：
-1. ```spec.exposedType```: The type of public network exposure, empty indicates that the gateway will not be exposed, either LoadBalancer or PublicIP can be used to exposed gateway in internet. 
-2. ```spec.endpoints```: Indicates a set of alternative gateway endpoints, some of which are selected by the yurtmanager as gateway endpoints based on node status
-3. ```spec.endpoints.nodeName```: The name of gateway endpoints
-   1. ```spec.endpoints.type```: The type of gateway endpoints, the value is set to proxy if the node is proxy mode endpoints, and the value is also can be set to tunnel if the node is tunnel mode endpoints. 
-4. ```spec.endpoints.port```: Ports exposed by the gateway endpoints service: TCP 10262 in proxy mode and UDP 4500 in tunnel mode
-5. ```spec.endpoints.publicIP```: The public ip of gateway endpoints
-6. ```spec.endpoints.underNAT```: Whether to use NAT to access the public network. Generally, false is set on the cloud, and true is set on the edge
-7. ```spec.proxyConfig.Replicas```: Replicas of gateway endpoints in enable proxy mode
-8. ```spec.proxyConfig.proxyHTTPPort```: A insecure port for a cloud-side proxy mode communication agent, such as port 10255, which kubelet listens for
-9. ```spec.proxyConfig.proxyHTTPPort```: A secure port for a cloud-side proxy mode communication agent, such as port 10250, which kubelet listens for
-10. ```spec.tunnelConfig.Replicas```: Replicas of gateway endpoints in enable tunnel mode，which must be 1 currently
+1. ```spec.exposeType```: The type of public network exposure. Empty indicates that the gateway will not be exposed. Either `LoadBalancer` or `PublicIP` can be used to expose the gateway to the Internet.
+2. ```spec.nodeSelector```: The gateway controller defaults this selector to `raven.openyurt.io/gateway=<gateway-name>` so the gateway manages nodes with the matching label.
+3. ```spec.endpoints```: Indicates a set of alternative gateway endpoints, some of which are selected by the yurt-manager as active gateway endpoints based on node status.
+4. ```spec.endpoints.nodeName```: The name of gateway endpoints
+5. ```spec.endpoints.type```: The type of gateway endpoints. Set the value to `proxy` for proxy-mode endpoints or `tunnel` for tunnel-mode endpoints.
+6. ```spec.endpoints.port```: Ports exposed by the gateway endpoints service: TCP 10262 in proxy mode and UDP 4500 in tunnel mode. When omitted, these defaults are applied by the `v1beta1` webhook.
+7. ```spec.endpoints.publicIP```: The public IP of gateway endpoints
+8. ```spec.endpoints.underNAT```: Whether to use NAT to access the public network. Generally, false is set on the cloud, and true is set on the edge
+9. ```spec.proxyConfig.Replicas```: Replicas of gateway endpoints in enable proxy mode
+10. ```spec.proxyConfig.proxyHTTPPort```: An insecure port for a cloud-side proxy mode communication agent, such as port 10255, which kubelet listens on
+11. ```spec.proxyConfig.proxyHTTPSPort```: A secure port for a cloud-side proxy mode communication agent, such as port 10250, which kubelet listens on
+12. ```spec.tunnelConfig.Replicas```: Replicas of gateway endpoints in enable tunnel mode, which must be 1 currently
 
 - Describe the status of all gateways
 1. Check whether the Gateway node is elected in the Status of the gateway. The Yurt Manager component, GatewayPickup Controller, is responsible for the election.
@@ -175,7 +175,7 @@ gw-hangzhou   22h
 gw-qingdao    22h
 
 $ kubectl get gateway gw-cloud -o yaml
-apiVersion: raven.openyurt.io/v1alpha1
+apiVersion: raven.openyurt.io/v1beta1
 kind: Gateway
 metadata:
   name: gw-cloud
@@ -238,7 +238,6 @@ spec:
       port: 10262
       type: proxy
     - nodeName: izbp15inok0kbfkg3in52rz
-      underNAT: true
       port: 4500
       underNAT: true
       type: tunnel
