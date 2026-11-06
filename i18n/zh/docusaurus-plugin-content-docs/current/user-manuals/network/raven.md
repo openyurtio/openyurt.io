@@ -423,6 +423,12 @@ hello word
   VPN_DRIVER=wireguard make deploy
   ```
 
+Raven 还可以将每个网关下节点的私有 IP（以 /32 的形式）在 Pod 网段之外一并通过 VPN 隧道转发，使其他地域的节点 IP 可达。该功能由 raven-agent chart 的 `vpn.forwardNodeIP` 参数（即 `--forward-node-ip` 启动参数）控制，默认关闭。
+* 如需针对单个网关（NodePool）单独设置，可在 Gateway 上添加 `raven.openyurt.io/forward-node-ip` 注解，取值为 `"true"` 或 `"false"`。该注解会覆盖该网关的全局设置，其他取值则沿用全局设置。
+    ```bash
+    kubectl annotate gateway gw-hangzhou raven.openyurt.io/forward-node-ip=true
+    ```
+
 # 如何排查VPN问题：
 * 如采用IPSec隧道（libreswan方式）作为后端实现，可进入raven agent容器内，通过命令 ```ipsec status/look``` 或 ```/usr/libexec/ipsec status/look``` 查看相关状态，并且合理运用```ipsec```工具排查相关问题。
 * 如采用Wiregurad隧道作为VPN后端实现，可进入raven agent容器内，安装wireguard-tools工具，参照工具说明排查相关问题。
