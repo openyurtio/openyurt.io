@@ -61,6 +61,7 @@ module.exports = {
                     'Node management': [
                         'user-manuals/node-management/node-management-overview',
                         'user-manuals/node-management/join-a-node',
+                        'user-manuals/node-management/convert-a-node-to-edge',
                         'user-manuals/node-management/remove-a-node',
                         'user-manuals/node-management/configure-node-autonomy'
                     ]
