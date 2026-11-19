@@ -416,6 +416,12 @@ By default, raven uses IPSec as the VPN back end, and we also provide WireGuard 
     VPN_DRIVER=wireguard make deploy
     ```
     
+Raven can also route the private IP of each gateway's nodes (as a /32) through the VPN tunnel, in addition to the pod subnets, so that node IPs in other regions are reachable. This is controlled by the `vpn.forwardNodeIP` value of the raven-agent chart (the `--forward-node-ip` flag) and is disabled by default.
+* To change it for a single gateway (NodePool), set the `raven.openyurt.io/forward-node-ip` annotation on the Gateway to `"true"` or `"false"`. The annotation overrides the global setting for that gateway; any other value falls back to the global setting.
+    ```bash
+    kubectl annotate gateway gw-hangzhou raven.openyurt.io/forward-node-ip=true
+    ```
+
 # Using VPN Tunnel
 If using an IPSec tunnel (implemented via libreswan) as the backend, you can enter the raven agent container and check the relevant status by using the command ```ipsec status/look``` or ```/usr/libexec/ipsec status/look```. Additionally, make appropriate use of the ipsec tool to troubleshoot related issues.
 If using a Wireguard tunnel as the backend implementation for the VPN, you can enter the raven agent container, install the wireguard-tools tool, and refer to the tool's instructions to troubleshoot related issues.
